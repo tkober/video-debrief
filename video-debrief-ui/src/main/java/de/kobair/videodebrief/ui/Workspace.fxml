@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.Scene?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+<Scene stylesheets="@application.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+    <AnchorPane minHeight="900" minWidth="1920">
+      <children>
+         <SplitPane dividerPositions="0.5" layoutX="29.0" layoutY="31.0" prefHeight="391.0" prefWidth="594.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+            <items>
+               <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+               <AnchorPane prefHeight="200.0" prefWidth="200.0" />
+            </items>
+         </SplitPane>
+      </children></AnchorPane>
+</Scene>
