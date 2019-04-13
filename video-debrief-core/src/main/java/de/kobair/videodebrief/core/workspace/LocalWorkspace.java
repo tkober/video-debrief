@@ -244,7 +244,7 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 	}
 
 	@Override
-	public List<Event> getEvents() {
+	public List<? extends Event> getEvents() {
 		return this.workspaceData.getEvents();
 	}
 
@@ -305,7 +305,7 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 			}
 			String trimmedName = name.trim();
 			String subDirectory = directory.getName();
-			Event event = new EventPojo(trimmedName, subDirectory, new HashMap<>());
+			EventPojo event = new EventPojo(trimmedName, subDirectory, new HashMap<>());
 			this.workspaceData.getEvents().add(event);
 
 			String causeMessage = String.format(

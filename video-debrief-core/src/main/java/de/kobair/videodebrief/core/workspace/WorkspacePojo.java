@@ -2,19 +2,19 @@ package de.kobair.videodebrief.core.workspace;
 
 import java.util.List;
 
-import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.core.event.EventPojo;
 
 class WorkspacePojo implements WorkspaceData {
 	
-	private List<Event> events;
+	private List<EventPojo> events;
 	private String exportFolder;
 	
 	@Override
-	public List<Event> getEvents() {
+	public List<EventPojo> getEvents() {
 		return events;
 	}
 	@Override
-	public void setEvents(List<Event> events) {
+	public void setEvents(List<EventPojo> events) {
 		this.events = events;
 	}
 	@Override

@@ -2,13 +2,13 @@ package de.kobair.videodebrief.core.workspace;
 
 import java.util.List;
 
-import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.core.event.EventPojo;
 
 interface WorkspaceData {
 
-	public List<Event> getEvents();
+	public List<EventPojo> getEvents();
 	
-	public void setEvents(List<Event> events);
+	public void setEvents(List<EventPojo> events);
 	
 	public String getExportFolder();
 	

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.core.event.EventPojo;
 import de.kobair.videodebrief.core.formats.FileFormat;
 import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.core.workspace.checks.CreateWorkspaceCheckResult;
@@ -114,7 +115,7 @@ public class WorkspaceManager {
 	
 	private WorkspaceData initialWorkspaceData() {
 		WorkspaceData result = new WorkspacePojo();
-		result.setEvents(new ArrayList<Event>());
+		result.setEvents(new ArrayList<EventPojo>());
 		result.setExportFolder(DEFAULT_EXPORT_DIRECTORY);
 		return result;
 	}
@@ -123,9 +124,8 @@ public class WorkspaceManager {
 		
 		System.out.println(Arrays.asList("24733042-7a7f-45a9-9aa7-70bb8991bc8c.mp4".split("[.]")));
 		
-		File dir = new File("C:\\Users\\kober\\Desktop");
+		File dir = new File("C:\\Users\\kober\\Desktop\\test_ws");
 		WorkspaceManager workManager = new WorkspaceManager();
-		LocalWorkspace bla = workManager.createWorkspace(dir, "test_ws");
-		bla.createEvent(" my event sdf ");
+		LocalWorkspace bla = workManager.loadWorkspace(dir);
 	}
 }
