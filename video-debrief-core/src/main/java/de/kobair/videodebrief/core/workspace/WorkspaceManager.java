@@ -61,7 +61,7 @@ public class WorkspaceManager {
 		}
 	}
 	
-	private LoadWorkspaceCheckResult isWorkspace(File directory) {
+	public LoadWorkspaceCheckResult isWorkspace(File directory) {
 		if (!directory.exists()) {
 			return LoadWorkspaceCheckResult.DOES_NOT_EXISTS;
 		}
@@ -87,7 +87,7 @@ public class WorkspaceManager {
 		return LoadWorkspaceCheckResult.OKAY.setWorkspaceFile(workspaceFile);
 	}
 	
-	private CreateWorkspaceCheckResult canCreateWorkspace(File directory, String name) {
+	public CreateWorkspaceCheckResult canCreateWorkspace(File directory, String name) {
 		if (!directory.exists()) {
 			return CreateWorkspaceCheckResult.DOES_NOT_EXISTS;
 		}
