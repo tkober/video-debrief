@@ -8,31 +8,37 @@ import de.kobair.videodebrief.ui.cameras.CamerasViewController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.control.SplitPane;
+import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
 public class WorkspaceController implements Initializable {
 	
 	@FXML
 	public AnchorPane camerasAnchorPane;
+	@FXML
+	public AnchorPane eventsAnchorPane;
 	
-	public WorkspaceController() {
+	private <T> T loadViewIntoAnchorPane(AnchorPane anchorPane, String fxml, Class<T> controllerClass) {
+		FXMLLoader loader = new FXMLLoader();
+		loader.setLocation(controllerClass.getResource("view/"+fxml));
+		try {
+			Node view = loader.load();
+			this.camerasAnchorPane.getChildren().add(view);
+			
+			return loader.getController();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+	
+	private CamerasViewController loadCamerasView(AnchorPane anchorPane) {
+		return this.loadViewIntoAnchorPane(anchorPane, "Cameras.fxml", CamerasViewController.class);
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(CamerasViewController.class.getResource("view/Cameras.fxml"));
-		try {
-			SplitPane camerasView = loader.load();
-			CamerasViewController camerasViewController = loader.getController();
-			this.camerasAnchorPane.getChildren().add(camerasView);
-			
-			
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		this.loadCamerasView(camerasAnchorPane);
 	}
 	
 }
