@@ -39,6 +39,7 @@ public class App extends Application {
 		Stage stage = getPrimaryStage();
 		WorkspaceController controller = this.loadScene(stage, "Workspace.fxml", WorkspaceController.class);
 		controller.setWorkspace(workspace);
+//		stage.setMaximized(true);
 		stage.show();
 	}
 	
