@@ -8,18 +8,14 @@
 <Scene stylesheets="@application.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.workspace.WorkspaceController">
     <AnchorPane minHeight="650" minWidth="1800">
       <children>
-         <SplitPane dividerPositions="0.5" layoutX="29.0" layoutY="31.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <SplitPane dividerPositions="0.3" layoutX="29.0" layoutY="31.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
             <items>
                <AnchorPane prefHeight="573.0" prefWidth="896.0">
                   <children>
                      <SplitPane dividerPositions="0.5" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
                        <items>
                          <AnchorPane fx:id="camerasAnchorPane" minHeight="0.0" minWidth="0.0" />
-                         <AnchorPane minHeight="0.0" minWidth="0.0">
-                              <children>
-                                 <TreeView layoutX="122.0" layoutY="14.0" prefHeight="646.0" prefWidth="444.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
-                              </children>
-                           </AnchorPane>
+                         <AnchorPane fx:id="eventsAnchorPane" minHeight="0.0" minWidth="0.0" />
                        </items>
                      </SplitPane>
                   </children></AnchorPane>
