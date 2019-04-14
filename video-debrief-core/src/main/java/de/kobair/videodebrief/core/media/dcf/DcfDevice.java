@@ -9,16 +9,13 @@ import de.kobair.videodebrief.core.utils.LocalUtils;
 import net.samuelcampos.usbdrivedetector.USBStorageDevice;
 
 public class DcfDevice {
-
-	protected static final String DCIM_DIRECTORY_NAME = "DCIM";
-	protected static final String DCF_DIRECTORY_REGEX = "(^[0-9]{3}[0-9,a-z,A-Z]{5}$)";
 	
 	private final USBStorageDevice device;
 	private final File dcimDirectory;
 	
 	protected DcfDevice(USBStorageDevice verifiedDcimDevice) {
 		this.device = verifiedDcimDevice;
-		this.dcimDirectory = LocalUtils.extendDirectory(this.getRootDirectory(), DCIM_DIRECTORY_NAME);
+		this.dcimDirectory = LocalUtils.extendDirectory(this.getRootDirectory(), Dcf.DCIM_DIRECTORY_NAME);
 	}
 	
 	public File getRootDirectory() {
@@ -59,7 +56,7 @@ public class DcfDevice {
 			return false;
 		}
 		
-		boolean matchesDcfNameFormat = file.getName().matches(DCF_DIRECTORY_REGEX);
+		boolean matchesDcfNameFormat = file.getName().matches(Dcf.DCF_DIRECTORY_REGEX);
 		
 		return matchesDcfNameFormat;
 	}

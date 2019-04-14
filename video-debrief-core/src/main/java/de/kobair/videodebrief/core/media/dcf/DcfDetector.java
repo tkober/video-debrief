@@ -18,7 +18,7 @@ public class DcfDetector implements IUSBDriveListener {
 
 		public void dcfDeviceConnected(DcfDetector dcimDetector, DcfDevice device);
 
-		public void dcfDeviceRemoved(DcfDetector dcimDetector, DcfDevice device);
+		public void usbDeviceRemoved(DcfDetector dcimDetector);
 
 		public void dcfDetectionStopped(DcfDetector dcimDetector);
 
@@ -29,29 +29,34 @@ public class DcfDetector implements IUSBDriveListener {
 
 	public DcfDetector(long intervalMillis) {
 		this.detectorManager = new USBDeviceDetectorManager(intervalMillis);
+
 	}
 
 	public void start() {
 		if (!detectorManager.addDriveListener(this)) {
-			throw new RuntimeException("TODO");
+			throw new RuntimeException("TODO"); // TODO
 		} else {
-
+			if (delegate != null) {
+				delegate.dcfDetectionStarted(this);
+			}
 		}
 	}
 
 	public void stop() {
 		if (!detectorManager.removeDriveListener(this)) {
-			throw new RuntimeException("TODO");
+			throw new RuntimeException("TODO"); // TODO
 		} else {
-
+			if (delegate != null) {
+				delegate.dcfDetectionStopped(this);
+			}
 		}
 	}
 
 	public List<DcfDevice> getConnectedDevices() {
 		List<DcfDevice> result = this.detectorManager.getRemovableDevices().stream()
-			.filter((USBStorageDevice device) -> isDcfDevice(device))
-			.map(DcfDevice::new)
-			.collect(Collectors.toList());
+				.filter((USBStorageDevice device) -> isDcfDevice(device))
+				.map(DcfDevice::new)
+				.collect(Collectors.toList());
 		return result;
 	}
 
@@ -65,22 +70,21 @@ public class DcfDetector implements IUSBDriveListener {
 
 	@Override
 	public void usbDriveEvent(USBStorageEvent event) {
-		if (isDcfDevice(event.getStorageDevice())) {
-			DcfDevice device = new DcfDevice(event.getStorageDevice());
-			
-			switch (event.getEventType()) {
-			case CONNECTED:
-				if (delegate != null) { 
+		switch (event.getEventType()) {
+		case CONNECTED:
+			if (isDcfDevice(event.getStorageDevice())) {
+				DcfDevice device = new DcfDevice(event.getStorageDevice());
+				if (delegate != null) {
 					delegate.dcfDeviceConnected(this, device);
 				}
-				break;
-
-			case REMOVED:
-				if (delegate != null) { 
-					delegate.dcfDeviceRemoved(this, device);
-				}
-				break;
 			}
+			break;
+
+		case REMOVED:
+			if (delegate != null) {
+				delegate.usbDeviceRemoved(this);
+			}
+			break;
 		}
 	}
 
@@ -88,8 +92,7 @@ public class DcfDetector implements IUSBDriveListener {
 		if (device == null) {
 			return false;
 		}
-		File dcimDirectory = LocalUtils.extendDirectory(device.getRootDirectory(),
-				DcfDevice.DCIM_DIRECTORY_NAME);
+		File dcimDirectory = LocalUtils.extendDirectory(device.getRootDirectory(), Dcf.DCIM_DIRECTORY_NAME);
 		return dcimDirectory.exists() && dcimDirectory.isDirectory();
 	}
 }

@@ -4,6 +4,8 @@ import  java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import de.kobair.videodebrief.core.formats.FileFormat;
@@ -11,9 +13,18 @@ import de.kobair.videodebrief.core.formats.FileFormat;
 public class DcfDirectory {
 
 	private final File directory;
+	private final String cameraName;
+	
+	private String cameraNameFromDirectory(File directory) {
+		Pattern pattern = Pattern.compile(Dcf.DCF_DIRECTORY_REGEX);
+		Matcher matcher = pattern.matcher(directory.getName());
+		matcher.find();
+		return  matcher.group(3);
+	}
 	
 	public DcfDirectory(File directory) {
 		this.directory = directory;
+		this.cameraName = cameraNameFromDirectory(directory);
 	}
 	
 	public File getDirectory() {
@@ -33,6 +44,10 @@ public class DcfDirectory {
 		}
 		
 		return result;
+	}
+	
+	public String getCameraName() {
+		return cameraName;
 	}
 	
 	@Override
