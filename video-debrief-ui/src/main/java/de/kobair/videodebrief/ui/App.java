@@ -15,44 +15,38 @@ public class App extends Application {
 	
 	private Stage primaryStage;
 	
-	private void showWorkspaceManager() {
-		Stage stage = getPrimaryStage();
+	private <T> T loadScene(Stage stage, String fxml, Class<T> controllerClass) {
 		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(WorkspaceManagerController.class.getResource("view/WorkspaceManager.fxml"));
+		loader.setLocation(controllerClass.getResource("view/" + fxml));
 		try {
 			Scene scene = loader.load();
 			stage.setScene(scene);
-			
-			WorkspaceManagerController controller = loader.getController();
-			controller.setMainApp(this);
-			
-			stage.show();
+			return loader.getController();
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		return null;
+	}
+	
+	private void showWorkspaceManager() {
+		Stage stage = getPrimaryStage();
+		WorkspaceManagerController controller = this.loadScene(stage, "WorkspaceManager.fxml", WorkspaceManagerController.class);
+		controller.setMainApp(this);
+		stage.show();
 	}
 	
 	public void openWorkspace(Workspace workspace) {
 		Stage stage = getPrimaryStage();
-		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(WorkspaceController.class.getResource("view/Workspace.fxml"));
-		
-		try {
-			Scene scene = loader.load();
-			stage.setScene(scene);
-			stage.setMaximized(true);
-			stage.show();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		WorkspaceController controller = this.loadScene(stage, "Workspace.fxml", WorkspaceController.class);
+		controller.setWorkspace(workspace);
+		stage.show();
 	}
 	
 	@Override
 	public void start(Stage primaryStage) {
 		this.primaryStage = primaryStage;
-		showWorkspaceManager();
+//		showWorkspaceManager();
+		openWorkspace(null);
 	}
 	
 	public static void main(String[] args) {
