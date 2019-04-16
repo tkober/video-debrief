@@ -1,6 +1,9 @@
 package de.kobair.videodebrief.ui.cameras;
 
+import java.io.File;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -23,7 +26,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.input.ClipboardContent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.TransferMode;
 
 public class CamerasViewController implements Initializable, DcfDetectorDelegate {
 
@@ -92,6 +100,10 @@ public class CamerasViewController implements Initializable, DcfDetectorDelegate
 				.map(Video::new)
 				.collect(Collectors.toList());
 	}
+	
+	private void handleDragDetected(MouseEvent event) {
+		System.out.println(event);
+	}
 
 	public CamerasViewController() {
 		this.dcfDetector = new DcfDetector(1000L);
@@ -107,9 +119,31 @@ public class CamerasViewController implements Initializable, DcfDetectorDelegate
 		this.formatColumn.setCellValueFactory(data -> data.getValue().getFormatNameProperty());
 		this.dateColumn.setCellValueFactory(data -> data.getValue().getTimestampProperty());
 		
+		this.videosTableView.setRowFactory(tableView -> {
+			TableRow<Video> row = new TableRow<>();
+			row.setOnDragDetected(mouseEvent -> {
+				if (!row.isEmpty()) {
+					handleDragOfVideoRow(row);
+					mouseEvent.consume();
+				}
+			});
+			return row;
+		});
+		
 		this.cameras = this.camerasListView.getItems();
 		this.videos = this.videosTableView.getItems();
 		this.dcfDetector.start();
+	}
+	
+	private void handleDragOfVideoRow(TableRow<Video> row) {
+		Dragboard dragboard = row.startDragAndDrop(TransferMode.ANY);
+		dragboard.setDragView(row.snapshot(null, null));
+		ClipboardContent content = new ClipboardContent();
+		List<File> files = Arrays.asList(new File[] { row.getItem().getMediaFile().getFile() });
+		content.putFiles(files);
+		String deviceName = this.selectedCameraProperty.get().getDevice().getDisplayName();
+		content.putString(deviceName);
+		dragboard.setContent(content);
 	}
 
 	@Override

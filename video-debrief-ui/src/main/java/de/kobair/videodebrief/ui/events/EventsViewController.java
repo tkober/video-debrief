@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import com.sun.java.accessibility.util.java.awt.CheckboxTranslator;
+
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.formats.FileFormat;
 import de.kobair.videodebrief.core.perspective.Perspective;
@@ -32,6 +34,7 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 
@@ -177,10 +180,6 @@ public class EventsViewController implements Initializable {
 	}
 	
 	private boolean canDrop(DragEvent event) {
-		return this.isDroppingExternalVideoFile(event) || this.isDroppingInternalDcfMedia(event);
-	}
-	
-	private boolean isDroppingExternalVideoFile(DragEvent event) {
 		if (!event.getDragboard().hasFiles()) {
 			return false;
 		}
@@ -201,10 +200,6 @@ public class EventsViewController implements Initializable {
 			}
 		}
 		
-		return false;
-	}
-	
-	private boolean isDroppingInternalDcfMedia(DragEvent event) {
 		return false;
 	}
 
@@ -249,9 +244,15 @@ public class EventsViewController implements Initializable {
 	}
 	
 	public void handleDrop(DragEvent event) {
-		if (isDroppingExternalVideoFile(event)) {
-			File file = event.getDragboard().getFiles().get(0);
-			System.out.println(file);
+		if (canDrop(event)) {
+			Dragboard dragboard = event.getDragboard();
+			File file = dragboard.getFiles().get(0);
+			String perspectiveName = null;
+			if (dragboard.hasString()) {
+				perspectiveName = dragboard.getString();
+			}
+			
+			System.out.println(file + "(" + perspectiveName + ")");
 		}
 	}
 
@@ -262,15 +263,17 @@ public class EventsViewController implements Initializable {
 		this.eventsTreeView.setRoot(new TreeItem<WorkspaceItem>());
 		this.eventsTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
 		this.eventsTreeView.setContextMenu(this.workspaceItemContextMenu());
-//		this.eventsTreeView.setCellFactory(new Callback<TreeView<WorkspaceItem>, TreeCell<WorkspaceItem>>(){
-//            @Override
-//            public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
-//            	TreeCell<WorkspaceItem> result = new TreeCell<WorkspaceItem>();
-//            	result.setOnDragOver(EventsViewController.this::handleDragOver);
-//            	result.setOnDragDropped(EventsViewController.this::handleDrop);
-//                return result;
-//            }
-//        });
+		this.eventsTreeView.setCellFactory(new Callback<TreeView<WorkspaceItem>, TreeCell<WorkspaceItem>>(){
+            @Override
+            public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
+            	CheckBoxTreeCell<WorkspaceItem> result = new CheckBoxTreeCell<WorkspaceItem>();
+            	// TODO: only for Events
+            	result.setOnDragOver(EventsViewController.this::handleDragOver);
+            	// TODO: Propagate workspace-event to handleDrop
+            	result.setOnDragDropped(EventsViewController.this::handleDrop);
+                return result;
+            }
+        });
 
 		this.events = this.eventsTreeView.getRoot().getChildren();
 	}
