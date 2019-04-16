@@ -1,5 +1,6 @@
 package de.kobair.videodebrief.ui.events;
 
+import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -9,6 +10,7 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 
 import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.core.formats.FileFormat;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem;
@@ -25,9 +27,13 @@ import javafx.scene.control.ButtonType;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.TransferMode;
+import javafx.util.Callback;
 
 public class EventsViewController implements Initializable {
 
@@ -169,6 +175,38 @@ public class EventsViewController implements Initializable {
 
 		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
 	}
+	
+	private boolean canDrop(DragEvent event) {
+		return this.isDroppingExternalVideoFile(event) || this.isDroppingInternalDcfMedia(event);
+	}
+	
+	private boolean isDroppingExternalVideoFile(DragEvent event) {
+		if (!event.getDragboard().hasFiles()) {
+			return false;
+		}
+		
+		if (event.getDragboard().getFiles().size() != 1) {
+			return false;
+		}
+		
+		File file = event.getDragboard().getFiles().get(0);
+		if (!file.exists() || !file.isFile() || !file.canRead()) {
+			return false;
+		}
+
+		for (FileFormat fileFormat : FileFormat.VIDEO_FORMATS) {
+			boolean accepted = fileFormat.getFilenameFilter().accept(file.getParentFile(), file.getName());
+			if (accepted) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+	
+	private boolean isDroppingInternalDcfMedia(DragEvent event) {
+		return false;
+	}
 
 	public void reload(Map<Event, List<Perspective>> content) {
 		this.events.clear();
@@ -176,7 +214,7 @@ public class EventsViewController implements Initializable {
 		for (Event event : content.keySet()) {
 			EventItem eventItem = new EventItem(event);
 			TreeItem<WorkspaceItem> eventTreeItem = new TreeItem<WorkspaceItem>(eventItem);
-
+			
 			List<Perspective> perspectives = content.get(event);
 			for (Perspective perspective : perspectives) {
 				PerspectiveItem perspectiveItem = new PerspectiveItem(perspective);
@@ -203,6 +241,19 @@ public class EventsViewController implements Initializable {
 	public Optional<EventsDelegate> getDelegate() {
 		return delegate;
 	}
+	
+	public void handleDragOver(DragEvent event) {
+		if (this.canDrop(event)) {
+			event.acceptTransferModes(TransferMode.COPY);
+		}
+	}
+	
+	public void handleDrop(DragEvent event) {
+		if (isDroppingExternalVideoFile(event)) {
+			File file = event.getDragboard().getFiles().get(0);
+			System.out.println(file);
+		}
+	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -211,6 +262,15 @@ public class EventsViewController implements Initializable {
 		this.eventsTreeView.setRoot(new TreeItem<WorkspaceItem>());
 		this.eventsTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
 		this.eventsTreeView.setContextMenu(this.workspaceItemContextMenu());
+//		this.eventsTreeView.setCellFactory(new Callback<TreeView<WorkspaceItem>, TreeCell<WorkspaceItem>>(){
+//            @Override
+//            public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
+//            	TreeCell<WorkspaceItem> result = new TreeCell<WorkspaceItem>();
+//            	result.setOnDragOver(EventsViewController.this::handleDragOver);
+//            	result.setOnDragDropped(EventsViewController.this::handleDrop);
+//                return result;
+//            }
+//        });
 
 		this.events = this.eventsTreeView.getRoot().getChildren();
 	}
