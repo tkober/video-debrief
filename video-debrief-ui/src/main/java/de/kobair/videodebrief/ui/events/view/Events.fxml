@@ -5,8 +5,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 
 <AnchorPane prefHeight="315.0" prefWidth="427.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.events.EventsViewController">
-   <children>
-      <TreeView fx:id="eventsTreeView" layoutY="45.0" prefHeight="270.0" prefWidth="427.0" showRoot="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0" />
-      <Button layoutX="365.0" layoutY="10.0" mnemonicParsing="false" onAction="#onCreateEventButtonPressed" text="Create Event" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0" />
-   </children>
+	<children>
+		<TreeView fx:id="eventsTreeView" layoutY="45.0" prefHeight="270.0" prefWidth="427.0" showRoot="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0"/>
+		<Button layoutY="10.0" mnemonicParsing="false" onAction="#onRenameSelectedWorkspaceItem" text="E" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0"/>
+		<Button layoutY="10.0" mnemonicParsing="false" onAction="#onDeleteSelectedWorkspaceItem" text="-" AnchorPane.rightAnchor="45.0" AnchorPane.topAnchor="10.0"/>
+		<Button layoutY="10.0" mnemonicParsing="false" onAction="#onCreateEventButtonPressed" text="+" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0"/>
+
+	</children>
 </AnchorPane>

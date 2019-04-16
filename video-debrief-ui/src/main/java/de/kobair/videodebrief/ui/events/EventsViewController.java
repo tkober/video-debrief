@@ -5,10 +5,12 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
+import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.EventItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.PerspectiveItem;
@@ -18,6 +20,11 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
@@ -26,24 +33,141 @@ public class EventsViewController implements Initializable {
 
 	public interface EventsDelegate {
 
+		public void createEvent(String name);
+
+		public void renameEvent(Event event, String newName);
+
+		public void deleteEvent(Event event, boolean keepFiles);
+
 	}
 
 	private ObservableList<TreeItem<WorkspaceItem>> events;
 	private ReadOnlyObjectProperty<TreeItem<WorkspaceItem>> selectedWorkspaceItemProperty;
-	
+	private Optional<EventsDelegate> delegate = Optional.empty();
+
 	@FXML
 	private TreeView<WorkspaceItem> eventsTreeView;
 
 	@FXML
 	private void onCreateEventButtonPressed(ActionEvent event) {
-		System.out.println(event);
-		throw new RuntimeException("test");
+		Optional<String> result = DialogFactory.namingDialog("Create Event", "New Event").showAndWait();
+		result.ifPresent(name -> this.getDelegate().ifPresent(delegate -> delegate.createEvent(name)));
 	}
-	
+
+	@FXML
+	private void onRenameSelectedWorkspaceItem(ActionEvent event) {
+		TreeItem<WorkspaceItem> treeItem = this.selectedWorkspaceItemProperty.get();
+		if (treeItem != null) {
+			WorkspaceItem item = treeItem.getValue();
+			if (item != null) {
+				Object content = item.getContent();
+				if (content instanceof Event) {
+					renameEvent((Event) content);
+				} else if (content instanceof Perspective) {
+					renamePerspective((Perspective) content);
+				}
+			}
+		}
+	}
+
+	@FXML
+	private void onExportSelectedWorkspaceItem(ActionEvent event) {
+		TreeItem<WorkspaceItem> treeItem = this.selectedWorkspaceItemProperty.get();
+		if (treeItem != null) {
+			WorkspaceItem item = treeItem.getValue();
+			if (item != null) {
+				Object content = item.getContent();
+				if (content instanceof Event) {
+					exportEvent((Event) content);
+				} else if (content instanceof Perspective) {
+					exportPerspective((Perspective) content);
+				}
+			}
+		}
+	}
+
+	@FXML
+	private void onDeleteSelectedWorkspaceItem(ActionEvent event) {
+		TreeItem<WorkspaceItem> treeItem = this.selectedWorkspaceItemProperty.get();
+		if (treeItem != null) {
+			WorkspaceItem item = treeItem.getValue();
+			if (item != null) {
+				Object content = item.getContent();
+				if (content instanceof Event) {
+					deleteEvent((Event) content);
+				} else if (content instanceof Perspective) {
+					deletePerspective((Perspective) content);
+				}
+			}
+		}
+	}
+
 	private void onSelectWorkspaceItem(ObservableValue<? extends TreeItem<WorkspaceItem>> observable, TreeItem<WorkspaceItem> oldValue,
 			TreeItem<WorkspaceItem> newValue) {
-		WorkspaceItem item = newValue.getValue();
-		System.out.println(item);
+		if (newValue != null) {
+			WorkspaceItem item = newValue.getValue();
+		}
+	}
+
+	private void renameEvent(Event event) {
+		Optional<String> result = DialogFactory.namingDialog("Rename Event", event.getName()).showAndWait();
+		result.ifPresent(name -> this.getDelegate().ifPresent(delegate -> delegate.renameEvent(event, name)));
+	}
+
+	private void renamePerspective(Perspective perspective) {
+
+	}
+
+	private void deleteEvent(Event event) {
+		String question = String.format("Do you really want to delete the event '%s'", event.getName());
+		Optional<ButtonType> result = DialogFactory.confirmDeleteDialog("Delete Event", question).showAndWait();
+
+		if (result.isPresent()) {
+			ButtonBar.ButtonData type = result.get().getButtonData();
+			boolean keepFiles;
+			switch (type) {
+
+			case YES:
+				keepFiles = false;
+				break;
+
+			case OTHER:
+				keepFiles = true;
+				break;
+
+			default:
+				return;
+
+			}
+
+			this.delegate.ifPresent(delegate -> delegate.deleteEvent(event, keepFiles));
+		}
+
+	}
+
+	private void deletePerspective(Perspective perspective) {
+
+	}
+
+	private void exportEvent(Event event) {
+
+	}
+
+	private void exportPerspective(Perspective perspective) {
+
+	}
+
+	private ContextMenu workspaceItemContextMenu() {
+		MenuItem rename = new MenuItem("Rename");
+		rename.setOnAction(event -> this.onRenameSelectedWorkspaceItem(event));
+
+		MenuItem delete = new MenuItem("Delete");
+		delete.setOnAction(event -> this.onDeleteSelectedWorkspaceItem(event));
+
+		MenuItem export = new MenuItem("Export");
+		export.setOnAction(event -> this.onExportSelectedWorkspaceItem(event));
+
+		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
 	}
 
 	public void reload(Map<Event, List<Perspective>> content) {
@@ -72,13 +196,22 @@ public class EventsViewController implements Initializable {
 		this.events.addAll(items);
 	}
 
+	public void setDelegate(final EventsDelegate delegate) {
+		this.delegate = Optional.ofNullable(delegate);
+	}
+
+	public Optional<EventsDelegate> getDelegate() {
+		return delegate;
+	}
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		this.selectedWorkspaceItemProperty = this.eventsTreeView.getSelectionModel().selectedItemProperty();
 		this.selectedWorkspaceItemProperty.addListener(this::onSelectWorkspaceItem);
 		this.eventsTreeView.setRoot(new TreeItem<WorkspaceItem>());
 		this.eventsTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
-		
+		this.eventsTreeView.setContextMenu(this.workspaceItemContextMenu());
+
 		this.events = this.eventsTreeView.getRoot().getChildren();
 	}
 }

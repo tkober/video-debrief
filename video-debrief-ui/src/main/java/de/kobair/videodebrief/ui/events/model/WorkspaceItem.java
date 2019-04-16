@@ -5,7 +5,7 @@ import de.kobair.videodebrief.core.perspective.Perspective;
 
 public abstract class WorkspaceItem {
 	
-	public abstract Object getData();
+	public abstract Object getContent();
 
 	public static class EventItem extends WorkspaceItem {
 		
@@ -16,7 +16,7 @@ public abstract class WorkspaceItem {
 		}
 		
 		@Override
-		public Object getData() {
+		public Object getContent() {
 			return this.event;
 		}
 		
@@ -35,7 +35,7 @@ public abstract class WorkspaceItem {
 		}
 		
 		@Override
-		public Object getData() {
+		public Object getContent() {
 			return this.perspective;
 		}
 		
