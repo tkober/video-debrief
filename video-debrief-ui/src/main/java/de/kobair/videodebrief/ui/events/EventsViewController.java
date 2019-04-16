@@ -37,6 +37,7 @@ public class EventsViewController implements Initializable {
 	@FXML
 	private void onCreateEventButtonPressed(ActionEvent event) {
 		System.out.println(event);
+		throw new RuntimeException("test");
 	}
 	
 	private void onSelectWorkspaceItem(ObservableValue<? extends TreeItem<WorkspaceItem>> observable, TreeItem<WorkspaceItem> oldValue,

@@ -1,13 +1,18 @@
 package de.kobair.videodebrief.ui;
-	
+
 import java.io.IOException;
 
 import de.kobair.videodebrief.core.workspace.Workspace;
+import de.kobair.videodebrief.ui.alerts.AlertFactory;
+import de.kobair.videodebrief.ui.errors.ApplicationException;
+import de.kobair.videodebrief.ui.errors.ApplicationFatal;
 import de.kobair.videodebrief.ui.workspace.WorkspaceController;
 import de.kobair.videodebrief.ui.workspacemanager.WorkspaceManagerController;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 
@@ -27,6 +32,22 @@ public class App extends Application {
 		}
 		return null;
 	}
+
+	private void handleApplicationException(ApplicationException e) {
+		Alert alert = AlertFactory.alertForApplicationException(e);
+		alert.showAndWait();
+	}
+
+	private void onUncaughtException(Thread t, Throwable e) {
+		if (e instanceof ApplicationException) {
+			handleApplicationException((ApplicationException) e);
+			if (e instanceof ApplicationFatal) {
+				Platform.exit();
+			}
+		} else {
+			e.printStackTrace();
+		}
+	}
 	
 	private void showWorkspaceManager() {
 		Stage stage = getPrimaryStage();
@@ -45,6 +66,7 @@ public class App extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) {
+		Thread.setDefaultUncaughtExceptionHandler(this::onUncaughtException);
 		this.primaryStage = primaryStage;
 		showWorkspaceManager();
 	}

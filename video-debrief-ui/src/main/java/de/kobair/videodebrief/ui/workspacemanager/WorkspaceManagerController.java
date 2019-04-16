@@ -13,6 +13,8 @@ import de.kobair.videodebrief.core.workspace.error.CreateWorkspaceException;
 import de.kobair.videodebrief.core.workspace.error.LoadWorkspaceException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 import de.kobair.videodebrief.ui.App;
+import de.kobair.videodebrief.ui.errors.ApplicationError;
+import de.kobair.videodebrief.ui.errors.ApplicationWarning;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -68,11 +70,9 @@ public class WorkspaceManagerController {
 			Workspace workspace = this.workspaceManager.loadWorkspace(new File(location));
 			this.openWorkspace(workspace);
 		} catch (LoadWorkspaceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			new ApplicationWarning(e).throwOnMainThread();
 		} catch (UnknownWorkspaceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			new ApplicationError(e).throwOnMainThread();
 		}
 	}
 	
@@ -81,11 +81,9 @@ public class WorkspaceManagerController {
 			Workspace workspace = this.workspaceManager.createWorkspace(this.parentDirectory, this.name);
 			this.openWorkspace(workspace);
 		} catch (CreateWorkspaceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			new ApplicationWarning(e).throwOnMainThread();
 		} catch (UnknownWorkspaceException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			new ApplicationError(e).throwOnMainThread();
 		}
 	}
 	
