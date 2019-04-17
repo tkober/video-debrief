@@ -322,6 +322,7 @@ public class EventsViewController implements Initializable {
 		for (Event event : content.keySet()) {
 			EventItem eventItem = new EventItem(event);
 			TreeItem<WorkspaceItem> eventTreeItem = new TreeItem<WorkspaceItem>(eventItem);
+			eventTreeItem.setExpanded(true);
 
 			List<Perspective> perspectives = content.get(event);
 			for (Perspective perspective : perspectives) {
