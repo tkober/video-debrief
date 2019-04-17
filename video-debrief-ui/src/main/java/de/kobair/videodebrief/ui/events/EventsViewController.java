@@ -9,8 +9,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
-import com.sun.java.accessibility.util.java.awt.CheckboxTranslator;
-
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.formats.FileFormat;
 import de.kobair.videodebrief.core.importing.ImportManager;
@@ -20,7 +18,6 @@ import de.kobair.videodebrief.ui.events.model.WorkspaceItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.EventItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.PerspectiveItem;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -115,8 +112,8 @@ public class EventsViewController implements Initializable {
 		}
 	}
 
-	private void onSelectWorkspaceItem(ObservableValue<? extends TreeItem<WorkspaceItem>> observable, TreeItem<WorkspaceItem> oldValue,
-			TreeItem<WorkspaceItem> newValue) {
+	private void onSelectWorkspaceItem(ObservableValue<? extends TreeItem<WorkspaceItem>> observable,
+			TreeItem<WorkspaceItem> oldValue, TreeItem<WorkspaceItem> newValue) {
 		if (newValue != null) {
 			WorkspaceItem item = newValue.getValue();
 		}
@@ -172,31 +169,18 @@ public class EventsViewController implements Initializable {
 
 	private void importVideoFile(Event event, File file, String perspectiveName) {
 		Optional<String> result = DialogFactory.importMediaDialog(event, file, perspectiveName).showAndWait();
-		result.ifPresent(name -> this.getDelegate().ifPresent( delegate -> delegate.importFile(event, file, name)));
+		result.ifPresent(name -> this.getDelegate().ifPresent(delegate -> delegate.importFile(event, file, name)));
 	}
 
-	private ContextMenu workspaceItemContextMenu() {
-		MenuItem rename = new MenuItem("Rename");
-		rename.setOnAction(this::onRenameSelectedWorkspaceItem);
-
-		MenuItem delete = new MenuItem("Delete");
-		delete.setOnAction(this::onDeleteSelectedWorkspaceItem);
-
-		MenuItem export = new MenuItem("Export");
-		export.setOnAction(this::onExportSelectedWorkspaceItem);
-
-		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
-	}
-	
 	private boolean canDrop(DragEvent event) {
 		if (!event.getDragboard().hasFiles()) {
 			return false;
 		}
-		
+
 		if (event.getDragboard().getFiles().size() != 1) {
 			return false;
 		}
-		
+
 		File file = event.getDragboard().getFiles().get(0);
 		if (!file.exists() || !file.isFile() || !file.canRead()) {
 			return false;
@@ -208,7 +192,7 @@ public class EventsViewController implements Initializable {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 
@@ -231,9 +215,18 @@ public class EventsViewController implements Initializable {
 		}
 	}
 
+	private void resetCell(TreeCell<WorkspaceItem> cell) {
+		this.removeDragAndDropFromCell(cell);
+		this.removeContextMenu(cell);
+	}
+	
 	private void removeDragAndDropFromCell(TreeCell<WorkspaceItem> cell) {
 		cell.setOnDragOver(null);
 		cell.setOnDragDropped(null);
+	}
+
+	private void removeContextMenu(TreeCell<WorkspaceItem> cell) {
+		cell.setContextMenu(null);
 	}
 
 	private void setUpDragAndDropForEventCell(TreeCell<WorkspaceItem> cell) {
@@ -241,24 +234,56 @@ public class EventsViewController implements Initializable {
 		Event event = (Event) cell.getItem().getContent();
 		cell.setOnDragDropped(dropEvent -> this.handleDrop(dropEvent, event));
 	}
+	
+	private ContextMenu eventCellContextMenu() {
+		MenuItem rename = new MenuItem("Rename");
+		rename.setOnAction(this::onRenameSelectedWorkspaceItem);
+	
+		MenuItem delete = new MenuItem("Delete");
+		delete.setOnAction(this::onDeleteSelectedWorkspaceItem);
+	
+		MenuItem export = new MenuItem("Export");
+		export.setOnAction(this::onExportSelectedWorkspaceItem);
+	
+		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
+	}
 
-	private void setUpDragAndDropForCell(TreeCell<WorkspaceItem> cell) {
+	private void setUpContextMenuForEventCell(TreeCell<WorkspaceItem> cell) {
+		cell.setContextMenu(this.eventCellContextMenu());
+	}
+
+	private void setUpEventCell(TreeCell<WorkspaceItem> cell) {
+		this.setUpDragAndDropForEventCell(cell);
+		this.setUpContextMenuForEventCell(cell);
+	}
+	
+	private void setUpPerspectiveCell(TreeCell<WorkspaceItem> cell) {
+		// TODO Drag and drop
+		// TODO ContextMenu
+	}
+
+	private void setUpCell(TreeCell<WorkspaceItem> cell) {
 		if (cell.getItem() != null) {
+
 			if (cell.getItem().getContent() instanceof Event) {
-				this.setUpDragAndDropForEventCell(cell);
+				this.setUpEventCell(cell);
+			}
+
+			else if (cell.getItem().getContent() instanceof Perspective) {
+				this.setUpPerspectiveCell(cell);
 			}
 		}
 	}
 
 	private void setUpTreeCellFactory(TreeView<WorkspaceItem> treeView) {
-		treeView.setCellFactory(new Callback<TreeView<WorkspaceItem>, TreeCell<WorkspaceItem>>(){
+		treeView.setCellFactory(new Callback<TreeView<WorkspaceItem>, TreeCell<WorkspaceItem>>() {
 			@Override
 			public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
 				CheckBoxTreeCell<WorkspaceItem> cell = new CheckBoxTreeCell<WorkspaceItem>();
 
 				cell.itemProperty().addListener((obs, old, item) -> {
-					EventsViewController.this.removeDragAndDropFromCell(cell);
-					EventsViewController.this.setUpDragAndDropForCell(cell);
+					EventsViewController.this.resetCell(cell);
+					EventsViewController.this.setUpCell(cell);
 				});
 				return cell;
 			}
@@ -271,7 +296,7 @@ public class EventsViewController implements Initializable {
 		for (Event event : content.keySet()) {
 			EventItem eventItem = new EventItem(event);
 			TreeItem<WorkspaceItem> eventTreeItem = new TreeItem<WorkspaceItem>(eventItem);
-			
+
 			List<Perspective> perspectives = content.get(event);
 			for (Perspective perspective : perspectives) {
 				PerspectiveItem perspectiveItem = new PerspectiveItem(perspective);
@@ -305,7 +330,6 @@ public class EventsViewController implements Initializable {
 		this.selectedWorkspaceItemProperty.addListener(this::onSelectWorkspaceItem);
 		this.eventsTreeView.setRoot(new TreeItem<WorkspaceItem>());
 		this.eventsTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
-		this.eventsTreeView.setContextMenu(this.workspaceItemContextMenu());
 		this.setUpTreeCellFactory(this.eventsTreeView);
 
 		this.events = this.eventsTreeView.getRoot().getChildren();
