@@ -461,8 +461,7 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 		AddPerspectiveCheckResult checkResult = canAddPerspective(name, file, eventPojo);
 
 		if (checkResult != AddPerspectiveCheckResult.OKAY) {
-			String message = String.format(checkResult.getMessage(), file);
-			throw new UnknownWorkspaceException(message, null);
+			throw new AddPerspectiveException(checkResult, file);
 		} else {
 			PerspectivePojo pojo = new PerspectivePojo(name, file.getName());
 			String id = this.perspectiveIdFromFile(file);
