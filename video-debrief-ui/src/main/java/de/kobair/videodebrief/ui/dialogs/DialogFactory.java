@@ -53,7 +53,7 @@ public class DialogFactory {
 
 	public static  TextInputDialog importMediaDialog(Event event, File file, String perspectiveName) {
 		String placeholder = perspectiveName != null && !perspectiveName.trim().isEmpty() ? perspectiveName : "New Event";
-		return textInputDialog("Create Perspective", perspectiveName, NAMING_CONFIG);
+		return textInputDialog("Create Perspective", perspectiveName, IMPORT_MEDIA_CONFIG);
 	}
 
 	public static TextInputDialog textInputDialog(String title, String placeholder, DialogConfig config) {
