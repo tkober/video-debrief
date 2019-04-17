@@ -27,6 +27,7 @@ import de.kobair.videodebrief.ui.errors.ApplicationError;
 import de.kobair.videodebrief.ui.errors.ApplicationWarning;
 import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
+import de.kobair.videodebrief.ui.playback.PlaybackViewController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -36,15 +37,18 @@ import javafx.scene.layout.AnchorPane;
 public class WorkspaceController implements Initializable, EventsDelegate {
 
 	@FXML
-	public AnchorPane camerasAnchorPane;
+	private AnchorPane camerasAnchorPane;
 	@FXML
-	public AnchorPane eventsAnchorPane;
+	private AnchorPane eventsAnchorPane;
+	@FXML
+	private AnchorPane playbackAnchorPane;
 
 	private final ImportManager importManager = new LocalImportManager();
 	private final ExportManager exportManager = new LocalExportManager();
 
 	private Workspace workspace;
 	private EventsViewController evnetEventsViewController;
+	private PlaybackViewController playbackViewController;
 
 	private void updateEventsView() {
 		try {
@@ -87,6 +91,10 @@ public class WorkspaceController implements Initializable, EventsDelegate {
 	private EventsViewController loadEventsView(AnchorPane anchorPane) {
 		return this.loadViewIntoAnchorPane(anchorPane, "Events.fxml", EventsViewController.class);
 	}
+	
+	private PlaybackViewController loadPlaybackView(AnchorPane anchorPane) {
+		return this.loadViewIntoAnchorPane(anchorPane, "Playback.fxml", PlaybackViewController.class);
+	}
 
 	public void setWorkspace(Workspace workspace) {
 		this.workspace = workspace;
@@ -96,8 +104,11 @@ public class WorkspaceController implements Initializable, EventsDelegate {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		this.loadCamerasView(camerasAnchorPane);
+		
 		this.evnetEventsViewController = this.loadEventsView(eventsAnchorPane);
 		this.evnetEventsViewController.setDelegate(this);
+		
+		this.playbackViewController = this.loadPlaybackView(playbackAnchorPane);
 	}
 
 	@Override
