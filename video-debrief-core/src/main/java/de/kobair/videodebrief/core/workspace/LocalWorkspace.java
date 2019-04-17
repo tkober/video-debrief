@@ -195,11 +195,11 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 			return AddPerspectiveCheckResult.CAN_NOT_READ;
 		}
 
-		if (isFileInEventDirectory(file, event)) {
+		if (!isFileInEventDirectory(file, event)) {
 			return AddPerspectiveCheckResult.NOT_IN_EVENT_DIRECTORY;
 		}
 
-		if (hasFileValidFormatForPerspective(file)) {
+		if (!hasFileValidFormatForPerspective(file)) {
 			return AddPerspectiveCheckResult.INVALID_FORMAT;
 		}
 

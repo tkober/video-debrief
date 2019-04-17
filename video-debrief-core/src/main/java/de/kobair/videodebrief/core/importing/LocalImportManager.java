@@ -108,8 +108,13 @@ public class LocalImportManager implements ImportManager {
 		}
 	}
 
-	private void createPlaceholder(File file) {
-
+	private void createPlaceholder(File file) throws UnknownImportException {
+		try {
+			file.createNewFile();
+		} catch (IOException e) {
+			String message = String.format("Unable to create placeholder file for '%s'.", file);
+			throw new UnknownImportException(message, e);
+		}
 	}
 
 	/*
