@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import de.kobair.videodebrief.core.event.Event;
@@ -76,7 +77,7 @@ public class LocalImportManager implements ImportManager {
 		return file;
 	}
 
-	private void copyFile(File source, File destination, ImportStatusUpdate statusUpdate) throws IOException {
+	private void copyFile(File source, File destination, Optional<ImportStatusUpdate> statusUpdate) throws IOException {
 		FileInputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		long length = source.length();
@@ -94,7 +95,8 @@ public class LocalImportManager implements ImportManager {
 				int newProgress = (int) Math.ceil(100.0 * counter / length);
 				if (progress != newProgress) {
 					progress = newProgress;
-					statusUpdate.updateStatus(progress, message);
+					final int _progress = progress;
+					statusUpdate.ifPresent(onUpdate -> onUpdate.updateStatus(_progress, message));
 				}
 				outputStream.write(b, 0, r);
 			}
@@ -146,7 +148,7 @@ public class LocalImportManager implements ImportManager {
 
 			// 3.) Copy the actual file (placeholder will be overwritten)
 			try {
-				this.copyFile(file, destination, statusUpdate);
+				this.copyFile(file, destination, Optional.ofNullable(statusUpdate));
 			} catch (IOException e) {
 				String message = String.format("Failed copying '%s' to '%s'.", file, destination);
 				throw new UnknownImportException(message, e);
