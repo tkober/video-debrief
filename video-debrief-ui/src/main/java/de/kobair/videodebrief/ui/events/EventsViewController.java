@@ -169,13 +169,13 @@ public class EventsViewController implements Initializable {
 
 	private ContextMenu workspaceItemContextMenu() {
 		MenuItem rename = new MenuItem("Rename");
-		rename.setOnAction(event -> this.onRenameSelectedWorkspaceItem(event));
+		rename.setOnAction(this::onRenameSelectedWorkspaceItem);
 
 		MenuItem delete = new MenuItem("Delete");
-		delete.setOnAction(event -> this.onDeleteSelectedWorkspaceItem(event));
+		delete.setOnAction(this::onDeleteSelectedWorkspaceItem);
 
 		MenuItem export = new MenuItem("Export");
-		export.setOnAction(event -> this.onExportSelectedWorkspaceItem(event));
+		export.setOnAction(this::onExportSelectedWorkspaceItem);
 
 		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
 	}
