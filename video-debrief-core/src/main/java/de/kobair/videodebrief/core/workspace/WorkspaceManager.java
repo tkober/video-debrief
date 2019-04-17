@@ -1,16 +1,16 @@
 package de.kobair.videodebrief.core.workspace;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.event.EventPojo;
 import de.kobair.videodebrief.core.formats.FileFormat;
 import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.core.workspace.checks.CreateWorkspaceCheckResult;
 import de.kobair.videodebrief.core.workspace.checks.LoadWorkspaceCheckResult;
 import de.kobair.videodebrief.core.workspace.error.CreateWorkspaceException;
+import de.kobair.videodebrief.core.workspace.error.IncompatibleWorkspaceVersion;
 import de.kobair.videodebrief.core.workspace.error.LoadWorkspaceException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 
@@ -44,7 +44,7 @@ public class WorkspaceManager {
 		}
 	}
 	
-	public LocalWorkspace loadWorkspace(File directory) throws LoadWorkspaceException, UnknownWorkspaceException {
+	public LocalWorkspace loadWorkspace(File directory) throws LoadWorkspaceException, IncompatibleWorkspaceVersion, UnknownWorkspaceException {
 		LoadWorkspaceCheckResult checkResult = isWorkspace(directory);
 		if (checkResult != LoadWorkspaceCheckResult.OKAY) {
 			throw new LoadWorkspaceException(checkResult, directory.toString());
@@ -53,7 +53,11 @@ public class WorkspaceManager {
 			LocalWorkspace result = new LocalWorkspace(workspaceFile);
 			try {
 				result.reload();
-			} catch (Exception e) {
+				String foundVersion = result.getVersion();
+				if (!Workspace.WORKSPACE_VERSION.equalsIgnoreCase(foundVersion)) {
+					throw new IncompatibleWorkspaceVersion(result.getWorkspaceDirectory(), foundVersion, Workspace.WORKSPACE_VERSION);
+				}
+			} catch (FileNotFoundException e) {
 				String message = String.format("An unexpected error occurred while loading workspace from '%s'", 
 						workspaceFile.toString());
 				throw new UnknownWorkspaceException(message, e);

@@ -13,6 +13,8 @@ import de.kobair.videodebrief.core.workspace.error.RenamePerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 
 public interface Workspace {
+	
+	public static final String WORKSPACE_VERSION = "0.9";
 
 	public enum NameMatching {
 		CASE_INSENSITIVE, CASE_SENSITIVE;
@@ -83,5 +85,7 @@ public interface Workspace {
 			throws UnknownWorkspaceException;
 	
 	public File getFileForPerspective(Event event, Perspective perspective) throws UnknownWorkspaceException;
+	
+	public String getVersion();
 
 }

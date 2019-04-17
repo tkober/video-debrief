@@ -598,4 +598,8 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 		return this.getWorkspaceDirectory();
 	}
 
+	@Override
+	public String getVersion() {
+		return this.workspaceData.getVersion();
+	}
 }

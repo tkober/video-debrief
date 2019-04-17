@@ -14,4 +14,5 @@ interface WorkspaceData {
 	
 	public void setExportFolder(String exportFolder);
 	
+	public String getVersion();
 }
