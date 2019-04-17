@@ -20,6 +20,7 @@ import de.kobair.videodebrief.ui.events.model.WorkspaceItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.EventItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.PerspectiveItem;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -206,7 +207,6 @@ public class EventsViewController implements Initializable {
 
 	private void handleDragOver(DragEvent event) {
 		if (this.canDrop(event)) {
-			System.out.println(event);
 			event.acceptTransferModes(TransferMode.COPY);
 		}
 	}
@@ -224,10 +224,38 @@ public class EventsViewController implements Initializable {
 		}
 	}
 
-	private void setUpDragAndDropForEventCell(CheckBoxTreeCell<WorkspaceItem> cell) {
+	private void removeDragAndDropFromCell(TreeCell<WorkspaceItem> cell) {
+		cell.setOnDragOver(null);
+		cell.setOnDragDropped(null);
+	}
+
+	private void setUpDragAndDropForEventCell(TreeCell<WorkspaceItem> cell) {
 		cell.setOnDragOver(EventsViewController.this::handleDragOver);
-		Event event = (Event) cell.getItem();
+		Event event = (Event) cell.getItem().getContent();
 		cell.setOnDragDropped(dropEvent -> this.handleDrop(dropEvent, event));
+	}
+
+	private void setUpDragAndDropForCell(TreeCell<WorkspaceItem> cell) {
+		if (cell.getItem() != null) {
+			if (cell.getItem().getContent() instanceof Event) {
+				this.setUpDragAndDropForEventCell(cell);
+			}
+		}
+	}
+
+	private void setUpTreeCellFactory(TreeView<WorkspaceItem> treeView) {
+		treeView.setCellFactory(new Callback<TreeView<WorkspaceItem>, TreeCell<WorkspaceItem>>(){
+			@Override
+			public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
+				CheckBoxTreeCell<WorkspaceItem> cell = new CheckBoxTreeCell<WorkspaceItem>();
+
+				cell.itemProperty().addListener((obs, old, item) -> {
+					EventsViewController.this.removeDragAndDropFromCell(cell);
+					EventsViewController.this.setUpDragAndDropForCell(cell);
+				});
+				return cell;
+			}
+		});
 	}
 
 	public void reload(Map<Event, List<Perspective>> content) {
@@ -271,18 +299,7 @@ public class EventsViewController implements Initializable {
 		this.eventsTreeView.setRoot(new TreeItem<WorkspaceItem>());
 		this.eventsTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
 		this.eventsTreeView.setContextMenu(this.workspaceItemContextMenu());
-		this.eventsTreeView.setCellFactory(new Callback<TreeView<WorkspaceItem>, TreeCell<WorkspaceItem>>(){
-            @Override
-            public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
-            	CheckBoxTreeCell<WorkspaceItem> result = new CheckBoxTreeCell<WorkspaceItem>();
-
-            	if (result.getItem() != null && result.getItem() instanceof Event) {
-					setUpDragAndDropForEventCell(result);
-				}
-
-                return result;
-            }
-        });
+		this.setUpTreeCellFactory(this.eventsTreeView);
 
 		this.events = this.eventsTreeView.getRoot().getChildren();
 	}
