@@ -119,13 +119,4 @@ public class WorkspaceManager {
 		result.setExportFolder(DEFAULT_EXPORT_DIRECTORY);
 		return result;
 	}
-
-	public static void main(String[] args) throws Exception {
-		
-		System.out.println(Arrays.asList("24733042-7a7f-45a9-9aa7-70bb8991bc8c.mp4".split("[.]")));
-		
-		File dir = new File("C:\\Users\\kober\\Desktop\\test_ws");
-		WorkspaceManager workManager = new WorkspaceManager();
-		LocalWorkspace bla = workManager.loadWorkspace(dir);
-	}
 }
