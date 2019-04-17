@@ -10,6 +10,7 @@ import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.WorkspaceManager;
 import de.kobair.videodebrief.core.workspace.checks.LoadWorkspaceCheckResult;
 import de.kobair.videodebrief.core.workspace.error.CreateWorkspaceException;
+import de.kobair.videodebrief.core.workspace.error.IncompatibleWorkspaceVersion;
 import de.kobair.videodebrief.core.workspace.error.LoadWorkspaceException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 import de.kobair.videodebrief.ui.App;
@@ -69,7 +70,7 @@ public class WorkspaceManagerController {
 		try {
 			Workspace workspace = this.workspaceManager.loadWorkspace(new File(location));
 			this.openWorkspace(workspace);
-		} catch (LoadWorkspaceException e) {
+		} catch (IncompatibleWorkspaceVersion | LoadWorkspaceException e) {
 			new ApplicationWarning(e).throwOnMainThread();
 		} catch (UnknownWorkspaceException e) {
 			new ApplicationError(e).throwOnMainThread();
