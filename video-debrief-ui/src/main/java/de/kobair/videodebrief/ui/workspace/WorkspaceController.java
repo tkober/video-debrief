@@ -1,5 +1,6 @@
 package de.kobair.videodebrief.ui.workspace;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
@@ -12,8 +13,11 @@ import de.kobair.videodebrief.core.export.ExportManager;
 import de.kobair.videodebrief.core.export.LocalExportManager;
 import de.kobair.videodebrief.core.importing.ImportManager;
 import de.kobair.videodebrief.core.importing.LocalImportManager;
+import de.kobair.videodebrief.core.importing.error.ImportException;
+import de.kobair.videodebrief.core.importing.error.UnknownImportException;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.workspace.Workspace;
+import de.kobair.videodebrief.core.workspace.error.AddPerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.CreateEventException;
 import de.kobair.videodebrief.core.workspace.error.RenameEventException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
@@ -126,6 +130,17 @@ public class WorkspaceController implements Initializable, EventsDelegate {
 			this.workspace.deleteEvent(event, strategy);
 			this.workspaceChanged();
 		} catch (UnknownWorkspaceException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
+	}
+
+	@Override
+	public void importFile(final Event event, final File file, final String perspectivename) {
+		try {
+			this.importManager.importFile(this.workspace, file, event, perspectivename, null);
+		} catch (ImportException | AddPerspectiveException e) {
+			new ApplicationWarning(e).throwOnMainThread();
+		} catch (UnknownWorkspaceException | UnknownImportException e) {
 			new ApplicationError(e).throwOnMainThread();
 		}
 	}

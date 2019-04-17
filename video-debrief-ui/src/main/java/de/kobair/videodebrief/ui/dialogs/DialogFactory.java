@@ -1,5 +1,8 @@
 package de.kobair.videodebrief.ui.dialogs;
 
+import java.io.File;
+
+import de.kobair.videodebrief.core.event.Event;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar;
@@ -41,10 +44,16 @@ public class DialogFactory {
 
 
 	public static DialogConfig NAMING_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, null, null, "Name:");
+	public static DialogConfig IMPORT_MEDIA_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, null, null, "Perspective:");
 	public static DialogConfig DELETION_CONFIG  = new DialogConfig();
 
 	public static TextInputDialog namingDialog(String title, String placeholder) {
 		return textInputDialog(title, placeholder, NAMING_CONFIG);
+	}
+
+	public static  TextInputDialog importMediaDialog(Event event, File file, String perspectiveName) {
+		String placeholder = perspectiveName != null && !perspectiveName.trim().isEmpty() ? perspectiveName : "New Event";
+		return textInputDialog("Create Perspective", perspectiveName, NAMING_CONFIG);
 	}
 
 	public static TextInputDialog textInputDialog(String title, String placeholder, DialogConfig config) {

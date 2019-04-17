@@ -50,6 +50,8 @@ public class EventsViewController implements Initializable {
 
 		public void deleteEvent(Event event, boolean keepFiles);
 
+		public void importFile(Event event, File file, String perspectivename);
+
 	}
 
 	private ObservableList<TreeItem<WorkspaceItem>> events;
@@ -168,6 +170,11 @@ public class EventsViewController implements Initializable {
 
 	}
 
+	private void importVideoFile(Event event, File file, String perspectiveName) {
+		Optional<String> result = DialogFactory.importMediaDialog(event, file, perspectiveName).showAndWait();
+		result.ifPresent(name -> this.getDelegate().ifPresent( delegate -> delegate.importFile(event, file, name)));
+	}
+
 	private ContextMenu workspaceItemContextMenu() {
 		MenuItem rename = new MenuItem("Rename");
 		rename.setOnAction(this::onRenameSelectedWorkspaceItem);
@@ -220,7 +227,7 @@ public class EventsViewController implements Initializable {
 				perspectiveName = dragboard.getString();
 			}
 
-			System.out.println(file + "(" + perspectiveName + ") -> " + event.getName());
+			this.importVideoFile(event, file, perspectiveName);
 		}
 	}
 
