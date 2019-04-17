@@ -18,7 +18,6 @@ import de.kobair.videodebrief.ui.events.model.WorkspaceItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.EventItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.PerspectiveItem;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -116,13 +115,6 @@ public class EventsViewController implements Initializable {
 					deletePerspective(containingEvent, (Perspective) content);
 				}
 			}
-		}
-	}
-
-	private void onSelectWorkspaceItem(ObservableValue<? extends TreeItem<WorkspaceItem>> observable,
-			TreeItem<WorkspaceItem> oldValue, TreeItem<WorkspaceItem> newValue) {
-		if (newValue != null) {
-			WorkspaceItem item = newValue.getValue();
 		}
 	}
 
@@ -361,7 +353,6 @@ public class EventsViewController implements Initializable {
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		this.selectedWorkspaceItemProperty = this.eventsTreeView.getSelectionModel().selectedItemProperty();
-		this.selectedWorkspaceItemProperty.addListener(this::onSelectWorkspaceItem);
 		this.eventsTreeView.setRoot(new TreeItem<WorkspaceItem>());
 		this.eventsTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
 		this.setUpTreeCellFactory(this.eventsTreeView);
