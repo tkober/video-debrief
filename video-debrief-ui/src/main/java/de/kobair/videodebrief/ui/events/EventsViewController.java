@@ -48,6 +48,10 @@ public class EventsViewController implements Initializable {
 		public void deleteEvent(Event event, boolean keepFiles);
 
 		public void importFile(Event event, File file, String perspectivename);
+		
+		public void renamePerspective(Event event, Perspective perspective, String newName);
+		
+		public void deletePerspective(Event event, Perspective perspective, boolean keepFiles);
 
 	}
 
@@ -74,7 +78,8 @@ public class EventsViewController implements Initializable {
 				if (content instanceof Event) {
 					renameEvent((Event) content);
 				} else if (content instanceof Perspective) {
-					renamePerspective((Perspective) content);
+					Event containingEvent = (Event) treeItem.getParent().getValue().getContent();
+					renamePerspective(containingEvent, (Perspective) content);
 				}
 			}
 		}
@@ -90,7 +95,8 @@ public class EventsViewController implements Initializable {
 				if (content instanceof Event) {
 					exportEvent((Event) content);
 				} else if (content instanceof Perspective) {
-					exportPerspective((Perspective) content);
+					Event containingEvent = (Event) treeItem.getParent().getValue().getContent();
+					exportPerspective(containingEvent, (Perspective) content);
 				}
 			}
 		}
@@ -106,7 +112,8 @@ public class EventsViewController implements Initializable {
 				if (content instanceof Event) {
 					deleteEvent((Event) content);
 				} else if (content instanceof Perspective) {
-					deletePerspective((Perspective) content);
+					Event containingEvent = (Event) treeItem.getParent().getValue().getContent();
+					deletePerspective(containingEvent, (Perspective) content);
 				}
 			}
 		}
@@ -124,8 +131,9 @@ public class EventsViewController implements Initializable {
 		result.ifPresent(name -> this.getDelegate().ifPresent(delegate -> delegate.renameEvent(event, name)));
 	}
 
-	private void renamePerspective(Perspective perspective) {
-
+	private void renamePerspective(Event event, Perspective perspective) {
+		Optional<String> result = DialogFactory.namingDialog("Rename Perspective", perspective.getName()).showAndWait();
+		result.ifPresent(name -> this.getDelegate().ifPresent(delegate -> delegate.renamePerspective(event, perspective, name)));
 	}
 
 	private void deleteEvent(Event event) {
@@ -133,37 +141,46 @@ public class EventsViewController implements Initializable {
 		Optional<ButtonType> result = DialogFactory.confirmDeleteDialog("Delete Event", question).showAndWait();
 
 		if (result.isPresent()) {
-			ButtonBar.ButtonData type = result.get().getButtonData();
-			boolean keepFiles;
-			switch (type) {
-
-			case YES:
-				keepFiles = false;
-				break;
-
-			case OTHER:
-				keepFiles = true;
-				break;
-
-			default:
-				return;
-
-			}
-
+			boolean keepFiles = shouldFilesBeKept(result);
 			this.delegate.ifPresent(delegate -> delegate.deleteEvent(event, keepFiles));
 		}
-
 	}
 
-	private void deletePerspective(Perspective perspective) {
+	private void deletePerspective(Event event, Perspective perspective) {
+		String question = String.format("Do you really want to delete the perspective '%s'", perspective.getName());
+		Optional<ButtonType> result = DialogFactory.confirmDeleteDialog("Delete Perspective", question).showAndWait();
 
+		if (result.isPresent()) {
+			boolean keepFiles = shouldFilesBeKept(result);
+			this.delegate.ifPresent(delegate -> delegate.deletePerspective(event, perspective, keepFiles));
+		}
+	}
+
+	private boolean shouldFilesBeKept(Optional<ButtonType> result) {
+		ButtonBar.ButtonData type = result.get().getButtonData();
+		boolean keepFiles;
+		switch (type) {
+	
+		case YES:
+			keepFiles = false;
+			break;
+	
+		case OTHER:
+			keepFiles = true;
+			break;
+	
+		default:
+			return false;
+	
+		}
+		return keepFiles;
 	}
 
 	private void exportEvent(Event event) {
 
 	}
 
-	private void exportPerspective(Perspective perspective) {
+	private void exportPerspective(Event event, Perspective perspective) {
 
 	}
 
@@ -247,9 +264,26 @@ public class EventsViewController implements Initializable {
 	
 		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
 	}
+	
+	private ContextMenu perspectiveCellContextMenu() {
+		MenuItem rename = new MenuItem("Rename");
+		rename.setOnAction(this::onRenameSelectedWorkspaceItem);
+	
+		MenuItem delete = new MenuItem("Delete");
+		delete.setOnAction(this::onDeleteSelectedWorkspaceItem);
+	
+		MenuItem export = new MenuItem("Export");
+		export.setOnAction(this::onExportSelectedWorkspaceItem);
+	
+		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
+	}
 
 	private void setUpContextMenuForEventCell(TreeCell<WorkspaceItem> cell) {
 		cell.setContextMenu(this.eventCellContextMenu());
+	}
+
+	private void setUpContextMenuForPerspectiveCell(TreeCell<WorkspaceItem> cell) {
+		cell.setContextMenu(this.perspectiveCellContextMenu());
 	}
 
 	private void setUpEventCell(TreeCell<WorkspaceItem> cell) {
@@ -259,7 +293,7 @@ public class EventsViewController implements Initializable {
 	
 	private void setUpPerspectiveCell(TreeCell<WorkspaceItem> cell) {
 		// TODO Drag and drop
-		// TODO ContextMenu
+		this.setUpContextMenuForPerspectiveCell(cell);
 	}
 
 	private void setUpCell(TreeCell<WorkspaceItem> cell) {

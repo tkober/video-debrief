@@ -20,6 +20,7 @@ import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.AddPerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.CreateEventException;
 import de.kobair.videodebrief.core.workspace.error.RenameEventException;
+import de.kobair.videodebrief.core.workspace.error.RenamePerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 import de.kobair.videodebrief.ui.cameras.CamerasViewController;
 import de.kobair.videodebrief.ui.errors.ApplicationError;
@@ -142,6 +143,29 @@ public class WorkspaceController implements Initializable, EventsDelegate {
 		} catch (ImportException | AddPerspectiveException e) {
 			new ApplicationWarning(e).throwOnMainThread();
 		} catch (UnknownWorkspaceException | UnknownImportException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
+	}
+
+	@Override
+	public void renamePerspective(Event event, Perspective perspective, String newName) {
+		try {
+			this.workspace.renamePerspective(event, perspective, newName);
+			this.workspaceChanged();
+		} catch (RenamePerspectiveException e) {
+			new ApplicationWarning(e).throwOnMainThread();
+		} catch (UnknownWorkspaceException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
+	}
+
+	@Override
+	public void deletePerspective(Event event, Perspective perspective, boolean keepFiles) {
+		Workspace.DeletionStrategy strategy = keepFiles ? Workspace.DeletionStrategy.KEEP_FILES : Workspace.DeletionStrategy.DELETE_FILES;
+		try {
+			this.workspace.deletePerspective(event, perspective, strategy);
+			this.workspaceChanged();
+		} catch (UnknownWorkspaceException e) {
 			new ApplicationError(e).throwOnMainThread();
 		}
 	}
