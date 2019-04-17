@@ -31,12 +31,17 @@ import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
+import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
 
 public class EventsViewController implements Initializable {
+
+	private static final String MOVE_EVENT = "move_event";
 
 	public interface EventsDelegate {
 
@@ -51,6 +56,10 @@ public class EventsViewController implements Initializable {
 		public void renamePerspective(Event event, Perspective perspective, String newName);
 		
 		public void deletePerspective(Event event, Perspective perspective, boolean keepFiles);
+		
+		public void movePerspective(Event oldEvent, Event newEvent, Perspective perspective);
+		
+		public void showPerspective(Event event, Perspective perspective);
 
 	}
 
@@ -117,6 +126,18 @@ public class EventsViewController implements Initializable {
 			}
 		}
 	}
+	
+	private void onItemClicked(MouseEvent mouseEvent) {			
+		if (mouseEvent.getButton().equals(MouseButton.PRIMARY)){
+			TreeItem<WorkspaceItem> selectedTreeItem = this.selectedWorkspaceItemProperty.get();
+			Perspective perspective = (Perspective) selectedTreeItem.getValue().getContent();
+			Event event = (Event) selectedTreeItem.getParent().getValue().getContent();
+			
+            if (mouseEvent.getClickCount() == 2){
+                EventsViewController.this.showPerspective(event, perspective);
+            }
+        }
+	}
 
 	private void renameEvent(Event event) {
 		Optional<String> result = DialogFactory.namingDialog("Rename Event", event.getName()).showAndWait();
@@ -180,8 +201,29 @@ public class EventsViewController implements Initializable {
 		Optional<String> result = DialogFactory.importMediaDialog(event, file, perspectiveName).showAndWait();
 		result.ifPresent(name -> this.getDelegate().ifPresent(delegate -> delegate.importFile(event, file, name)));
 	}
-
-	private boolean canDrop(DragEvent event) {
+	
+	private void showPerspective(Event event, Perspective perspective) {
+		this.delegate.ifPresent(delegate -> delegate.showPerspective(event, perspective));
+	}
+	
+	private void moveSelectedPerspectiveToEvent(Event newEvent) {
+		TreeItem<WorkspaceItem> selectedTreeItem = this.selectedWorkspaceItemProperty.get();
+		Perspective perspective = (Perspective) selectedTreeItem.getValue().getContent();
+		Event oldEvent = (Event) selectedTreeItem.getParent().getValue().getContent();
+		
+		this.delegate.ifPresent(delegate -> delegate.movePerspective(oldEvent, newEvent, perspective));
+	}
+	
+	private boolean isMovePerspectiveDrop(DragEvent event) {
+		if (event.getDragboard().hasString()) {
+			if (MOVE_EVENT.equals(event.getDragboard().getString())) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private boolean isImportPerspectiveDrop(DragEvent event) {
 		if (!event.getDragboard().hasFiles()) {
 			return false;
 		}
@@ -205,15 +247,27 @@ public class EventsViewController implements Initializable {
 		return false;
 	}
 
+	private boolean canDrop(DragEvent event) {
+		if (isMovePerspectiveDrop(event)) {
+			return true;
+		}
+		
+		return isImportPerspectiveDrop(event);
+	}
+
 	private void handleDragOver(DragEvent event) {
 		if (this.canDrop(event)) {
 			event.acceptTransferModes(TransferMode.COPY);
 		}
 	}
 
-	private void handleDrop(DragEvent dragEvent, Event event) {
-		if (canDrop(dragEvent)) {
-			Dragboard dragboard = dragEvent.getDragboard();
+	private void handleDrop(DragEvent dropEvent, Event event) {
+		if (this.isMovePerspectiveDrop(dropEvent)) {
+			this.moveSelectedPerspectiveToEvent(event);
+		}
+		
+		else if (this.isImportPerspectiveDrop(dropEvent)) {
+			Dragboard dragboard = dropEvent.getDragboard();
 			File file = dragboard.getFiles().get(0);
 			String perspectiveName = null;
 			if (dragboard.hasString()) {
@@ -225,23 +279,30 @@ public class EventsViewController implements Initializable {
 	}
 
 	private void resetCell(TreeCell<WorkspaceItem> cell) {
-		this.removeDragAndDropFromCell(cell);
-		this.removeContextMenu(cell);
-	}
-	
-	private void removeDragAndDropFromCell(TreeCell<WorkspaceItem> cell) {
 		cell.setOnDragOver(null);
 		cell.setOnDragDropped(null);
-	}
-
-	private void removeContextMenu(TreeCell<WorkspaceItem> cell) {
+		cell.setOnDragDetected(null);
 		cell.setContextMenu(null);
+		cell.setOnMouseClicked(null);
 	}
-
+	
 	private void setUpDragAndDropForEventCell(TreeCell<WorkspaceItem> cell) {
 		cell.setOnDragOver(EventsViewController.this::handleDragOver);
 		Event event = (Event) cell.getItem().getContent();
 		cell.setOnDragDropped(dropEvent -> this.handleDrop(dropEvent, event));
+	}
+	
+	private void setUpDragAndDropForPerspectiveCell(TreeCell<WorkspaceItem> cell) {
+		cell.setOnDragDetected(mouseEvent -> {
+			Dragboard dragboard = cell.startDragAndDrop(TransferMode.ANY);
+			dragboard.setDragView(cell.snapshot(null, null));
+			
+			ClipboardContent content = new ClipboardContent();
+			content.putString(MOVE_EVENT);
+			dragboard.setContent(content);
+			
+			mouseEvent.consume();
+		});
 	}
 	
 	private ContextMenu eventCellContextMenu() {
@@ -284,8 +345,9 @@ public class EventsViewController implements Initializable {
 	}
 	
 	private void setUpPerspectiveCell(TreeCell<WorkspaceItem> cell) {
-		// TODO Drag and drop
+		this.setUpDragAndDropForPerspectiveCell(cell);
 		this.setUpContextMenuForPerspectiveCell(cell);
+		cell.setOnMouseClicked(this::onItemClicked);
 	}
 
 	private void setUpCell(TreeCell<WorkspaceItem> cell) {

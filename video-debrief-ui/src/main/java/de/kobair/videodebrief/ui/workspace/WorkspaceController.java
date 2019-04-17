@@ -169,4 +169,17 @@ public class WorkspaceController implements Initializable, EventsDelegate {
 			new ApplicationError(e).throwOnMainThread();
 		}
 	}
+
+	@Override
+	public void movePerspective(Event oldEvent, Event newEvent, Perspective perspective) {
+		System.out.println("TODO: movePerspective()");
+		System.out.println(String.format("(%s):\t(%s) -> (%s)", perspective.getName(), oldEvent.getName(), newEvent.getName()));
+	}
+
+	@Override
+	public void showPerspective(Event event, Perspective perspective) {
+		System.out.println("TODO: shwoPerspective()");
+		System.out.println(event.getName());
+		System.out.println(perspective.getName());
+	}
 }
