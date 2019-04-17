@@ -138,6 +138,7 @@ public class WorkspaceController implements Initializable, EventsDelegate {
 	public void importFile(final Event event, final File file, final String perspectivename) {
 		try {
 			this.importManager.importFile(this.workspace, file, event, perspectivename, null);
+			this.workspaceChanged();
 		} catch (ImportException | AddPerspectiveException e) {
 			new ApplicationWarning(e).throwOnMainThread();
 		} catch (UnknownWorkspaceException | UnknownImportException e) {
