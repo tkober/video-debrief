@@ -204,6 +204,32 @@ public class EventsViewController implements Initializable {
 		return false;
 	}
 
+	private void handleDragOver(DragEvent event) {
+		if (this.canDrop(event)) {
+			System.out.println(event);
+			event.acceptTransferModes(TransferMode.COPY);
+		}
+	}
+
+	private void handleDrop(DragEvent dragEvent, Event event) {
+		if (canDrop(dragEvent)) {
+			Dragboard dragboard = dragEvent.getDragboard();
+			File file = dragboard.getFiles().get(0);
+			String perspectiveName = null;
+			if (dragboard.hasString()) {
+				perspectiveName = dragboard.getString();
+			}
+
+			System.out.println(file + "(" + perspectiveName + ") -> " + event.getName());
+		}
+	}
+
+	private void setUpDragAndDropForEventCell(CheckBoxTreeCell<WorkspaceItem> cell) {
+		cell.setOnDragOver(EventsViewController.this::handleDragOver);
+		Event event = (Event) cell.getItem();
+		cell.setOnDragDropped(dropEvent -> this.handleDrop(dropEvent, event));
+	}
+
 	public void reload(Map<Event, List<Perspective>> content) {
 		this.events.clear();
 		List<TreeItem<WorkspaceItem>> items = new ArrayList<>();
@@ -237,25 +263,6 @@ public class EventsViewController implements Initializable {
 	public Optional<EventsDelegate> getDelegate() {
 		return delegate;
 	}
-	
-	public void handleDragOver(DragEvent event) {
-		if (this.canDrop(event)) {
-			event.acceptTransferModes(TransferMode.COPY);
-		}
-	}
-	
-	public void handleDrop(DragEvent event) {
-		if (canDrop(event)) {
-			Dragboard dragboard = event.getDragboard();
-			File file = dragboard.getFiles().get(0);
-			String perspectiveName = null;
-			if (dragboard.hasString()) {
-				perspectiveName = dragboard.getString();
-			}
-			
-			System.out.println(file + "(" + perspectiveName + ")");
-		}
-	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
@@ -268,10 +275,11 @@ public class EventsViewController implements Initializable {
             @Override
             public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
             	CheckBoxTreeCell<WorkspaceItem> result = new CheckBoxTreeCell<WorkspaceItem>();
-            	// TODO: only for Events
-            	result.setOnDragOver(EventsViewController.this::handleDragOver);
-            	// TODO: Propagate workspace-event to handleDrop
-            	result.setOnDragDropped(EventsViewController.this::handleDrop);
+
+            	if (result.getItem() != null && result.getItem() instanceof Event) {
+					setUpDragAndDropForEventCell(result);
+				}
+
                 return result;
             }
         });
