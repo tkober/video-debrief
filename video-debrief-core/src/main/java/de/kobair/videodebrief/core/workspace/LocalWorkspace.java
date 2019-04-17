@@ -40,9 +40,17 @@ import de.kobair.videodebrief.core.workspace.error.UnrecoverableWorkspaceExcepti
 import de.kobair.videodebrief.core.workspace.error.WorkspaceException;
 
 public class LocalWorkspace implements Workspace, FileSystemSynchronized {
+	
+	private enum ContentLocation {
+		SHARED_CONTENT_DIRECTORY,
+		ONE_DIRECTORY_PER_EVENT
+	}
 
-	private final static String UUID_STRING_REGEX = "([0-9,a-f]{8}(-[0-9,a-f]{4}){4}[0-9,a-f]{8})";
-	private final static String VALID_PERSPECTIVE_FILE_NAME_REGEX = "(^" + UUID_STRING_REGEX + "([.].{3}))";
+	private static final String UUID_STRING_REGEX = "([0-9,a-f]{8}(-[0-9,a-f]{4}){4}[0-9,a-f]{8})";
+	private static final String VALID_PERSPECTIVE_FILE_NAME_REGEX = "(^" + UUID_STRING_REGEX + "([.].{3}))";
+	private static final String SHARED_CONTENT_DIRECTORY = "content";
+	
+	private final ContentLocation contentLocation = ContentLocation.SHARED_CONTENT_DIRECTORY;
 
 	private final File workspaceFile;
 	private WorkspaceData workspaceData;
@@ -237,6 +245,19 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 
 		return ChangeInOutPointCheckResult.OKAY;
 	}
+	
+	private File sharedContentDirectory() {
+		return LocalUtils.extendDirectory(getWorkingDirectory(), SHARED_CONTENT_DIRECTORY);
+	}
+	
+	private File newUniqueSubdirectory() {
+		File directory = null;
+		do {
+			UUID uuid = UUID.randomUUID();
+			directory = LocalUtils.extendDirectory(getWorkingDirectory(), uuid.toString());
+		} while (directory.exists());
+		return directory;
+	}
 
 	@Override
 	public File getWorkspaceDirectory() {
@@ -300,8 +321,10 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 		} else {
 			File directory = this.getAvailableSubDirectoryInWorkingDirectory(null);
 			if (!directory.mkdir()) {
-				String message = String.format("Directory '%s' could not be created", directory);
-				throw new UnknownWorkspaceException(message, null);
+				if (this.contentLocation != ContentLocation.SHARED_CONTENT_DIRECTORY) {
+					String message = String.format("Directory '%s' could not be created", directory);
+					throw new UnknownWorkspaceException(message, null);
+				}
 			}
 			String trimmedName = name.trim();
 			String subDirectory = directory.getName();
@@ -366,12 +389,14 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 
 	@Override
 	public File getAvailableSubDirectoryInWorkingDirectory(Object infomration) {
-		File directory = null;
-		do {
-			UUID uuid = UUID.randomUUID();
-			directory = LocalUtils.extendDirectory(getWorkingDirectory(), uuid.toString());
-		} while (directory.exists());
-		return directory;
+		switch (this.contentLocation) {
+		case ONE_DIRECTORY_PER_EVENT:
+			return this.newUniqueSubdirectory();
+
+		case SHARED_CONTENT_DIRECTORY:
+			return this.sharedContentDirectory();
+		}
+		return null;
 	}
 
 	@Override
