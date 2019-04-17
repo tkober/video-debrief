@@ -125,7 +125,7 @@ public class LocalImportManager implements ImportManager {
 		if (checkResult != ImportCheckResult.OKAY) {
 			throw new ImportException(checkResult, file);
 		} else {
-			// To break the above mentionen cyclic dependencies we do the following:
+			// To break the above mentioned cyclic dependencies we do the following:
 
 			// 1.) Create an empty file with the same name as the desired file as a placeholder
 			File destination = generateFileForDirectory(destinationDirectory,
