@@ -13,6 +13,7 @@ import com.sun.java.accessibility.util.java.awt.CheckboxTranslator;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.formats.FileFormat;
+import de.kobair.videodebrief.core.importing.ImportManager;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem;
@@ -193,7 +194,7 @@ public class EventsViewController implements Initializable {
 			return false;
 		}
 
-		for (FileFormat fileFormat : FileFormat.VIDEO_FORMATS) {
+		for (FileFormat fileFormat : ImportManager.IMPORTABLE_FORMATS) {
 			boolean accepted = fileFormat.getFilenameFilter().accept(file.getParentFile(), file.getName());
 			if (accepted) {
 				return true;
