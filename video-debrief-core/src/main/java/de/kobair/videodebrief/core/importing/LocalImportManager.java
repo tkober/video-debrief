@@ -22,6 +22,7 @@ import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.AddPerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
+import de.kobair.videodebrief.core.workspace.error.WorkspaceException;
 
 public class LocalImportManager implements ImportManager {
 
@@ -105,6 +106,16 @@ public class LocalImportManager implements ImportManager {
 		}
 	}
 
+	private void createPlaceholder(File file) {
+
+	}
+
+	/*
+	 *	The import is a bit trick because we have two things that depend on each other.
+	 *	1.)	Perspectives can only be created when the required file is there
+	 * 	2.)	We should only copy the file if we are sure that we can create a Perspective
+	 * 		with the given name.
+	 */
 	@Override
 	public ImportResult importFile(Workspace workspace, File file, Event event, String perspectiveName, ImportStatusUpdate statusUpdate)
 			throws ImportException, AddPerspectiveException, UnknownWorkspaceException, UnknownImportException {
@@ -114,9 +125,26 @@ public class LocalImportManager implements ImportManager {
 		if (checkResult != ImportCheckResult.OKAY) {
 			throw new ImportException(checkResult, file);
 		} else {
+			// To break the above mentionen cyclic dependencies we do the following:
+
+			// 1.) Create an empty file with the same name as the desired file as a placeholder
 			File destination = generateFileForDirectory(destinationDirectory,
 					checkResult.getFileFormat().getDefaultFileExtension());
+			createPlaceholder(destination);
 
+			// 2.) Create the perspective with the placeholder
+			Perspective perspective = null;
+			try {
+				perspective = workspace.addPerspectiveToEvent(event, destination, perspectiveName);
+			} catch (WorkspaceException e) {
+				// If this fails delete the placeholder...
+				destination.delete();
+
+				// ...and re-throw the exception
+				throw e;
+			}
+
+			// 3.) Copy the actual file (placeholder will be overwritten)
 			try {
 				this.copyFile(file, destination, statusUpdate);
 			} catch (IOException e) {
@@ -124,10 +152,7 @@ public class LocalImportManager implements ImportManager {
 				throw new UnknownImportException(message, e);
 			}
 
-			File importedFile = destination;
-			Perspective perspective = workspace.addPerspectiveToEvent(event, importedFile, perspectiveName);
-
-			return new ImportResult(perspective, importedFile);
+			return new ImportResult(perspective, destination);
 		}
 	}
 
