@@ -25,23 +25,29 @@ import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 
 public class LocalImportManager implements ImportManager {
 
-	public static final List<FileFormat> IMPORTABLE_FORMATS = Collections
-			.unmodifiableList(Arrays.asList(FileFormat.VIDEO_FORMATS));
-
-	private ImportCheckResult checkCanImport(MediaFile file, File destination) {
-		if (!file.getFile().exists()) {
+	private ImportCheckResult checkCanImport(File file, File destination) {
+		if (!file.exists()) {
 			return ImportCheckResult.SOURCE_DOES_NOT_EXIST;
 		}
 
-		if (!file.getFile().isFile()) {
+		if (!file.isFile()) {
 			return ImportCheckResult.SOURCE_NOT_A_FILE;
 		}
 
-		if (!IMPORTABLE_FORMATS.contains(file.getFormat())) {
+		boolean accepted = false;
+		FileFormat detectedFileFormat = null;
+		for (FileFormat fileFormat : IMPORTABLE_FORMATS) {
+			accepted = fileFormat.getFilenameFilter().accept(file.getParentFile(), file.getName());
+			if (accepted) {
+				detectedFileFormat = fileFormat;
+				break;
+			}
+		}
+		if (!accepted) {
 			return ImportCheckResult.UNSUPPORTED_FILE_FORMAT;
 		}
 
-		if (!file.getFile().canRead()) {
+		if (!file.canRead()) {
 			return ImportCheckResult.SOURCE_NOT_READABLE;
 		}
 
@@ -57,7 +63,7 @@ public class LocalImportManager implements ImportManager {
 			return ImportCheckResult.DESTINATION_NOT_WRITALBE;
 		}
 
-		return ImportCheckResult.OKAY;
+		return ImportCheckResult.OKAY.setFileFormat(detectedFileFormat);
 	}
 
 	private File generateFileForDirectory(File dir, String fileExtension) {
@@ -100,30 +106,36 @@ public class LocalImportManager implements ImportManager {
 	}
 
 	@Override
-	public ImportResult importMediaFile(final Workspace workspace, final MediaFile mediaFile, final Event event,
-			final String perspecitveName, ImportStatusUpdate statusUpdate)
+	public ImportResult importFile(Workspace workspace, File file, Event event, String perspectiveName, ImportStatusUpdate statusUpdate)
 			throws ImportException, AddPerspectiveException, UnknownWorkspaceException, UnknownImportException {
 		File destinationDirectory = LocalUtils.extendDirectory(workspace.getWorkspaceDirectory(), event.getSubPath());
-		ImportCheckResult checkResult = checkCanImport(mediaFile, destinationDirectory);
+		ImportCheckResult checkResult = checkCanImport(file, destinationDirectory);
 
 		if (checkResult != ImportCheckResult.OKAY) {
-			throw new ImportException(checkResult, mediaFile);
+			throw new ImportException(checkResult, file);
 		} else {
 			File destination = generateFileForDirectory(destinationDirectory,
-					mediaFile.getFormat().getDefaultFileExtension());
-			
+					checkResult.getFileFormat().getDefaultFileExtension());
+
 			try {
-				this.copyFile(mediaFile.getFile(), destination, statusUpdate);
+				this.copyFile(file, destination, statusUpdate);
 			} catch (IOException e) {
-				String message = String.format("Failed copying '%s' to '%s'.", mediaFile, destination);
+				String message = String.format("Failed copying '%s' to '%s'.", file, destination);
 				throw new UnknownImportException(message, e);
 			}
-			
+
 			File importedFile = destination;
-			Perspective perspective = workspace.addPerspectiveToEvent(event, importedFile, perspecitveName);
+			Perspective perspective = workspace.addPerspectiveToEvent(event, importedFile, perspectiveName);
 
 			return new ImportResult(perspective, importedFile);
 		}
+	}
+
+	@Override
+	public ImportResult importMediaFile(final Workspace workspace, final MediaFile mediaFile, final Event event,
+			final String perspecitveName, ImportStatusUpdate statusUpdate)
+			throws ImportException, AddPerspectiveException, UnknownWorkspaceException, UnknownImportException {
+		return this.importFile(workspace, mediaFile.getFile(), event, perspecitveName, statusUpdate);
 	}
 
 	@Override
@@ -131,13 +143,5 @@ public class LocalImportManager implements ImportManager {
 			final Event event, ImportStatusUpdate statusUpdate)
 			throws ImportException, AddPerspectiveException, UnknownWorkspaceException, UnknownImportException {
 		return this.importMediaFile(workspace, mediaFile, event, device.getName(), statusUpdate);
-	}
-
-	public static void main(String... args) throws IOException {
-		File from = new File("/Users/kober/java_error_in_idea.hprof");
-		File to = new File("/Users/kober/Desktop/java_error_in_idea.hprof");
-
-		new LocalImportManager().copyFile(from, to, (progress, status) -> System.out.println(progress));
-
 	}
 }

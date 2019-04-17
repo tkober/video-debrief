@@ -1,5 +1,7 @@
 package de.kobair.videodebrief.core.importing.checks;
 
+import de.kobair.videodebrief.core.formats.FileFormat;
+
 public enum ImportCheckResult {
 	OKAY(null), // TODO
 	SOURCE_DOES_NOT_EXIST(""),
@@ -11,6 +13,7 @@ public enum ImportCheckResult {
 	DESTINATION_NOT_WRITALBE("");
 
 	private String message;
+	private FileFormat fileFormat;
 
 	private ImportCheckResult(String message) {
 		this.message = message;
@@ -18,5 +21,14 @@ public enum ImportCheckResult {
 
 	public String getMessage() {
 		return message;
+	}
+
+	public ImportCheckResult setFileFormat(FileFormat fileFormat) {
+		this.fileFormat = fileFormat;
+		return this;
+	}
+
+	public FileFormat getFileFormat() {
+		return fileFormat;
 	}
 }
