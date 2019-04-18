@@ -27,6 +27,7 @@ import de.kobair.videodebrief.ui.errors.ApplicationError;
 import de.kobair.videodebrief.ui.errors.ApplicationWarning;
 import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
+import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.playback.PlaybackViewController;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -34,7 +35,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
-public class WorkspaceController implements Initializable, EventsDelegate {
+public class WorkspaceController extends Controller implements EventsDelegate {
 
 	@FXML
 	private AnchorPane camerasAnchorPane;
@@ -64,24 +65,6 @@ public class WorkspaceController implements Initializable, EventsDelegate {
 
 	private void workspaceChanged() {
 		updateEventsView();
-	}
-
-	private <T> T loadViewIntoAnchorPane(AnchorPane anchorPane, String fxml, Class<T> controllerClass) {
-		FXMLLoader loader = new FXMLLoader();
-		loader.setLocation(controllerClass.getResource("view/" + fxml));
-		try {
-			Node view = loader.load();
-			anchorPane.getChildren().add(view);
-			AnchorPane.setTopAnchor(view, 0.0);
-			AnchorPane.setLeftAnchor(view, 0.0);
-			AnchorPane.setRightAnchor(view, 0.0);
-			AnchorPane.setBottomAnchor(view, 0.0);
-
-			return loader.getController();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
 	}
 
 	private CamerasViewController loadCamerasView(AnchorPane anchorPane) {
