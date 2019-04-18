@@ -1,7 +1,6 @@
 package de.kobair.videodebrief.ui.workspace;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -28,11 +27,8 @@ import de.kobair.videodebrief.ui.errors.ApplicationWarning;
 import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
 import de.kobair.videodebrief.ui.generics.Controller;
-import de.kobair.videodebrief.ui.playback.PlaybackViewController;
+import de.kobair.videodebrief.ui.playback.PlaybackController;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.fxml.Initializable;
-import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 
 public class WorkspaceController extends Controller implements EventsDelegate {
@@ -49,7 +45,7 @@ public class WorkspaceController extends Controller implements EventsDelegate {
 
 	private Workspace workspace;
 	private EventsViewController evnetEventsViewController;
-	private PlaybackViewController playbackViewController;
+	private PlaybackController playbackViewController;
 
 	private void updateEventsView() {
 		try {
@@ -75,8 +71,8 @@ public class WorkspaceController extends Controller implements EventsDelegate {
 		return this.loadViewIntoAnchorPane(anchorPane, "Events.fxml", EventsViewController.class);
 	}
 	
-	private PlaybackViewController loadPlaybackView(AnchorPane anchorPane) {
-		return this.loadViewIntoAnchorPane(anchorPane, "Playback.fxml", PlaybackViewController.class);
+	private PlaybackController loadPlaybackView(AnchorPane anchorPane) {
+		return this.loadViewIntoAnchorPane(anchorPane, "Playback.fxml", PlaybackController.class);
 	}
 
 	public void setWorkspace(Workspace workspace) {
