@@ -28,6 +28,7 @@ import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
 import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
+import de.kobair.videodebrief.ui.playback.model.SelectedMedia;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
@@ -168,8 +169,7 @@ public class WorkspaceController extends Controller implements EventsDelegate {
 
 	@Override
 	public void showPerspective(Event event, Perspective perspective) {
-		System.out.println("TODO: shwoPerspective()");
-		System.out.println(event.getName());
-		System.out.println(perspective.getName());
+		SelectedMedia selectedMedia = new SelectedMedia(this.workspace, event, perspective);
+		this.playbackViewController.setSelectedMedia(selectedMedia);
 	}
 }

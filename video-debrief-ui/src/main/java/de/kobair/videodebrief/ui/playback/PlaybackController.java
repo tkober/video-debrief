@@ -5,6 +5,7 @@ import java.util.ResourceBundle;
 
 import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.perspectives.PerspectivesViewController;
+import de.kobair.videodebrief.ui.playback.model.SelectedMedia;
 import de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -37,4 +38,8 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		this.perspectivesViewController.setDelegate(this);
 	}
 
+	public void setSelectedMedia(SelectedMedia selectedMedia) {
+		this.videoPlayerViewController.setSelectedMedia(selectedMedia);
+		this.perspectivesViewController.setSelectedMedia(selectedMedia);
+	}
 }
