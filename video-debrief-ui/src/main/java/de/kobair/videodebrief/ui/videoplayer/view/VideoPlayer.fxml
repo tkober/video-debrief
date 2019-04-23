@@ -1,5 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.media.MediaView?>
 
-<AnchorPane fx:id="anchorPane" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController" />
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="300" prefWidth="300" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
+	<children>
+		<AnchorPane fx:id="mediaViewAnchorPane" layoutX="14.0" layoutY="14.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+			<children>
+				<MediaView fx:id="mediaView" fitHeight="${mediaViewAnchorPane.height}" fitWidth="${mediaViewAnchorPane.width}" layoutX="1.0" />
+			</children>
+		</AnchorPane>
+      <HBox layoutY="260.0" prefHeight="40.0" prefWidth="300.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="260.0" />
+	</children>
+</AnchorPane>
