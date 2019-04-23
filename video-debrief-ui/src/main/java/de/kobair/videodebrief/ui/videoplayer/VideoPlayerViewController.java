@@ -37,7 +37,13 @@ public class VideoPlayerViewController implements Initializable {
 	@FXML
 	private AnchorPane mediaViewAnchorPane;
 	@FXML
+	private Button exportSnapshotButton;
+	@FXML
+	private Button exportClipButton;
+	@FXML
 	private Button playPauseButton;
+	@FXML
+	private Button setInpointButton;
 	@FXML
 	private Button skipButton;
 	@FXML
@@ -47,12 +53,61 @@ public class VideoPlayerViewController implements Initializable {
 	@FXML
 	private Button previousFrameButton;
 	@FXML
+	private Button setOutpointButton;
+	@FXML
 	private Button fullscreenButton;
 	@FXML
 	private Label timestampLabel;
 	@FXML
 	private Label durationLabel;
+	
+	@FXML void onExportSnapshotButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onExportSnapshotButtonPressed()");
+	}
+	
+	@FXML void onExportClipButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onExportClipButtonPressed()");
+	}
 
+	@FXML
+	private void onPlayPauseButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onPlayPauseButtonPressed()");
+	}
+	
+	@FXML
+	private void onSkipeButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onSkipeButtonPressed()");
+	}
+	
+	@FXML
+	private void onBackButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onBackButtonPressed()");
+	}
+	
+	@FXML
+	private void onNextFrameButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onNextFrameButtonPressed()");
+	}
+	
+	@FXML
+	private void onPreviousFrameButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onPreviousFrameButtonPressed()");
+	}
+	
+	@FXML
+	private void onFullscreenButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onFullscreenButtonPressed()");
+	}
+	
+	@FXML
+	private void onSetInpointButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onSetInpointButtonPressed()");
+	}
+	
+	@FXML
+	private void onSetOutpointButtonPressed(ActionEvent actionEvent) {
+		System.out.println("onSetOutpointPressed()");
+	}
 
 	private Optional<VideoPlayerDelegate> delegate = Optional.empty();
 	private SelectedMedia selectedMedia;
@@ -164,5 +219,6 @@ public class VideoPlayerViewController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		
 	}
 }

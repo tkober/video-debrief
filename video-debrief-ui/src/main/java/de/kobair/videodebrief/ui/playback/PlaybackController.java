@@ -26,7 +26,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	}
 
 	private PerspectivesViewController loadPerspectivesView() {
-		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "Perspectives.fxml", PerspectivesViewController.class);
+		return this.loadViewIntoAnchorPane(perspectivesAnchorPane, "Perspectives.fxml", PerspectivesViewController.class);
 	}
 
 	@Override

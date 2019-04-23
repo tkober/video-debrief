@@ -16,7 +16,7 @@
 				AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
 				AnchorPane.topAnchor="0.0">
 				<items>
-					<AnchorPane prefHeight="573.0" prefWidth="896.0">
+					<AnchorPane>
 						<children>
 							<SplitPane dividerPositions="0.5"
 								AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
