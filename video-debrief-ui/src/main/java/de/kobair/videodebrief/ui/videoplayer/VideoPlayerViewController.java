@@ -3,32 +3,35 @@ package de.kobair.videodebrief.ui.videoplayer;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.ui.playback.model.SelectedMedia;
-import javafx.beans.value.ChangeListener;
+import javafx.animation.AnimationTimer;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
-import javafx.scene.effect.DropShadow;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaErrorEvent;
-import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
-import javafx.scene.paint.Color;
+import javafx.util.Duration;
 
 public class VideoPlayerViewController implements Initializable {
+	
+	private static final int SEEK_DURATION_MILLIS = 5000;
+	private static final int FRAME_STEPS_MILLIS = 17;
 
 	public interface VideoPlayerDelegate {
 
@@ -60,60 +63,108 @@ public class VideoPlayerViewController implements Initializable {
 	private Label timestampLabel;
 	@FXML
 	private Label durationLabel;
-	
-	@FXML void onExportSnapshotButtonPressed(ActionEvent actionEvent) {
+
+	@FXML
+	private MediaView mediaView;
+
+	@FXML
+	void onExportSnapshotButtonPressed(ActionEvent actionEvent) {
 		System.out.println("onExportSnapshotButtonPressed()");
 	}
-	
-	@FXML void onExportClipButtonPressed(ActionEvent actionEvent) {
+
+	@FXML
+	void onExportClipButtonPressed(ActionEvent actionEvent) {
 		System.out.println("onExportClipButtonPressed()");
 	}
 
 	@FXML
 	private void onPlayPauseButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onPlayPauseButtonPressed()");
+		if (this.mediaPlayer.getStatus() == Status.PLAYING) {
+			this.mediaPlayer.pause();
+		} else {
+			this.mediaPlayer.play();
+		}
 	}
-	
+
 	@FXML
-	private void onSkipeButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onSkipeButtonPressed()");
+	private void onSkipButtonPressed(ActionEvent actionEvent) {
+		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().add(new Duration(SEEK_DURATION_MILLIS)));
 	}
-	
+
 	@FXML
 	private void onBackButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onBackButtonPressed()");
+		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().subtract(new Duration(SEEK_DURATION_MILLIS)));
 	}
-	
+
 	@FXML
 	private void onNextFrameButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onNextFrameButtonPressed()");
+//		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
+//			this.mediaPlayer.pause();
+//		}
+//		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().add(new Duration(FRAME_STEPS_MILLIS)));
+		this.mediaPlayer.setRate(-0.05);
 	}
-	
+
 	@FXML
 	private void onPreviousFrameButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onPreviousFrameButtonPressed()");
+		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
+			this.mediaPlayer.pause();
+		}
+		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().subtract(new Duration(FRAME_STEPS_MILLIS)));
 	}
-	
+
 	@FXML
 	private void onFullscreenButtonPressed(ActionEvent actionEvent) {
 		System.out.println("onFullscreenButtonPressed()");
 	}
-	
+
 	@FXML
 	private void onSetInpointButtonPressed(ActionEvent actionEvent) {
 		System.out.println("onSetInpointButtonPressed()");
 	}
-	
+
 	@FXML
 	private void onSetOutpointButtonPressed(ActionEvent actionEvent) {
 		System.out.println("onSetOutpointPressed()");
 	}
 
+	@FXML
+	private void onMediaViewError(MediaErrorEvent event) {
+		System.out.println(event);
+	}
+
+	private List<Control> mediaPlayerControls;
 	private Optional<VideoPlayerDelegate> delegate = Optional.empty();
 	private SelectedMedia selectedMedia;
+	private MediaPlayer mediaPlayer;
+	private Media media;
 
-	public void setDelegate(final VideoPlayerDelegate delegate) {
-		this.delegate = Optional.ofNullable(delegate);
+	private void handleMediaPlayerStatusChange(ObservableValue<? extends MediaPlayer.Status> ov,
+			MediaPlayer.Status oldStatus, MediaPlayer.Status newStatus) {
+
+		switch (newStatus) {
+		
+		case READY:
+			this.enableMediaPlayerControls();
+			this.showPlayButton();
+			break;
+			
+		case PAUSED:
+			this.showPlayButton();
+			break;
+			
+		case PLAYING:
+			this.showPauseButton();
+			break;
+			
+		case STOPPED:
+			this.showPlayButton();
+			break;
+
+		default:
+			this.disableMediaPlayerControls();
+			break;
+		}
 	}
 
 	private Media fxMediaFromSelection(SelectedMedia selectedMedia) {
@@ -129,96 +180,111 @@ public class VideoPlayerViewController implements Initializable {
 			return null;
 		}
 
-		return new Media(mediaUrl.toExternalForm());
+		Media media = new Media(mediaUrl.toExternalForm());
+		media.setOnError(new Runnable() {
+			public void run() {
+				// Handle asynchronous error in Media object.
+				System.out.println(VideoPlayerViewController.this.media.getError());
+			}
+		});
+		return media;
+	}
+
+	private void removeExistingMediaPlayer() {
+		if (this.mediaPlayer == null) {
+			return;
+		}
+
+		this.mediaPlayer.statusProperty().removeListener(this::handleMediaPlayerStatusChange);
+		this.mediaPlayer.setOnError(null);
+		this.mediaPlayer.stop();
+		this.mediaPlayer = null;
+	}
+
+	private void disableMediaPlayerControls() {
+		for (Control control : this.mediaPlayerControls) {
+			control.setDisable(true);
+		}
+	}
+
+	private void enableMediaPlayerControls() {
+		for (Control control : this.mediaPlayerControls) {
+			control.setDisable(false);
+		}
+	}
+	
+	private void showPlayButton() {
+		this.playPauseButton.setText(">");
+	}
+	
+	private void showPauseButton() {
+		this.playPauseButton.setText("||");
+	}
+
+	public void setDelegate(final VideoPlayerDelegate delegate) {
+		this.delegate = Optional.ofNullable(delegate);
 	}
 
 	public void setSelectedMedia(SelectedMedia selectedMedia) {
+		this.removeExistingMediaPlayer();
+
 		this.selectedMedia = selectedMedia;
-		final Media media = fxMediaFromSelection(selectedMedia);
+		this.media = fxMediaFromSelection(this.selectedMedia);
 
-		final MediaPlayer player = new MediaPlayer(media);
+		this.mediaPlayer = new MediaPlayer(this.media);
+		this.mediaPlayer.statusProperty().addListener(this::handleMediaPlayerStatusChange);
 
-		mediaView.setMediaPlayer(player);
-		mediaView.setSmooth(true);
+		this.mediaPlayer.setOnError(new Runnable() {
+			public void run() {
+				// Handle asynchronous error in Player object.
+				System.out.println(VideoPlayerViewController.this.mediaPlayer.getError());
+			}
+		});
 
-//		// Create the Buttons
-//		Button playButton = new Button("Play");
-//		Button stopButton = new Button("Stop");
-//
-//		// Create the Event Handlers for the Button
-//		playButton.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent event) {
-//				if (player.getStatus() == Status.PLAYING) {
-//					player.stop();
-//					player.play();
-//				} else {
-//					player.play();
-//				}
-//			}
-//		});
-//
-//		stopButton.setOnAction(new EventHandler<ActionEvent>() {
-//			public void handle(ActionEvent event) {
-//				player.stop();
-//			}
-//		});
-//
-//		// Create Handlers for handling Errors
-//		player.setOnError(new Runnable() {
-//			public void run() {
-//				// Handle asynchronous error in Player object.
-//				printMessage(player.getError());
-//			}
-//		});
-//
-//		media.setOnError(new Runnable() {
-//			public void run() {
-//				// Handle asynchronous error in Media object.
-//				printMessage(media.getError());
-//			}
-//		});
-//
-//		mediaView.setOnError(new EventHandler<MediaErrorEvent>() {
-//			public void handle(MediaErrorEvent event) {
-//				// Handle asynchronous error in MediaView.
-//				printMessage(event.getMediaError());
-//			}
-//		});
-//
-//		// Add a ChangeListener to the player
-//		player.statusProperty().addListener(new ChangeListener<MediaPlayer.Status>() {
-//			// Log the Message
-//			public void changed(ObservableValue<? extends MediaPlayer.Status> ov, final MediaPlayer.Status oldStatus,
-//					final MediaPlayer.Status newStatus) {
-//				System.out.println("\nStatus changed from " + oldStatus + " to " + newStatus);
-//			}
-//		});
-//
-//		// Add a Handler for PLAYING status
-//		player.setOnPlaying(new Runnable() {
-//			public void run() {
-//				System.out.println("\nPlaying now");
-//			}
-//		});
-//
-//		// Add a Handler for STOPPED status
-//		player.setOnStopped(new Runnable() {
-//			public void run() {
-//				System.out.println("\nStopped now");
-//			}
-//		});
+		this.mediaView.setMediaPlayer(this.mediaPlayer);
+		this.mediaView.setSmooth(true); // TODO: ?
 	}
-
-	private void printMessage(MediaException error) {
-		String errorMessage = error.getMessage();
-		System.out.println(errorMessage);
-	}
-
-	@FXML
-	private MediaView mediaView;
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
-		
+		this.mediaPlayerControls = Arrays.asList(
+				new Control[] { exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
+						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton });
+		this.disableMediaPlayerControls();
+		this.setupMediaPlayerControls();
 	}
+	
+	private void setupMediaPlayerControls() {
+		this.nextFrameButton.addEventFilter(MouseEvent.ANY, new EventHandler<MouseEvent>() {
+
+	        @Override
+	        public void handle(MouseEvent event) {
+	            if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED)) {
+	                timer.start();
+	            } else {
+	                timer.stop();
+	            }
+
+	        }
+	    });
+	}
+	
+	final AnimationTimer timer = new AnimationTimer() {
+
+        private long lastUpdate = -1;
+        private final long REPEAT_INTERVAL = 1000000 * 300;
+
+        @Override
+        public void handle(long time) {
+        	if (this.lastUpdate < 0) {
+        		this.lastUpdate = time;
+        	}
+            if (time - this.lastUpdate > (REPEAT_INTERVAL)) {
+            	System.out.println(time - this.lastUpdate);
+                VideoPlayerViewController.this.onNextFrameButtonPressed(null);
+                this.lastUpdate = time;
+            }
+        }
+    };
+
 }

@@ -9,59 +9,35 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.media.MediaView?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity"
-	minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1"
-	xmlns:fx="http://javafx.com/fxml/1"
-	fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
 	<children>
-		<AnchorPane fx:id="mediaViewAnchorPane" layoutX="14.0"
-			layoutY="14.0" AnchorPane.bottomAnchor="40.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-			AnchorPane.topAnchor="0.0">
+		<AnchorPane fx:id="mediaViewAnchorPane" layoutX="14.0" layoutY="14.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 			<children>
-				<MediaView fx:id="mediaView"
-					fitHeight="${mediaViewAnchorPane.height}"
-					fitWidth="${mediaViewAnchorPane.width}" layoutX="1.0" />
+				<MediaView fx:id="mediaView" fitHeight="${mediaViewAnchorPane.height}" fitWidth="${mediaViewAnchorPane.width}" layoutX="1.0" onError="#onMediaViewError" />
 			</children>
 		</AnchorPane>
-		<AnchorPane maxHeight="30.0" minHeight="30.0"
-			prefHeight="30.0" AnchorPane.bottomAnchor="0.0"
-			AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+		<AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
 			<children>
-				<HBox fx:id="playerButtonsHBox" AnchorPane.bottomAnchor="0.0"
-					AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-					AnchorPane.topAnchor="0.0">
+				<HBox fx:id="playerButtonsHBox" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 					<children>
 						<GridPane HBox.hgrow="ALWAYS">
 							<columnConstraints>
-								<ColumnConstraints halignment="CENTER"
-									hgrow="SOMETIMES" />
-								<ColumnConstraints halignment="CENTER"
-									hgrow="SOMETIMES" />
-								<ColumnConstraints halignment="CENTER"
-									hgrow="SOMETIMES" />
+								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
+								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
+								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
 							</columnConstraints>
 							<rowConstraints>
-								<RowConstraints minHeight="10.0"
-									prefHeight="30.0" vgrow="SOMETIMES" />
+								<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
 							</rowConstraints>
 							<children>
 								<HBox alignment="CENTER_LEFT" GridPane.columnIndex="0">
 									<children>
-										<Button fx:id="exportSnapshotButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false"
-											onAction="#onExportSnapshotButtonPressed" text="FS">
+										<Button fx:id="exportSnapshotButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportSnapshotButtonPressed" text="SS">
 											<HBox.margin>
 												<Insets left="8.0" />
 											</HBox.margin>
 										</Button>
-										<Button fx:id="exportClipButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false" onAction="#onExportClipButtonPressed"
-											text="FS">
+										<Button fx:id="exportClipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportClipButtonPressed" text="CL">
 											<HBox.margin>
 												<Insets left="8.0" />
 											</HBox.margin>
@@ -70,61 +46,33 @@
 								</HBox>
 								<HBox alignment="CENTER" GridPane.columnIndex="1">
 									<children>
-										<Button fx:id="setInpointButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false" onAction="#onSetInpointButtonPressed"
-											text="[">
+										<Button fx:id="setInpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetInpointButtonPressed" text="[">
 											<HBox.margin>
 												<Insets right="32.0" />
 											</HBox.margin>
 										</Button>
-										<Button fx:id="previousFrameButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false"
-											onAction="#onPreviousFrameButtonPressed" text="&lt;&lt;">
+										<Button fx:id="previousFrameButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onPreviousFrameButtonPressed" text="&lt;&lt;">
 											<HBox.margin>
 												<Insets right="8.0" />
 											</HBox.margin>
 										</Button>
-										<Button fx:id="backButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false" onAction="#onBackButtonPressed"
-											text="&lt;">
+										<Button fx:id="backButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onBackButtonPressed" text="&lt;">
 											<HBox.margin>
 												<Insets right="8.0" />
 											</HBox.margin>
 										</Button>
-										<Button fx:id="playPauseButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false" onAction="#onPlayPauseButtonPressed"
-											text="P" />
-										<Button fx:id="skipButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false" onAction="#onSkipeButtonPressed"
-											text="&gt;">
+										<Button fx:id="playPauseButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onPlayPauseButtonPressed" text="P" />
+										<Button fx:id="skipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSkipButtonPressed" text="&gt;">
 											<HBox.margin>
 												<Insets left="8.0" />
 											</HBox.margin>
 										</Button>
-										<Button fx:id="nextFrameButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false" onAction="#onNextFrameButtonPressed"
-											text="&gt;&gt;">
+										<Button fx:id="nextFrameButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onNextFrameButtonPressed" text="&gt;&gt;">
 											<HBox.margin>
 												<Insets left="8.0" />
 											</HBox.margin>
 										</Button>
-										<Button fx:id="setOutpointButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false"
-											onAction="#onSetOutpointButtonPressed" text="]">
+										<Button fx:id="setOutpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetOutpointButtonPressed" text="]">
 											<HBox.margin>
 												<Insets left="32.0" />
 											</HBox.margin>
@@ -133,11 +81,7 @@
 								</HBox>
 								<HBox alignment="CENTER_RIGHT" GridPane.columnIndex="2">
 									<children>
-										<Button fx:id="fullscreenButton"
-											minHeight="${playerButtonsHBox.height}"
-											minWidth="${playerButtonsHBox.height}"
-											mnemonicParsing="false" onAction="#onFullscreenButtonPressed"
-											text="FS">
+										<Button fx:id="fullscreenButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onFullscreenButtonPressed" text="FS">
 											<HBox.margin>
 												<Insets right="8.0" />
 											</HBox.margin>
