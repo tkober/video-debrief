@@ -145,9 +145,11 @@ public class VideoPlayerViewController implements Initializable {
 	@FXML
 	private void onMediaViewClick(final MouseEvent event) {
 		if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
-			this.onPlayPauseButtonPressed(null);
-			if (event.getClickCount() == 2) {
-				this.onFullscreenButtonPressed(null);
+			if (this.mediaPlayer != null) {
+				this.onPlayPauseButtonPressed(null);
+				if (event.getClickCount() == 2) {
+					this.onFullscreenButtonPressed(null);
+				}
 			}
 		}
 	}
