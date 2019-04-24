@@ -8,10 +8,15 @@ import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import org.apache.commons.lang3.time.DurationFormatUtils;
+
 import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.ui.playback.model.SelectedMedia;
 import javafx.animation.AnimationTimer;
+import javafx.beans.InvalidationListener;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -19,6 +24,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.media.Media;
@@ -26,12 +32,13 @@ import javafx.scene.media.MediaErrorEvent;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class VideoPlayerViewController implements Initializable {
 	
 	private static final int SEEK_DURATION_MILLIS = 5000;
-	private static final int FRAME_STEPS_MILLIS = 17;
+	private static final int FRAME_STEPS_MILLIS = 17; // TODO:
 
 	public interface VideoPlayerDelegate {
 
@@ -60,9 +67,11 @@ public class VideoPlayerViewController implements Initializable {
 	@FXML
 	private Button fullscreenButton;
 	@FXML
-	private Label timestampLabel;
+	private Label currentTimeLabel;
 	@FXML
 	private Label durationLabel;
+	@FXML
+	private Slider timeSlider;
 
 	@FXML
 	private MediaView mediaView;
@@ -98,11 +107,10 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	private void onNextFrameButtonPressed(ActionEvent actionEvent) {
-//		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
-//			this.mediaPlayer.pause();
-//		}
-//		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().add(new Duration(FRAME_STEPS_MILLIS)));
-		this.mediaPlayer.setRate(-0.05);
+		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
+			this.mediaPlayer.pause();
+		}
+		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().add(new Duration(FRAME_STEPS_MILLIS)));
 	}
 
 	@FXML
@@ -115,6 +123,7 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	private void onFullscreenButtonPressed(ActionEvent actionEvent) {
+		((Stage)mediaView.getScene().getWindow()).setFullScreen(true);
 		System.out.println("onFullscreenButtonPressed()");
 	}
 
@@ -133,11 +142,54 @@ public class VideoPlayerViewController implements Initializable {
 		System.out.println(event);
 	}
 
+	@FXML
+	private void onMediaViewClick(final MouseEvent event) {
+		if (event.getEventType() == MouseEvent.MOUSE_CLICKED) {
+			this.onPlayPauseButtonPressed(null);
+			if (event.getClickCount() == 2) {
+				this.onFullscreenButtonPressed(null);
+			}
+		}
+	}
+
+	@FXML
+	private void onTimeSliderMousePressed(MouseEvent event) {
+		this.sliderAndPlayerAsynchronous = true;
+		this.continuePlayAfterScrubbing = this.mediaPlayer.getStatus() == Status.PLAYING;
+		if (this.continuePlayAfterScrubbing) {
+			this.mediaPlayer.pause();
+		}
+	}
+
+	@FXML
+	private void onTimeSliderMouseReleased(MouseEvent event) {
+		if (this.continuePlayAfterScrubbing) {
+			this.mediaPlayer.play();
+		}
+	}
+
 	private List<Control> mediaPlayerControls;
 	private Optional<VideoPlayerDelegate> delegate = Optional.empty();
 	private SelectedMedia selectedMedia;
 	private MediaPlayer mediaPlayer;
 	private Media media;
+	private boolean continuePlayAfterScrubbing;
+	private boolean sliderAndPlayerAsynchronous;
+
+	private void mediaDurationAvailable(Duration duration) {
+		this.timeSlider.setMax(duration.toMillis());
+		this.durationLabel.setText(stringFromDuration(duration));
+		this.currentTimeLabel.setText(stringFromDuration(new Duration(0)));
+	}
+
+	private String stringFromDuration(Duration duration) {
+		return DurationFormatUtils.formatDuration((long) duration.toMillis(), "mm:ss.SSS");
+	}
+
+	private void synchronizeTimeSliderAndMediaPlayer() {
+		this.sliderAndPlayerAsynchronous = false;
+		this.mediaPlayer.seek(new Duration((Double) this.timeSlider.getValue()));
+	}
 
 	private void handleMediaPlayerStatusChange(ObservableValue<? extends MediaPlayer.Status> ov,
 			MediaPlayer.Status oldStatus, MediaPlayer.Status newStatus) {
@@ -146,10 +198,14 @@ public class VideoPlayerViewController implements Initializable {
 		
 		case READY:
 			this.enableMediaPlayerControls();
+			this.mediaDurationAvailable(this.media.getDuration());
 			this.showPlayButton();
 			break;
 			
 		case PAUSED:
+			if (sliderAndPlayerAsynchronous) {
+				this.synchronizeTimeSliderAndMediaPlayer();
+			}
 			this.showPlayButton();
 			break;
 			
@@ -164,6 +220,19 @@ public class VideoPlayerViewController implements Initializable {
 		default:
 			this.disableMediaPlayerControls();
 			break;
+		}
+	}
+
+	private void handleMediaPlayerTimeChange(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
+		this.timeSlider.setValue(newValue.toMillis());
+		this.currentTimeLabel.setText(stringFromDuration(newValue));
+	}
+
+	private void handleTimeSliderValueChanged(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
+		if (this.mediaPlayer.getStatus() != Status.PLAYING) {
+			Duration duration = new Duration((Double) newValue);
+			this.mediaPlayer.seek(duration);
+			this.currentTimeLabel.setText(stringFromDuration(duration));
 		}
 	}
 
@@ -243,48 +312,19 @@ public class VideoPlayerViewController implements Initializable {
 
 		this.mediaView.setMediaPlayer(this.mediaPlayer);
 		this.mediaView.setSmooth(true); // TODO: ?
+
+		this.mediaPlayer.currentTimeProperty().addListener(this::handleMediaPlayerTimeChange);
 	}
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		this.mediaPlayerControls = Arrays.asList(
 				new Control[] { exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
-						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton });
+						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton, timeSlider});
 		this.disableMediaPlayerControls();
-		this.setupMediaPlayerControls();
+		this.timeSlider.valueProperty().addListener(this::handleTimeSliderValueChanged);
+
+		this.currentTimeLabel.setText(stringFromDuration(new Duration(0)));
+		this.durationLabel.setText(stringFromDuration(new Duration(0)));
 	}
-	
-	private void setupMediaPlayerControls() {
-		this.nextFrameButton.addEventFilter(MouseEvent.ANY, new EventHandler<MouseEvent>() {
-
-	        @Override
-	        public void handle(MouseEvent event) {
-	            if (event.getEventType().equals(MouseEvent.MOUSE_PRESSED)) {
-	                timer.start();
-	            } else {
-	                timer.stop();
-	            }
-
-	        }
-	    });
-	}
-	
-	final AnimationTimer timer = new AnimationTimer() {
-
-        private long lastUpdate = -1;
-        private final long REPEAT_INTERVAL = 1000000 * 300;
-
-        @Override
-        public void handle(long time) {
-        	if (this.lastUpdate < 0) {
-        		this.lastUpdate = time;
-        	}
-            if (time - this.lastUpdate > (REPEAT_INTERVAL)) {
-            	System.out.println(time - this.lastUpdate);
-                VideoPlayerViewController.this.onNextFrameButtonPressed(null);
-                this.lastUpdate = time;
-            }
-        }
-    };
-
 }
