@@ -9,7 +9,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<Scene xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.workspacemanager.WorkspaceManagerController">
+<Scene xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.workspacemanager.WorkspaceManagerController">
 	<AnchorPane minHeight="139.0" minWidth="500" prefHeight="242.0" prefWidth="500.0">
       <children>
          <TabPane layoutX="65.0" layoutY="-51.0" prefHeight="139.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">

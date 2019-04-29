@@ -4,7 +4,7 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="315.0" prefWidth="427.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.events.EventsViewController">
+<AnchorPane prefHeight="315.0" prefWidth="427.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.events.EventsViewController">
 	<children>
 		<TreeView fx:id="eventsTreeView" layoutY="45.0" prefHeight="270.0" prefWidth="427.0" showRoot="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0"/>
 		<Button layoutY="10.0" mnemonicParsing="false" onAction="#onRenameSelectedWorkspaceItem" text="E" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0"/>
