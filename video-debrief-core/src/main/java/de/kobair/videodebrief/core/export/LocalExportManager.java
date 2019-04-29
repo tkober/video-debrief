@@ -122,6 +122,12 @@ public class LocalExportManager implements ExportManager {
 			throw new ExportException(checkResult);
 		} else {
 			File videoFile = getFileForPerspective(exportDescriptor);
+
+			File exportDirectory = exportFile.getParentFile();
+			if (!exportDirectory.mkdir()) {
+				throw new UnknwonExportException("", null); // TODO
+			}
+
 			try {
 				this.getVideoHandler().exportSnapshot(videoFile, time, exportFile);
 			} catch (IOException e) {
