@@ -46,6 +46,8 @@ public class VideoPlayerViewController implements Initializable {
 
 		public void exportSnapshot(long timeMillis);
 
+		public void setAlignmentPoint(long timeMillis);
+
 	}
 
 	@FXML
@@ -86,6 +88,10 @@ public class VideoPlayerViewController implements Initializable {
 	private Button goToInPointButton;
 	@FXML
 	private Button goToOutPointButton;
+	@FXML
+	private Button goToAlignmentPointButton;
+	@FXML
+	private Button setAlignmentPointButton;
 	@FXML
 	private AnchorPane timelineAnchorPane;
 	@FXML
@@ -178,6 +184,18 @@ public class VideoPlayerViewController implements Initializable {
 	private void onGoToOutPointButtonPressed(ActionEvent actionEvent) {
 		Duration duration = new Duration(this.attributedPerspective.getPerspective().getOutPoint());
 		this.mediaPlayer.seek(duration);
+	}
+
+	@FXML
+	private void onGoToAlignmentPointButtonPressed(ActionEvent actionEvent) {
+		Duration duration = new Duration(this.attributedPerspective.getPerspective().getAlignmentPoint());
+		this.mediaPlayer.seek(duration);
+	}
+
+	@FXML
+	private void onSetAlignmentPointButtonPressed() {
+		long time = (long) this.mediaPlayer.getCurrentTime().toMillis();
+		this.delegate.ifPresent(delegate -> delegate.setAlignmentPoint(time));
 	}
 
 	@FXML
@@ -425,7 +443,8 @@ public class VideoPlayerViewController implements Initializable {
 	public void initialize(URL location, ResourceBundle resources) {
 		this.mediaPlayerControls = Arrays.asList(
 				new Control[] { exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
-						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton, timeSlider});
+						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton, timeSlider,
+						goToAlignmentPointButton, goToInPointButton, goToOutPointButton, setAlignmentPointButton});
 		this.disableMediaPlayerControls();
 		this.hideAlignmentPointIndicator();
 		this.timeSlider.valueProperty().addListener(this::handleTimeSliderValueChanged);

@@ -36,6 +36,8 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 		public void exportSnapshot(Event event, Perspective perspective, long timeMillis);
 
+		public void setAlignmentPoint(Event event, Perspective perspective, long timeMillis);
+
 	}
 
 	private class VideoAttributer {
@@ -166,5 +168,10 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	@Override
 	public void exportSnapshot(final long timeMillis) {
 		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(this.event, this.perspective, timeMillis));
+	}
+
+	@Override
+	public void setAlignmentPoint(final long timeMillis) {
+		this.delegate.ifPresent(delegate -> delegate.setAlignmentPoint(this.event, this.perspective, timeMillis));
 	}
 }

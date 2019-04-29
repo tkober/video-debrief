@@ -264,4 +264,14 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 			}
 		}
 	}
+
+	@Override
+	public void setAlignmentPoint(final Event event, final Perspective perspective, final long timeMillis) {
+		try {
+			this.workspace.changeAlignmentPointForPerspective(event, perspective, timeMillis);
+			this.workspaceChanged();
+		} catch (UnknownWorkspaceException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
+	}
 }
