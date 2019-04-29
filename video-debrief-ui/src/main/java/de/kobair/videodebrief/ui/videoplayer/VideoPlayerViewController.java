@@ -13,6 +13,7 @@ import org.apache.commons.lang3.time.DurationFormatUtils;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -32,9 +33,10 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 public class VideoPlayerViewController implements Initializable {
-	
+
 	private static final int SEEK_DURATION_MILLIS = 5000;
 	private static final int FRAME_STEPS_MILLIS = 17; // TODO:
+	public static final int SLIDER_PADDING = 5;
 
 	public interface VideoPlayerDelegate {
 
@@ -79,11 +81,13 @@ public class VideoPlayerViewController implements Initializable {
 	@FXML
 	private Pane outPointPane;
 	@FXML
+	private Pane alignmentPointPane;
+	@FXML
 	private Button goToInPointButton;
 	@FXML
 	private Button goToOutPointButton;
 	@FXML
-	private StackPane timelineStackPane;
+	private AnchorPane timelineAnchorPane;
 	@FXML
 	private MediaView mediaView;
 
@@ -240,6 +244,7 @@ public class VideoPlayerViewController implements Initializable {
 		case READY:
 			this.enableMediaPlayerControls();
 			this.mediaDurationAvailable(this.media.getDuration());
+			this.showAlignmentPointIndicator();
 			this.showPlayButton();
 			break;
 			
@@ -316,6 +321,14 @@ public class VideoPlayerViewController implements Initializable {
 		}
 	}
 
+	private void hideAlignmentPointIndicator() {
+		this.alignmentPointPane.setVisible(false);
+	}
+
+	private void showAlignmentPointIndicator() {
+		this.alignmentPointPane.setVisible(true);
+	}
+
 	private void enableMediaPlayerControls() {
 		for (Control control : this.mediaPlayerControls) {
 			control.setDisable(false);
@@ -334,8 +347,7 @@ public class VideoPlayerViewController implements Initializable {
 		double inPointWidth = 0;
 		double outPointWidth = 0;
 		if (this.attributedPerspective != null) {
-			double sliderPadding = 5;
-			double totalWidth = this.timelineStackPane.getWidth() - 2*sliderPadding; // padding of slider
+			double totalWidth = this.timelineAnchorPane.getWidth() - 2*SLIDER_PADDING; // padding of slider
 			long duration = this.attributedPerspective.getVideoInformation().getDurationMillis();
 			double pixelPerMillisecond = totalWidth / duration;
 
@@ -350,6 +362,21 @@ public class VideoPlayerViewController implements Initializable {
 
 		this.inPointPane.setPrefWidth(inPointWidth);
 		this.outPointPane.setPrefWidth(outPointWidth);
+	}
+
+	private void updateAlignmentPointView() {
+		double alignmentPoint = SLIDER_PADDING;
+		if (this.attributedPerspective != null) {
+			double totalWidth = this.timelineAnchorPane.getWidth() - 2*SLIDER_PADDING; // padding of slider
+			long duration = this.attributedPerspective.getVideoInformation().getDurationMillis();
+			double pixelPerMillisecond = totalWidth / duration;
+
+			alignmentPoint = SLIDER_PADDING;
+			alignmentPoint += this.attributedPerspective.getPerspective().getAlignmentPoint() * pixelPerMillisecond;
+			alignmentPoint -= this.alignmentPointPane.getWidth() / 2.0;
+		}
+
+		AnchorPane.setLeftAnchor(this.alignmentPointPane, alignmentPoint);
 	}
 
 	public void setDelegate(final VideoPlayerDelegate delegate) {
@@ -377,11 +404,13 @@ public class VideoPlayerViewController implements Initializable {
 		this.mediaPlayer.currentTimeProperty().addListener(this::handleMediaPlayerTimeChange);
 
 		this.updateInOutPointView();
+		this.updateAlignmentPointView();
 	}
 
 	public void selectedMediaChanged(AttributedPerspective attributedPerspective) {
 		this.attributedPerspective = attributedPerspective;
 		this.updateInOutPointView();
+		this.updateAlignmentPointView();
 	}
 	public void clearMedia() {
 		// TODO
@@ -394,6 +423,7 @@ public class VideoPlayerViewController implements Initializable {
 				new Control[] { exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
 						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton, timeSlider});
 		this.disableMediaPlayerControls();
+		this.hideAlignmentPointIndicator();
 		this.timeSlider.valueProperty().addListener(this::handleTimeSliderValueChanged);
 
 		this.currentTimeLabel.setText(stringFromDuration(new Duration(0)));

@@ -15,9 +15,12 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
 	<children>
-		<AnchorPane fx:id="mediaViewAnchorPane" layoutX="14.0" layoutY="14.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+		<AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+		</AnchorPane>
+		<AnchorPane fx:id="mediaViewAnchorPane" layoutX="14.0" layoutY="14.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
 			<children>
-				<MediaView fx:id="mediaView" fitHeight="${mediaViewAnchorPane.height}" fitWidth="${mediaViewAnchorPane.width}" layoutX="1.0" onError="#onMediaViewError" onMouseClicked="#onMediaViewClick" />
+				<MediaView fx:id="mediaView" fitHeight="${mediaViewAnchorPane.height}" fitWidth="${mediaViewAnchorPane.width}" layoutX="1.0" onError="#onMediaViewError" onMouseClicked="#onMediaViewClick"/>
 			</children>
 		</AnchorPane>
 		<AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
@@ -26,26 +29,27 @@
 					<children>
 						<Label fx:id="currentTimeLabel" minWidth="70.0" text="00:00.000">
 							<HBox.margin>
-								<Insets left="8.0" />
+								<Insets left="8.0"/>
 							</HBox.margin>
 						</Label>
-						<StackPane fx:id="timelineStackPane" HBox.hgrow="ALWAYS">
+						<StackPane HBox.hgrow="ALWAYS">
 							<HBox.margin>
-								<Insets left="8.0" right="8.0" />
+								<Insets left="8.0" right="8.0"/>
 							</HBox.margin>
 							<children>
-                        <AnchorPane>
-                           <children>
-                              <Pane fx:id="outPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
-                              <Pane fx:id="inPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="0.0" />
-                           </children>
-                        </AnchorPane>
-								<Slider fx:id="timeSlider" onMousePressed="#onTimeSliderMousePressed" onMouseReleased="#onTimeSliderMouseReleased" />
+								<AnchorPane fx:id="timelineAnchorPane">
+									<children>
+										<Pane fx:id="outPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0"/>
+										<Pane fx:id="inPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="0.0"/>
+										<Pane fx:id="alignmentPointPane" prefWidth="2.0" minWidth="2.0" maxWidth="2.0" style="-fx-background-color: #d37a00;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
+									</children>
+								</AnchorPane>
+								<Slider fx:id="timeSlider" onMousePressed="#onTimeSliderMousePressed" onMouseReleased="#onTimeSliderMouseReleased"/>
 							</children>
 						</StackPane>
 						<Label fx:id="durationLabel" minWidth="70.0" text="99:99.999">
 							<HBox.margin>
-								<Insets right="8.0" />
+								<Insets right="8.0"/>
 							</HBox.margin>
 						</Label>
 					</children>
@@ -58,24 +62,24 @@
 					<children>
 						<GridPane HBox.hgrow="ALWAYS">
 							<columnConstraints>
-								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
-								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
-								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
+								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
+								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
+								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
 							</columnConstraints>
 							<rowConstraints>
-								<RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES" />
+								<RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
 							</rowConstraints>
 							<children>
 								<HBox alignment="CENTER_LEFT" GridPane.columnIndex="0">
 									<children>
 										<Button fx:id="exportSnapshotButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportSnapshotButtonPressed" text="SS">
 											<HBox.margin>
-												<Insets left="8.0" />
+												<Insets left="8.0"/>
 											</HBox.margin>
 										</Button>
 										<Button fx:id="exportClipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportClipButtonPressed" text="CL">
 											<HBox.margin>
-												<Insets left="8.0" />
+												<Insets left="8.0"/>
 											</HBox.margin>
 										</Button>
 									</children>
@@ -84,33 +88,33 @@
 									<children>
 										<Button fx:id="setInpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetInpointButtonPressed" text="[">
 											<HBox.margin>
-												<Insets right="32.0" />
+												<Insets right="32.0"/>
 											</HBox.margin>
 										</Button>
 										<Button fx:id="previousFrameButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onPreviousFrameButtonPressed" text="&lt;&lt;">
 											<HBox.margin>
-												<Insets right="8.0" />
+												<Insets right="8.0"/>
 											</HBox.margin>
 										</Button>
 										<Button fx:id="backButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onBackButtonPressed" text="&lt;">
 											<HBox.margin>
-												<Insets right="8.0" />
+												<Insets right="8.0"/>
 											</HBox.margin>
 										</Button>
-										<Button fx:id="playPauseButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onPlayPauseButtonPressed" text="P" />
+										<Button fx:id="playPauseButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onPlayPauseButtonPressed" text="P"/>
 										<Button fx:id="skipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSkipButtonPressed" text="&gt;">
 											<HBox.margin>
-												<Insets left="8.0" />
+												<Insets left="8.0"/>
 											</HBox.margin>
 										</Button>
 										<Button fx:id="nextFrameButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onNextFrameButtonPressed" text="&gt;&gt;">
 											<HBox.margin>
-												<Insets left="8.0" />
+												<Insets left="8.0"/>
 											</HBox.margin>
 										</Button>
 										<Button fx:id="setOutpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetOutpointButtonPressed" text="]">
 											<HBox.margin>
-												<Insets left="32.0" />
+												<Insets left="32.0"/>
 											</HBox.margin>
 										</Button>
 									</children>
@@ -119,7 +123,7 @@
 									<children>
 										<Button fx:id="fullscreenButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onFullscreenButtonPressed" text="FS">
 											<HBox.margin>
-												<Insets right="8.0" />
+												<Insets right="8.0"/>
 											</HBox.margin>
 										</Button>
 									</children>
