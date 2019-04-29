@@ -34,6 +34,8 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 		public void setOutPoint(Event event, Perspective perspective, long outPoint);
 
+		public void exportSnapshot(Event event, Perspective perspective, long timeMillis);
+
 	}
 
 	private class VideoAttributer {
@@ -159,5 +161,10 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	@Override
 	public void setOutPoint(final long outPoint) {
 		this.delegate.ifPresent(delegate -> delegate.setOutPoint(this.event, this.perspective, outPoint));
+	}
+
+	@Override
+	public void exportSnapshot(final long timeMillis) {
+		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(this.event, this.perspective, timeMillis));
 	}
 }

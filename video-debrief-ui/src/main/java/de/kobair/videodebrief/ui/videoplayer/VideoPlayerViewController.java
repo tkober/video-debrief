@@ -42,6 +42,8 @@ public class VideoPlayerViewController implements Initializable {
 
 		public void setOutPoint(long outPoint);
 
+		public void exportSnapshot(long timeMillis);
+
 	}
 
 	@FXML
@@ -87,7 +89,17 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	void onExportSnapshotButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onExportSnapshotButtonPressed()");
+		boolean isPlaying = this.mediaPlayer.getStatus() == Status.PLAYING;
+		if (isPlaying) {
+			this.mediaPlayer.pause();
+		}
+
+		long time = (long) this.mediaPlayer.getCurrentTime().toMillis();
+		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(time));
+
+		if (isPlaying) {
+			this.mediaPlayer.play();
+		}
 	}
 
 	@FXML

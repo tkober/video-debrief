@@ -6,16 +6,20 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.ResourceBundle;
 
 import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.core.export.ExportException;
 import de.kobair.videodebrief.core.export.ExportManager;
 import de.kobair.videodebrief.core.export.LocalExportManager;
+import de.kobair.videodebrief.core.export.UnknwonExportException;
 import de.kobair.videodebrief.core.importing.ImportManager;
 import de.kobair.videodebrief.core.importing.LocalImportManager;
 import de.kobair.videodebrief.core.importing.error.ImportException;
 import de.kobair.videodebrief.core.importing.error.UnknownImportException;
 import de.kobair.videodebrief.core.perspective.Perspective;
+import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.AddPerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.ChangeInOutPointException;
@@ -24,6 +28,7 @@ import de.kobair.videodebrief.core.workspace.error.RenameEventException;
 import de.kobair.videodebrief.core.workspace.error.RenamePerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 import de.kobair.videodebrief.ui.cameras.CamerasViewController;
+import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.errors.ApplicationError;
 import de.kobair.videodebrief.ui.errors.ApplicationWarning;
 import de.kobair.videodebrief.ui.events.EventsViewController;
@@ -35,6 +40,7 @@ import javafx.scene.layout.AnchorPane;
 
 public class WorkspaceController extends Controller implements EventsDelegate, PlaybackController.PlaybackDelegate {
 
+	public static final String DEFAULT_SNAPSHOT_FORMAT = ".jpg";
 	@FXML
 	private AnchorPane camerasAnchorPane;
 	@FXML
@@ -236,6 +242,26 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 			new ApplicationWarning(e).throwOnMainThread();
 		} catch (UnknownWorkspaceException e) {
 			new ApplicationError(e).throwOnMainThread();
+		}
+	}
+
+	@Override
+	public void exportSnapshot(final Event event, final Perspective perspective, final long timeMillis) {
+		ExportManager.ExportDescriptor descriptor = new ExportManager.ExportDescriptor(this.workspace, event, perspective);
+
+		String placeholder = event.getName() + "_" + perspective.getName();
+		Optional<String> result = DialogFactory.namingDialog("Export Snapshot", placeholder).showAndWait();
+
+		if (result.isPresent()) {
+			String fileName = result.get().trim() + DEFAULT_SNAPSHOT_FORMAT;
+			File exportFile = LocalUtils.extendDirectory(workspace.getWorkspaceDirectory(), workspace.getExportDirectory(), fileName);
+			try {
+				this.exportManager.exportSnapshot(descriptor, timeMillis, exportFile);
+			} catch (ExportException e) {
+				new ApplicationWarning(e).throwOnMainThread();
+			} catch (UnknwonExportException | UnknownWorkspaceException e) {
+				new ApplicationError(e).throwOnMainThread();
+			}
 		}
 	}
 }
