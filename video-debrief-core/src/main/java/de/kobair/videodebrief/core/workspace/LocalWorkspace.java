@@ -573,7 +573,7 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 	public File getFileForPerspective(Event event, Perspective perspective) throws UnknownWorkspaceException {
 		EventPojo eventPojo = assertCanManipulateEvent(event);
 		PerspectivePojo perspectivePojo = assertCanManipulatePerspective(event, perspective);
-		return this.getFileForPerspective(eventPojo, perspectivePojo);
+		return LocalUtils.extendDirectory(this.getWorkingDirectory(), eventPojo.getSubPath(), perspectivePojo.getFileName());
 	}
 
 	@Override
