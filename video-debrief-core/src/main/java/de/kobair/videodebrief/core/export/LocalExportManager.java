@@ -109,7 +109,7 @@ public class LocalExportManager implements ExportManager {
 		return ExportCheckResult.OKAY;
 	}
 
-	private File getFileForPerspectiv(ExportDescriptor exportDescriptor) throws UnknownWorkspaceException {
+	private File getFileForPerspective(ExportDescriptor exportDescriptor) throws UnknownWorkspaceException {
 		return exportDescriptor.getWorkspace().getFileForPerspective(exportDescriptor.getEvent(),
 				exportDescriptor.getPerspective());
 	}
@@ -121,7 +121,7 @@ public class LocalExportManager implements ExportManager {
 		if (checkResult != ExportCheckResult.OKAY) {
 			throw new ExportException(checkResult);
 		} else {
-			File videoFile = getFileForPerspectiv(exportDescriptor);
+			File videoFile = getFileForPerspective(exportDescriptor);
 			try {
 				this.getVideoHandler().exportSnapshot(videoFile, time, exportFile);
 			} catch (IOException e) {
@@ -142,7 +142,7 @@ public class LocalExportManager implements ExportManager {
 			}
 
 			for (ExportDescriptor descriptor : exportDescriptors) {
-				File videoFile = getFileForPerspectiv(descriptor);
+				File videoFile = getFileForPerspective(descriptor);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
 				String name = descriptor.getPerspective().getName() + exportFormat.getDefaultFileExtension();
 				File targetFile = LocalUtils.extendDirectory(exportDirectory, name);
@@ -167,7 +167,7 @@ public class LocalExportManager implements ExportManager {
 			}
 
 			for (ExportDescriptor descriptor : exportDescriptors) {
-				File videoFile = getFileForPerspectiv(descriptor);
+				File videoFile = getFileForPerspective(descriptor);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
 				String eventName = descriptor.getEvent().getName();
 				String persepctiveName = descriptor.getPerspective().getName();
