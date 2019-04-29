@@ -88,4 +88,6 @@ public interface Workspace {
 	
 	public String getVersion();
 
+	public String getExportDirectory();
+
 }

@@ -601,4 +601,9 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 	public String getVersion() {
 		return this.workspaceData.getVersion();
 	}
+
+	@Override
+	public String getExportDirectory() {
+		return this.workspaceData.getExportFolder();
+	}
 }
