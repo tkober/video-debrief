@@ -4,8 +4,11 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.List;
+import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
+
+import org.w3c.dom.Attr;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
@@ -24,6 +27,14 @@ import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
 
 public class PlaybackController extends Controller implements Initializable, VideoPlayerViewController.VideoPlayerDelegate, PerspectivesViewController.PerspectivesDelegate {
+
+	public interface PlaybackDelegate {
+
+		public void setInPoint(Event event, Perspective perspective, long inPoint);
+
+		public void setOutPoint(Event event, Perspective perspective, long outPoint);
+
+	}
 
 	private class VideoAttributer {
 		
@@ -55,6 +66,10 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	private VideoPlayerViewController videoPlayerViewController;
 	private PerspectivesViewController perspectivesViewController;
 
+	private Optional<PlaybackDelegate> delegate = Optional.empty();
+	private Event event;
+	private Perspective perspective;
+
 	private VideoPlayerViewController loadVideoPlayerView() {
 		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "VideoPlayer.fxml", VideoPlayerViewController.class);
 	}
@@ -70,6 +85,63 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		return matches.size() == 1 ? matches.get(0) : null;
 	}
 
+	private List<AttributedPerspective> attributedPerspectivesFromSelection(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
+		VideoAttributer attributer = new VideoAttributer(workspace, event);
+
+		List<AttributedPerspective> attributedPerspectives;
+		try {
+			List<Perspective> perspectives = workspace.getPerspectives(event);
+			attributedPerspectives = perspectives.parallelStream()
+											 .map(attributer::addAttributesToPerspective)
+											 .collect(Collectors.toList());
+		} catch (RuntimeException e) {
+			if (e.getCause() instanceof IOException) {
+				IOException ioException = (IOException) e.getCause();
+				throw ioException;
+			} else {
+				throw e;
+			}
+		}
+		return attributedPerspectives;
+	}
+
+	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
+		this.event = event;
+		this.perspective = perspective;
+		List<AttributedPerspective> attributedPerspectives = this.attributedPerspectivesFromSelection(workspace, event, perspective);
+		AttributedPerspective attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
+
+		this.videoPlayerViewController.setSelectedMedia(attributedPerspective);
+		// TODO: set for perspectivs view
+	}
+
+	public void setDelegate(PlaybackDelegate delegate) {
+		this.delegate = Optional.ofNullable(delegate);
+	}
+
+	public Event getEvent() {
+		return event;
+	}
+
+	public Perspective getPerspective() {
+		return perspective;
+	}
+
+	public void updateSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
+		this.event = event;
+		this.perspective = perspective;
+		List<AttributedPerspective> attributedPerspectives = this.attributedPerspectivesFromSelection(workspace, event, perspective);
+		AttributedPerspective attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
+
+		this.videoPlayerViewController.selectedMediaChanged(attributedPerspective);
+		// TODO: set for perspectivs view
+	}
+
+	public void clearSelectedMedia() {
+		this.videoPlayerViewController.clearMedia();
+		// TODO: set for perspectivs view
+	}
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		this.videoPlayerViewController = loadVideoPlayerView();
@@ -79,28 +151,13 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		this.perspectivesViewController.setDelegate(this);
 	}
 
-	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
-		VideoAttributer attributer = new VideoAttributer(workspace, event);
-		
-		List<AttributedPerspective> attributedPerspectives;
-		try {
-			List<Perspective> perspectives = workspace.getPerspectives(event);
-			attributedPerspectives = perspectives.parallelStream()
-					.map(attributer::addAttributesToPerspective)
-					.collect(Collectors.toList());
-		} catch (RuntimeException e) {
-			if (e.getCause() instanceof IOException) {
-				IOException ioException = (IOException) e.getCause();
-				throw ioException;
-			} else {
-				throw e;
-			}
-		}
-		
-		AttributedPerspective attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
-		System.out.println(attributedPerspective.getVideoInformation());
-		this.videoPlayerViewController.setSelectedMedia(attributedPerspective);
+	@Override
+	public void setInPoint(final long inPoint) {
+		this.delegate.ifPresent(delegate -> delegate.setInPoint(this.event, this.perspective, inPoint));
+	}
 
-//		this.perspectivesViewController.setSelectedMedia(selectedMedia);
+	@Override
+	public void setOutPoint(final long outPoint) {
+		this.delegate.ifPresent(delegate -> delegate.setOutPoint(this.event, this.perspective, outPoint));
 	}
 }

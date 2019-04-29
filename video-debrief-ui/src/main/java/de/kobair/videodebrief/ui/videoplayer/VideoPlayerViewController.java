@@ -21,6 +21,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaErrorEvent;
 import javafx.scene.media.MediaPlayer;
@@ -35,6 +37,10 @@ public class VideoPlayerViewController implements Initializable {
 	private static final int FRAME_STEPS_MILLIS = 17; // TODO:
 
 	public interface VideoPlayerDelegate {
+
+		public void setInPoint(long inPoint);
+
+		public void setOutPoint(long outPoint);
 
 	}
 
@@ -66,7 +72,16 @@ public class VideoPlayerViewController implements Initializable {
 	private Label durationLabel;
 	@FXML
 	private Slider timeSlider;
-
+	@FXML
+	private Pane inPointPane;
+	@FXML
+	private Pane outPointPane;
+	@FXML
+	private Button goToInPointButton;
+	@FXML
+	private Button goToOutPointButton;
+	@FXML
+	private StackPane timelineStackPane;
 	@FXML
 	private MediaView mediaView;
 
@@ -123,12 +138,30 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	private void onSetInpointButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onSetInpointButtonPressed()");
+		long time = (long) this.mediaPlayer.getCurrentTime().toMillis();
+		if (this.attributedPerspective.getPerspective().getOutPoint() > time) {
+			this.delegate.ifPresent(delegate -> delegate.setInPoint(time));
+		}
 	}
 
 	@FXML
 	private void onSetOutpointButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onSetOutpointPressed()");
+		long time = (long) this.mediaPlayer.getCurrentTime().toMillis();
+		if (this.attributedPerspective.getPerspective().getInPoint() < time) {
+			this.delegate.ifPresent(delegate -> delegate.setOutPoint(time));
+		}
+	}
+
+	@FXML
+	private void onGoToInPointButtonPressed(ActionEvent actionEvent) {
+		Duration duration = new Duration(this.attributedPerspective.getPerspective().getInPoint());
+		this.mediaPlayer.seek(duration);
+	}
+
+	@FXML
+	private void onGoToOutPointButtonPressed(ActionEvent actionEvent) {
+		Duration duration = new Duration(this.attributedPerspective.getPerspective().getOutPoint());
+		this.mediaPlayer.seek(duration);
 	}
 
 	@FXML
@@ -285,6 +318,28 @@ public class VideoPlayerViewController implements Initializable {
 		this.playPauseButton.setText("||");
 	}
 
+	private void updateInOutPointView() {
+		double inPointWidth = 0;
+		double outPointWidth = 0;
+		if (this.attributedPerspective != null) {
+			double sliderPadding = 5;
+			double totalWidth = this.timelineStackPane.getWidth() - 2*sliderPadding; // padding of slider
+			long duration = this.attributedPerspective.getVideoInformation().getDurationMillis();
+			double pixelPerMillisecond = totalWidth / duration;
+
+			if (this.attributedPerspective.getPerspective().getInPoint() > 0) {
+				inPointWidth = this.attributedPerspective.getPerspective().getInPoint() * pixelPerMillisecond;
+			}
+
+			if (this.attributedPerspective.getPerspective().getOutPoint() < duration) {
+				outPointWidth = totalWidth - (this.attributedPerspective.getPerspective().getOutPoint() * pixelPerMillisecond);
+			}
+		}
+
+		this.inPointPane.setPrefWidth(inPointWidth);
+		this.outPointPane.setPrefWidth(outPointWidth);
+	}
+
 	public void setDelegate(final VideoPlayerDelegate delegate) {
 		this.delegate = Optional.ofNullable(delegate);
 	}
@@ -306,9 +361,19 @@ public class VideoPlayerViewController implements Initializable {
 		});
 
 		this.mediaView.setMediaPlayer(this.mediaPlayer);
-		this.mediaView.setSmooth(true); // TODO: ?
 
 		this.mediaPlayer.currentTimeProperty().addListener(this::handleMediaPlayerTimeChange);
+
+		this.updateInOutPointView();
+	}
+
+	public void selectedMediaChanged(AttributedPerspective attributedPerspective) {
+		this.attributedPerspective = attributedPerspective;
+		this.updateInOutPointView();
+	}
+	public void clearMedia() {
+		// TODO
+		System.out.println("clearMedia(): Not yet implemented");
 	}
 
 	@Override
@@ -321,5 +386,7 @@ public class VideoPlayerViewController implements Initializable {
 
 		this.currentTimeLabel.setText(stringFromDuration(new Duration(0)));
 		this.durationLabel.setText(stringFromDuration(new Duration(0)));
+
+		this.mediaView.setSmooth(true); // TODO: ?
 	}
 }

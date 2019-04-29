@@ -8,7 +8,9 @@
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.media.MediaView?>
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
@@ -25,15 +27,27 @@
 						<Label fx:id="currentTimeLabel" minWidth="70.0" text="00:00.000">
 							<HBox.margin>
 								<Insets left="8.0" />
-							</HBox.margin></Label>
-						<Slider fx:id="timeSlider" HBox.hgrow="ALWAYS" onMousePressed="#onTimeSliderMousePressed" onMouseReleased="#onTimeSliderMouseReleased">
-                     <HBox.margin>
-                        <Insets left="8.0" right="8.0" />
-                     </HBox.margin></Slider>
+							</HBox.margin>
+						</Label>
+						<StackPane fx:id="timelineStackPane" HBox.hgrow="ALWAYS">
+							<HBox.margin>
+								<Insets left="8.0" right="8.0" />
+							</HBox.margin>
+							<children>
+                        <AnchorPane>
+                           <children>
+                              <Pane fx:id="outPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
+                              <Pane fx:id="inPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="0.0" />
+                           </children>
+                        </AnchorPane>
+								<Slider fx:id="timeSlider" onMousePressed="#onTimeSliderMousePressed" onMouseReleased="#onTimeSliderMouseReleased" />
+							</children>
+						</StackPane>
 						<Label fx:id="durationLabel" minWidth="70.0" text="99:99.999">
 							<HBox.margin>
 								<Insets right="8.0" />
-							</HBox.margin></Label>
+							</HBox.margin>
+						</Label>
 					</children>
 				</HBox>
 			</children>

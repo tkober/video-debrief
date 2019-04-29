@@ -18,6 +18,7 @@ import de.kobair.videodebrief.core.importing.error.UnknownImportException;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.AddPerspectiveException;
+import de.kobair.videodebrief.core.workspace.error.ChangeInOutPointException;
 import de.kobair.videodebrief.core.workspace.error.CreateEventException;
 import de.kobair.videodebrief.core.workspace.error.RenameEventException;
 import de.kobair.videodebrief.core.workspace.error.RenamePerspectiveException;
@@ -32,7 +33,7 @@ import de.kobair.videodebrief.ui.playback.PlaybackController;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
-public class WorkspaceController extends Controller implements EventsDelegate {
+public class WorkspaceController extends Controller implements EventsDelegate, PlaybackController.PlaybackDelegate {
 
 	@FXML
 	private AnchorPane camerasAnchorPane;
@@ -60,8 +61,45 @@ public class WorkspaceController extends Controller implements EventsDelegate {
 		}
 	}
 
+	private void updatePlayback() {
+		Event playbackEvent = this.playbackViewController.getEvent();
+		Perspective playbackPerspective = this.playbackViewController.getPerspective();
+
+		if (playbackEvent == null || playbackPerspective == null) {
+			return;
+		}
+
+		if (this.workspace.containsEventWithName(playbackEvent.getName())) {
+			Event event = this.workspace.getEventByName(playbackEvent.getName());
+			try {
+				if (workspace.containsPerspectiveWithName(event, playbackPerspective.getName())) {
+					Perspective perspective = this.workspace.getPerspectiveByName(event, playbackPerspective.getName());
+					this.updatePlaybackMedia(event, perspective);
+					return;
+				}
+			} catch (UnknownWorkspaceException e) {
+				// Should never happen
+				throw new RuntimeException(e);
+			}
+		}
+		this.clearPlaybackMedia();
+	}
+
+	private void updatePlaybackMedia(Event event, Perspective perspective) {
+		try {
+			this.playbackViewController.updateSelectedMedia(this.workspace, event, perspective);
+		} catch (UnknownWorkspaceException | IOException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
+	}
+
+	private void clearPlaybackMedia() {
+		this.playbackViewController.clearSelectedMedia();
+	}
+
 	private void workspaceChanged() {
 		updateEventsView();
+		updatePlayback();
 	}
 
 	private CamerasViewController loadCamerasView(AnchorPane anchorPane) {
@@ -89,6 +127,7 @@ public class WorkspaceController extends Controller implements EventsDelegate {
 		this.evnetEventsViewController.setDelegate(this);
 		
 		this.playbackViewController = this.loadPlaybackView(playbackAnchorPane);
+		this.playbackViewController.setDelegate(this);
 	}
 
 	@Override
@@ -172,6 +211,30 @@ public class WorkspaceController extends Controller implements EventsDelegate {
 		try {
 			this.playbackViewController.setSelectedMedia(this.workspace, event, perspective);
 		} catch (UnknownWorkspaceException | IOException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
+	}
+
+	@Override
+	public void setInPoint(final Event event, final Perspective perspective, final long inPoint) {
+		try {
+			this.workspace.changeInPointForPerspective(event, perspective, inPoint);
+			this.workspaceChanged();
+		} catch (ChangeInOutPointException e) {
+			new ApplicationWarning(e).throwOnMainThread();
+		} catch (UnknownWorkspaceException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
+	}
+
+	@Override
+	public void setOutPoint(final Event event, final Perspective perspective, final long outPoint) {
+		try {
+			this.workspace.changeOutPointForPerspective(event, perspective, outPoint);
+			this.workspaceChanged();
+		} catch (ChangeInOutPointException e) {
+			new ApplicationWarning(e).throwOnMainThread();
+		} catch (UnknownWorkspaceException e) {
 			new ApplicationError(e).throwOnMainThread();
 		}
 	}
