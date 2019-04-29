@@ -317,7 +317,9 @@ public class VideoPlayerViewController implements Initializable {
 
 	private void disableMediaPlayerControls() {
 		for (Control control : this.mediaPlayerControls) {
-			control.setDisable(true);
+			if (control != null) {
+				control.setDisable(true);
+			}
 		}
 	}
 
@@ -331,7 +333,9 @@ public class VideoPlayerViewController implements Initializable {
 
 	private void enableMediaPlayerControls() {
 		for (Control control : this.mediaPlayerControls) {
-			control.setDisable(false);
+			if (control != null) {
+				control.setDisable(false);
+			}
 		}
 	}
 	
