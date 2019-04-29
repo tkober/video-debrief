@@ -128,12 +128,14 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	private void onSkipButtonPressed(ActionEvent actionEvent) {
-		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().add(new Duration(SEEK_DURATION_MILLIS)));
+		Duration time = this.mediaPlayer.getCurrentTime().add(new Duration(SEEK_DURATION_MILLIS));
+		this.seekAndUpdateTimeSlider(time);
 	}
 
 	@FXML
 	private void onBackButtonPressed(ActionEvent actionEvent) {
-		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().subtract(new Duration(SEEK_DURATION_MILLIS)));
+		Duration time = this.mediaPlayer.getCurrentTime().subtract(new Duration(SEEK_DURATION_MILLIS));
+		this.seekAndUpdateTimeSlider(time);
 	}
 
 	@FXML
@@ -141,7 +143,8 @@ public class VideoPlayerViewController implements Initializable {
 		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
 			this.mediaPlayer.pause();
 		}
-		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().add(new Duration(FRAME_STEPS_MILLIS)));
+		Duration time = this.mediaPlayer.getCurrentTime().add(new Duration(FRAME_STEPS_MILLIS));
+		this.seekAndUpdateTimeSlider(time);
 	}
 
 	@FXML
@@ -149,7 +152,8 @@ public class VideoPlayerViewController implements Initializable {
 		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
 			this.mediaPlayer.pause();
 		}
-		this.mediaPlayer.seek(this.mediaPlayer.getCurrentTime().subtract(new Duration(FRAME_STEPS_MILLIS)));
+		Duration time = this.mediaPlayer.getCurrentTime().subtract(new Duration(FRAME_STEPS_MILLIS));
+		this.seekAndUpdateTimeSlider(time);
 	}
 
 	@FXML
@@ -176,20 +180,20 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	private void onGoToInPointButtonPressed(ActionEvent actionEvent) {
-		Duration duration = new Duration(this.attributedPerspective.getPerspective().getInPoint());
-		this.mediaPlayer.seek(duration);
+		Duration time = new Duration(this.attributedPerspective.getPerspective().getInPoint());
+		this.seekAndUpdateTimeSlider(time);
 	}
 
 	@FXML
 	private void onGoToOutPointButtonPressed(ActionEvent actionEvent) {
-		Duration duration = new Duration(this.attributedPerspective.getPerspective().getOutPoint());
-		this.mediaPlayer.seek(duration);
+		Duration time = new Duration(this.attributedPerspective.getPerspective().getOutPoint());
+		this.seekAndUpdateTimeSlider(time);
 	}
 
 	@FXML
 	private void onGoToAlignmentPointButtonPressed(ActionEvent actionEvent) {
-		Duration duration = new Duration(this.attributedPerspective.getPerspective().getAlignmentPoint());
-		this.mediaPlayer.seek(duration);
+		Duration time = new Duration(this.attributedPerspective.getPerspective().getAlignmentPoint());
+		this.seekAndUpdateTimeSlider(time);
 	}
 
 	@FXML
@@ -288,8 +292,12 @@ public class VideoPlayerViewController implements Initializable {
 	}
 
 	private void handleMediaPlayerTimeChange(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
-		this.timeSlider.setValue(newValue.toMillis());
-		this.currentTimeLabel.setText(stringFromDuration(newValue));
+		this.updateTimeline(newValue);
+	}
+
+	private void updateTimeline(Duration time) {
+		this.timeSlider.setValue(time.toMillis());
+		this.currentTimeLabel.setText(stringFromDuration(time));
 	}
 
 	private void handleTimeSliderValueChanged(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
@@ -399,6 +407,11 @@ public class VideoPlayerViewController implements Initializable {
 		}
 
 		AnchorPane.setLeftAnchor(this.alignmentPointPane, alignmentPoint);
+	}
+
+	private void seekAndUpdateTimeSlider(Duration time) {
+		this.mediaPlayer.seek(time);
+		this.updateTimeline(time);
 	}
 
 	public void setDelegate(final VideoPlayerDelegate delegate) {

@@ -16,7 +16,60 @@
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
 	<children>
 		<AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-
+			<HBox fx:id="utilButtonsHBox" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+				<children>
+					<GridPane HBox.hgrow="ALWAYS">
+						<columnConstraints>
+							<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
+							<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
+							<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
+						</columnConstraints>
+						<rowConstraints>
+							<RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+						</rowConstraints>
+						<children>
+							<HBox alignment="CENTER_LEFT" GridPane.columnIndex="0">
+								<children>
+									<Button fx:id="exportSnapshotButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportSnapshotButtonPressed" text="SS">
+										<HBox.margin>
+											<Insets left="8.0"/>
+										</HBox.margin>
+									</Button>
+									<Button fx:id="exportClipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportClipButtonPressed" text="CL">
+										<HBox.margin>
+											<Insets left="8.0"/>
+										</HBox.margin>
+									</Button>
+								</children>
+							</HBox>
+							<HBox alignment="CENTER" GridPane.columnIndex="1">
+								<children>
+									<Button fx:id="setInpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetInpointButtonPressed" text="[">
+										<HBox.margin>
+											<Insets left="8.0"/>
+										</HBox.margin>
+									</Button>
+									<Button fx:id="setAlignmentPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetAlignmentPointButtonPressed" text="|">
+										<HBox.margin>
+											<Insets left="8.0"/>
+										</HBox.margin>
+									</Button>
+									<Button fx:id="setOutpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetOutpointButtonPressed" text="]">
+										<HBox.margin>
+											<Insets left="8.0"/>
+										</HBox.margin>
+									</Button>
+								</children>
+							</HBox>
+							<HBox alignment="CENTER_RIGHT" GridPane.columnIndex="2">
+								<children>
+									<!-- Perspective ComboBox -->
+								</children>
+							</HBox>
+						</children>
+					</GridPane>
+				</children>
+			</HBox>
 		</AnchorPane>
 		<AnchorPane fx:id="mediaViewAnchorPane" layoutX="14.0" layoutY="14.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
 			<children>
@@ -72,21 +125,17 @@
 							<children>
 								<HBox alignment="CENTER_LEFT" GridPane.columnIndex="0">
 									<children>
-										<Button fx:id="exportSnapshotButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportSnapshotButtonPressed" text="SS">
-											<HBox.margin>
-												<Insets left="8.0"/>
-											</HBox.margin>
-										</Button>
-										<Button fx:id="exportClipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportClipButtonPressed" text="CL">
-											<HBox.margin>
-												<Insets left="8.0"/>
-											</HBox.margin>
-										</Button>
+										<!-- Rate slider -->
 									</children>
 								</HBox>
 								<HBox alignment="CENTER" GridPane.columnIndex="1">
 									<children>
-										<Button fx:id="setInpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetInpointButtonPressed" text="[">
+										<Button fx:id="goToAlignmentPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onGoToAlignmentPointButtonPressed" text="*|">
+											<HBox.margin>
+												<Insets right="8.0"/>
+											</HBox.margin>
+										</Button>
+										<Button fx:id="goToInPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onGoToInPointButtonPressed" text="*[">
 											<HBox.margin>
 												<Insets right="32.0"/>
 											</HBox.margin>
@@ -112,7 +161,7 @@
 												<Insets left="8.0"/>
 											</HBox.margin>
 										</Button>
-										<Button fx:id="setOutpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetOutpointButtonPressed" text="]">
+										<Button fx:id="goToOutPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onGoToOutPointButtonPressed" text="*]">
 											<HBox.margin>
 												<Insets left="32.0"/>
 											</HBox.margin>
