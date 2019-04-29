@@ -17,6 +17,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
@@ -96,6 +97,8 @@ public class VideoPlayerViewController implements Initializable {
 	private AnchorPane timelineAnchorPane;
 	@FXML
 	private MediaView mediaView;
+	@FXML
+	private ComboBox<String> perspectiveComboBox;
 
 	@FXML
 	void onExportSnapshotButtonPressed(ActionEvent actionEvent) {
@@ -242,6 +245,7 @@ public class VideoPlayerViewController implements Initializable {
 	private Media media;
 	private boolean continuePlayAfterScrubbing;
 	private boolean sliderAndPlayerAsynchronous;
+	private boolean playOnReady;
 
 	private void mediaDurationAvailable(Duration duration) {
 		this.timeSlider.setMax(duration.toMillis());
@@ -268,6 +272,9 @@ public class VideoPlayerViewController implements Initializable {
 			this.mediaDurationAvailable(this.media.getDuration());
 			this.showAlignmentPointIndicator();
 			this.showPlayButton();
+			if (this.playOnReady) {
+				mediaPlayer.play();
+			}
 			break;
 			
 		case PAUSED:
@@ -418,9 +425,14 @@ public class VideoPlayerViewController implements Initializable {
 		this.delegate = Optional.ofNullable(delegate);
 	}
 
-	public void setSelectedMedia(AttributedPerspective attributedPerspective) {
+	public void setSelectedMedia(AttributedPerspective attributedPerspective, List<String> otherPerspectives) {
+		this.setSelectedMedia(attributedPerspective, otherPerspectives, 0, true);
+	}
+
+	public void setSelectedMedia(AttributedPerspective attributedPerspective, List<String> otherPerspectives, long startTimeMillis, boolean play) {
 		this.removeExistingMediaPlayer();
 
+		this.playOnReady = play;
 		this.attributedPerspective = attributedPerspective;
 		this.media = fxMediaFromSelection(this.attributedPerspective);
 
@@ -457,7 +469,7 @@ public class VideoPlayerViewController implements Initializable {
 		this.mediaPlayerControls = Arrays.asList(
 				new Control[] { exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
 						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton, timeSlider,
-						goToAlignmentPointButton, goToInPointButton, goToOutPointButton, setAlignmentPointButton});
+						goToAlignmentPointButton, goToInPointButton, goToOutPointButton, setAlignmentPointButton, perspectiveComboBox});
 		this.disableMediaPlayerControls();
 		this.hideAlignmentPointIndicator();
 		this.timeSlider.valueProperty().addListener(this::handleTimeSliderValueChanged);

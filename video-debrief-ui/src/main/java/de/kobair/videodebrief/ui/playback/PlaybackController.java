@@ -114,8 +114,11 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		this.perspective = perspective;
 		List<AttributedPerspective> attributedPerspectives = this.attributedPerspectivesFromSelection(workspace, event, perspective);
 		AttributedPerspective attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
+		List<String> otherPerspectives = attributedPerspectives.stream()
+												 .map(ap -> ap.getPerspective().getName())
+												 .collect(Collectors.toList());
 
-		this.videoPlayerViewController.setSelectedMedia(attributedPerspective);
+		this.videoPlayerViewController.setSelectedMedia(attributedPerspective, otherPerspectives);
 		// TODO: set for perspectivs view
 	}
 
