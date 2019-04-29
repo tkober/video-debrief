@@ -10,15 +10,9 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
-import de.kobair.videodebrief.core.utils.LocalUtils;
-import de.kobair.videodebrief.ui.playback.model.SelectedMedia;
-import javafx.animation.AnimationTimer;
-import javafx.beans.InvalidationListener;
-import javafx.beans.value.ChangeListener;
+import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -172,7 +166,7 @@ public class VideoPlayerViewController implements Initializable {
 
 	private List<Control> mediaPlayerControls;
 	private Optional<VideoPlayerDelegate> delegate = Optional.empty();
-	private SelectedMedia selectedMedia;
+	private AttributedPerspective attributedPerspective;
 	private MediaPlayer mediaPlayer;
 	private Media media;
 	private boolean continuePlayAfterScrubbing;
@@ -238,9 +232,8 @@ public class VideoPlayerViewController implements Initializable {
 		}
 	}
 
-	private Media fxMediaFromSelection(SelectedMedia selectedMedia) {
-		File file = LocalUtils.extendDirectory(selectedMedia.getWorkspace().getWorkspaceDirectory(),
-				selectedMedia.getEvent().getSubPath(), selectedMedia.getPerspective().getFileName());
+	private Media fxMediaFromSelection(AttributedPerspective attributedPerspective) {
+		File file = attributedPerspective.getVideoFile();
 		URL mediaUrl;
 
 		try {
@@ -296,11 +289,11 @@ public class VideoPlayerViewController implements Initializable {
 		this.delegate = Optional.ofNullable(delegate);
 	}
 
-	public void setSelectedMedia(SelectedMedia selectedMedia) {
+	public void setSelectedMedia(AttributedPerspective attributedPerspective) {
 		this.removeExistingMediaPlayer();
 
-		this.selectedMedia = selectedMedia;
-		this.media = fxMediaFromSelection(this.selectedMedia);
+		this.attributedPerspective = attributedPerspective;
+		this.media = fxMediaFromSelection(this.attributedPerspective);
 
 		this.mediaPlayer = new MediaPlayer(this.media);
 		this.mediaPlayer.statusProperty().addListener(this::handleMediaPlayerStatusChange);

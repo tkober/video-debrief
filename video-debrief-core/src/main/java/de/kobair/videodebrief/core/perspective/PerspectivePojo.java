@@ -1,5 +1,7 @@
 package de.kobair.videodebrief.core.perspective;
 
+import java.util.Objects;
+
 public class PerspectivePojo implements Perspective {
 
 	private long inPoint;
@@ -67,7 +69,22 @@ public class PerspectivePojo implements Perspective {
 
 	@Override
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
-		return super.equals(obj);
+	    if (this == obj) {
+	    	return true;
+	    }
+	       
+	    if (obj == null) {
+	    	return false;
+	    }
+	    
+	    if (getClass() != obj.getClass()) {
+	        return false;
+	    }
+	    
+	    PerspectivePojo pojo = (PerspectivePojo) obj;
+
+	    // field comparison
+	    return Objects.equals(name, pojo.name)
+	            && Objects.equals(fileName, pojo.fileName);
 	}
 }

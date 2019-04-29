@@ -1,6 +1,7 @@
 package de.kobair.videodebrief.ui.workspace;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +29,6 @@ import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
 import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
-import de.kobair.videodebrief.ui.playback.model.SelectedMedia;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 
@@ -169,7 +169,10 @@ public class WorkspaceController extends Controller implements EventsDelegate {
 
 	@Override
 	public void showPerspective(Event event, Perspective perspective) {
-		SelectedMedia selectedMedia = new SelectedMedia(this.workspace, event, perspective);
-		this.playbackViewController.setSelectedMedia(selectedMedia);
+		try {
+			this.playbackViewController.setSelectedMedia(this.workspace, event, perspective);
+		} catch (UnknownWorkspaceException | IOException e) {
+			new ApplicationError(e).throwOnMainThread();
+		}
 	}
 }
