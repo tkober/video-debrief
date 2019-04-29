@@ -83,7 +83,6 @@ public class PerspectivePojo implements Perspective {
 	    
 	    PerspectivePojo pojo = (PerspectivePojo) obj;
 
-	    // field comparison
 	    return Objects.equals(name, pojo.name)
 	            && Objects.equals(fileName, pojo.fileName);
 	}

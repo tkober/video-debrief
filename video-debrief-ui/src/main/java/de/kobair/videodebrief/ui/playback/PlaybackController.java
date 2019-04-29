@@ -64,8 +64,10 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	}
 	
 	private AttributedPerspective findAttributedPerspective(Perspective perspective, List<AttributedPerspective> attributedPerspectives) {
-		
-		return null;
+		List<AttributedPerspective> matches = attributedPerspectives.stream()
+													  .filter(ap -> ap.getPerspective().equals(perspective))
+													  .collect(Collectors.toList());
+		return matches.size() == 1 ? matches.get(0) : null;
 	}
 
 	@Override
@@ -96,6 +98,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		}
 		
 		AttributedPerspective attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
+		System.out.println(attributedPerspective.getVideoInformation());
 		this.videoPlayerViewController.setSelectedMedia(attributedPerspective);
 
 //		this.perspectivesViewController.setSelectedMedia(selectedMedia);
