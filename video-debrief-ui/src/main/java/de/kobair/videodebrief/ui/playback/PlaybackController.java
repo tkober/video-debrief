@@ -3,17 +3,12 @@ package de.kobair.videodebrief.ui.playback;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
-
-import org.w3c.dom.Attr;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
@@ -77,7 +72,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 	private Optional<PlaybackDelegate> delegate = Optional.empty();
 	private Event event;
-	private AttributedPerspective attributedPerspective;
+	private AttributedPerspective selectedPerspective;
 	private List<AttributedPerspective> attributedPerspectives;
 	private Map<AttributedPerspective, Long> relativeOffsets;
 
@@ -119,7 +114,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	private void updateModel(Workspace workspace, Event event, Perspective perspective) throws IOException, UnknownWorkspaceException {
 		this.event = event;
 		this.attributedPerspectives = this.attributedPerspectivesFromSelection(workspace, event, perspective);
-		this.attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
+		this.selectedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
 	}
 
 	private AttributedPerspective findPerspectiveByName(String name) {
@@ -146,7 +141,6 @@ public class PlaybackController extends Controller implements Initializable, Vid
 			Long relativeOffset = Math.abs(maxAlignmentPoint - attributedPerspective.getPerspective().getAlignmentPoint());
 			relativeOffsets.put(attributedPerspective, relativeOffset);
 		}
-		System.out.println(this.relativeOffsets);
 	}
 
 	private long perspectiveTimeToOverallTime(AttributedPerspective fromPerspective, long time) {
@@ -164,6 +158,17 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		return this.overallTimeToPerspectiveTime(overallTime, toPerspective);
 	}
 
+	private void changeToPerspective(AttributedPerspective perspective, long time, boolean play) {
+		this.selectedPerspective = perspective;
+
+		List<String> allPerspectives = this.attributedPerspectives.stream()
+											   .map(ap -> ap.getPerspective().getName())
+											   .collect(Collectors.toList());
+		this.videoPlayerViewController.setSelectedMedia(perspective, allPerspectives, time, play);
+
+		// TODO: set for perspectives view
+	}
+
 	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
 		this.updateModel(workspace, event, perspective);
 		this.calculateRelativeOffsets();
@@ -172,7 +177,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 												 .map(ap -> ap.getPerspective().getName())
 												 .collect(Collectors.toList());
 
-		this.videoPlayerViewController.setSelectedMedia(this.attributedPerspective, allPerspectives);
+		this.videoPlayerViewController.setSelectedMedia(this.selectedPerspective, allPerspectives);
 		// TODO: set for perspectivs view
 	}
 
@@ -185,20 +190,20 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	}
 
 	public Perspective getPerspective() {
-		return this.attributedPerspective != null ? this.attributedPerspective.getPerspective() : null;
+		return this.selectedPerspective != null ? this.selectedPerspective.getPerspective() : null;
 	}
 
 	public void updateSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
 		this.updateModel(workspace, event, perspective);
 		this.calculateRelativeOffsets();
 
-		this.videoPlayerViewController.selectedMediaChanged(this.attributedPerspective);
-		// TODO: set for perspectivs view
+		this.videoPlayerViewController.selectedMediaChanged(this.selectedPerspective);
+		// TODO: set for perspectives view
 	}
 
 	public void clearSelectedMedia() {
 		this.videoPlayerViewController.clearMedia();
-		// TODO: set for perspectivs view
+		// TODO: set for perspectives view
 	}
 
 	@Override
@@ -212,29 +217,30 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 	@Override
 	public void setInPoint(final long inPoint) {
-		this.delegate.ifPresent(delegate -> delegate.setInPoint(this.event, this.attributedPerspective.getPerspective(), inPoint));
+		this.delegate.ifPresent(delegate -> delegate.setInPoint(this.event, this.selectedPerspective.getPerspective(), inPoint));
 	}
 
 	@Override
 	public void setOutPoint(final long outPoint) {
-		this.delegate.ifPresent(delegate -> delegate.setOutPoint(this.event, this.attributedPerspective.getPerspective(), outPoint));
+		this.delegate.ifPresent(delegate -> delegate.setOutPoint(this.event, this.selectedPerspective.getPerspective(), outPoint));
 	}
 
 	@Override
 	public void exportSnapshot(final long timeMillis) {
-		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(this.event, this.attributedPerspective.getPerspective(), timeMillis));
+		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(this.event, this.selectedPerspective.getPerspective(), timeMillis));
 	}
 
 	@Override
 	public void setAlignmentPoint(final long timeMillis) {
-		this.delegate.ifPresent(delegate -> delegate.setAlignmentPoint(this.event, this.attributedPerspective.getPerspective(), timeMillis));
+		this.delegate.ifPresent(delegate -> delegate.setAlignmentPoint(this.event, this.selectedPerspective.getPerspective(), timeMillis));
 	}
 
 	@Override
-	public void changePerspective(final String name, final long timeMillis) {
+	public void changePerspective(final String name, final long timeMillis, boolean play) {
 		AttributedPerspective attributedPerspective = findPerspectiveByName(name);
 		if (attributedPerspective != null) {
-
+			long timeInNewPerspective = this.convertTimeBetweenPerspectives(timeMillis, this.selectedPerspective, attributedPerspective);
+			this.changeToPerspective(attributedPerspective, timeInNewPerspective, play);
 		}
 	}
 }

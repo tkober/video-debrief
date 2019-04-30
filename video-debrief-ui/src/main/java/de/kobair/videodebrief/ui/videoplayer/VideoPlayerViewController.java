@@ -11,7 +11,11 @@ import java.util.ResourceBundle;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -48,6 +52,8 @@ public class VideoPlayerViewController implements Initializable {
 		public void exportSnapshot(long timeMillis);
 
 		public void setAlignmentPoint(long timeMillis);
+
+		public void changePerspective(String name, long timeMillis, boolean play);
 
 	}
 
@@ -98,7 +104,7 @@ public class VideoPlayerViewController implements Initializable {
 	@FXML
 	private MediaView mediaView;
 	@FXML
-	private ComboBox<String> perspectiveComboBox;
+	private ComboBox<String> perspectivesComboBox;
 
 	@FXML
 	void onExportSnapshotButtonPressed(ActionEvent actionEvent) {
@@ -246,6 +252,8 @@ public class VideoPlayerViewController implements Initializable {
 	private boolean continuePlayAfterScrubbing;
 	private boolean sliderAndPlayerAsynchronous;
 	private boolean playOnReady;
+	private ObservableList<String> perspectives;
+	private Duration startTime;
 
 	private void mediaDurationAvailable(Duration duration) {
 		this.timeSlider.setMax(duration.toMillis());
@@ -272,6 +280,7 @@ public class VideoPlayerViewController implements Initializable {
 			this.mediaDurationAvailable(this.media.getDuration());
 			this.showAlignmentPointIndicator();
 			this.showPlayButton();
+			this.seekAndUpdateTimeSlider(this.startTime);
 			if (this.playOnReady) {
 				mediaPlayer.play();
 			}
@@ -312,6 +321,18 @@ public class VideoPlayerViewController implements Initializable {
 			Duration duration = new Duration((Double) newValue);
 			this.mediaPlayer.seek(duration);
 			this.currentTimeLabel.setText(stringFromDuration(duration));
+		}
+	}
+
+	private void handlePerspectiveComboBoxChanged(final ObservableValue<? extends String> observable, final String oldValue, final String newValue) {
+		if (this.attributedPerspective == null) {
+			return;
+		}
+
+		String currentPerspectiveName = this.attributedPerspective.getPerspective().getName();
+		if (!currentPerspectiveName.equals(newValue)) {
+			boolean play = this.mediaPlayer.getStatus() == Status.PLAYING;
+			this.delegate.ifPresent(delegate -> delegate.changePerspective(newValue, (long) this.mediaPlayer.getCurrentTime().toMillis(), play));
 		}
 	}
 
@@ -425,14 +446,15 @@ public class VideoPlayerViewController implements Initializable {
 		this.delegate = Optional.ofNullable(delegate);
 	}
 
-	public void setSelectedMedia(AttributedPerspective attributedPerspective, List<String> otherPerspectives) {
-		this.setSelectedMedia(attributedPerspective, otherPerspectives, 0, true);
+	public void setSelectedMedia(AttributedPerspective attributedPerspective, List<String> allPerspectives) {
+		this.setSelectedMedia(attributedPerspective, allPerspectives, 0, true);
 	}
 
-	public void setSelectedMedia(AttributedPerspective attributedPerspective, List<String> otherPerspectives, long startTimeMillis, boolean play) {
+	public void setSelectedMedia(AttributedPerspective attributedPerspective, List<String> allPerspectives, long startTimeMillis, boolean play) {
 		this.removeExistingMediaPlayer();
 
 		this.playOnReady = play;
+		this.startTime = new Duration(startTimeMillis);
 		this.attributedPerspective = attributedPerspective;
 		this.media = fxMediaFromSelection(this.attributedPerspective);
 
@@ -452,6 +474,10 @@ public class VideoPlayerViewController implements Initializable {
 
 		this.updateInOutPointView();
 		this.updateAlignmentPointView();
+
+		this.perspectives.clear();
+		this.perspectives.addAll(allPerspectives);
+		this.perspectivesComboBox.valueProperty().set(attributedPerspective.getPerspective().getName());
 	}
 
 	public void selectedMediaChanged(AttributedPerspective attributedPerspective) {
@@ -469,13 +495,17 @@ public class VideoPlayerViewController implements Initializable {
 		this.mediaPlayerControls = Arrays.asList(
 				new Control[] { exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
 						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton, timeSlider,
-						goToAlignmentPointButton, goToInPointButton, goToOutPointButton, setAlignmentPointButton, perspectiveComboBox});
+						goToAlignmentPointButton, goToInPointButton, goToOutPointButton, setAlignmentPointButton, perspectivesComboBox});
 		this.disableMediaPlayerControls();
 		this.hideAlignmentPointIndicator();
 		this.timeSlider.valueProperty().addListener(this::handleTimeSliderValueChanged);
 
 		this.currentTimeLabel.setText(stringFromDuration(new Duration(0)));
 		this.durationLabel.setText(stringFromDuration(new Duration(0)));
+
+		this.perspectives = FXCollections.observableArrayList();
+		this.perspectivesComboBox.setItems(this.perspectives);
+		this.perspectivesComboBox.valueProperty().addListener(this::handlePerspectiveComboBoxChanged);
 
 		this.mediaView.setSmooth(true); // TODO: ?
 	}

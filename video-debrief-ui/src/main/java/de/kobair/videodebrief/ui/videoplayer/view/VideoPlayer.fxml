@@ -65,7 +65,7 @@
 							</HBox>
 							<HBox alignment="CENTER_RIGHT" GridPane.columnIndex="2">
 								<children>
-									<ComboBox fx:id="perspectiveComboBox" prefWidth="150.0"/>
+									<ComboBox fx:id="perspectivesComboBox" prefWidth="150.0"/>
 								</children>
 							</HBox>
 						</children>
