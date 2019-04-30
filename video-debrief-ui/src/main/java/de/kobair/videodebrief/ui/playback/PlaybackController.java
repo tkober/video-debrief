@@ -3,7 +3,12 @@ package de.kobair.videodebrief.ui.playback;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.stream.Collectors;
@@ -72,7 +77,9 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 	private Optional<PlaybackDelegate> delegate = Optional.empty();
 	private Event event;
-	private Perspective perspective;
+	private AttributedPerspective attributedPerspective;
+	private List<AttributedPerspective> attributedPerspectives;
+	private Map<AttributedPerspective, Long> relativeOffsets;
 
 	private VideoPlayerViewController loadVideoPlayerView() {
 		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "VideoPlayer.fxml", VideoPlayerViewController.class);
@@ -109,16 +116,63 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		return attributedPerspectives;
 	}
 
-	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
+	private void updateModel(Workspace workspace, Event event, Perspective perspective) throws IOException, UnknownWorkspaceException {
 		this.event = event;
-		this.perspective = perspective;
-		List<AttributedPerspective> attributedPerspectives = this.attributedPerspectivesFromSelection(workspace, event, perspective);
-		AttributedPerspective attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
-		List<String> otherPerspectives = attributedPerspectives.stream()
+		this.attributedPerspectives = this.attributedPerspectivesFromSelection(workspace, event, perspective);
+		this.attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
+	}
+
+	private AttributedPerspective findPerspectiveByName(String name) {
+		for (AttributedPerspective attributedPerspective : this.attributedPerspectives) {
+			if (attributedPerspective.getPerspective().getName().equals(name)) {
+				return attributedPerspective;
+			}
+		}
+		return null;
+	}
+
+	private int sortAttributedPerspectivesByAlignmentPointDesc(final AttributedPerspective a, final AttributedPerspective b) {
+		return (int) Math.signum(b.getPerspective().getAlignmentPoint() - a.getPerspective().getAlignmentPoint());
+	}
+
+	private void calculateRelativeOffsets() {
+		long maxAlignmentPoint = this.attributedPerspectives.stream()
+										 .map(ap -> ap.getPerspective().getAlignmentPoint())
+										 .max(Long::compare)
+										 .get();
+
+		this.relativeOffsets = new HashMap<>(this.attributedPerspectives.size());
+		for (AttributedPerspective attributedPerspective : this.attributedPerspectives) {
+			Long relativeOffset = Math.abs(maxAlignmentPoint - attributedPerspective.getPerspective().getAlignmentPoint());
+			relativeOffsets.put(attributedPerspective, relativeOffset);
+		}
+		System.out.println(this.relativeOffsets);
+	}
+
+	private long perspectiveTimeToOverallTime(AttributedPerspective fromPerspective, long time) {
+		long relativeOffset = this.relativeOffsets.get(fromPerspective);
+		return time + relativeOffset;
+	}
+
+	private long overallTimeToPerspectiveTime(long time, AttributedPerspective toPerspective) {
+		long relativeOffset = this.relativeOffsets.get(toPerspective);
+		return time - relativeOffset;
+	}
+
+	private long convertTimeBetweenPerspectives(long time, AttributedPerspective fromPerspective, AttributedPerspective toPerspective) {
+		long overallTime = this.perspectiveTimeToOverallTime(fromPerspective, time);
+		return this.overallTimeToPerspectiveTime(overallTime, toPerspective);
+	}
+
+	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
+		this.updateModel(workspace, event, perspective);
+		this.calculateRelativeOffsets();
+
+		List<String> allPerspectives = this.attributedPerspectives.stream()
 												 .map(ap -> ap.getPerspective().getName())
 												 .collect(Collectors.toList());
 
-		this.videoPlayerViewController.setSelectedMedia(attributedPerspective, otherPerspectives);
+		this.videoPlayerViewController.setSelectedMedia(this.attributedPerspective, allPerspectives);
 		// TODO: set for perspectivs view
 	}
 
@@ -131,16 +185,14 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	}
 
 	public Perspective getPerspective() {
-		return perspective;
+		return this.attributedPerspective != null ? this.attributedPerspective.getPerspective() : null;
 	}
 
 	public void updateSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
-		this.event = event;
-		this.perspective = perspective;
-		List<AttributedPerspective> attributedPerspectives = this.attributedPerspectivesFromSelection(workspace, event, perspective);
-		AttributedPerspective attributedPerspective = this.findAttributedPerspective(perspective, attributedPerspectives);
+		this.updateModel(workspace, event, perspective);
+		this.calculateRelativeOffsets();
 
-		this.videoPlayerViewController.selectedMediaChanged(attributedPerspective);
+		this.videoPlayerViewController.selectedMediaChanged(this.attributedPerspective);
 		// TODO: set for perspectivs view
 	}
 
@@ -160,21 +212,29 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 	@Override
 	public void setInPoint(final long inPoint) {
-		this.delegate.ifPresent(delegate -> delegate.setInPoint(this.event, this.perspective, inPoint));
+		this.delegate.ifPresent(delegate -> delegate.setInPoint(this.event, this.attributedPerspective.getPerspective(), inPoint));
 	}
 
 	@Override
 	public void setOutPoint(final long outPoint) {
-		this.delegate.ifPresent(delegate -> delegate.setOutPoint(this.event, this.perspective, outPoint));
+		this.delegate.ifPresent(delegate -> delegate.setOutPoint(this.event, this.attributedPerspective.getPerspective(), outPoint));
 	}
 
 	@Override
 	public void exportSnapshot(final long timeMillis) {
-		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(this.event, this.perspective, timeMillis));
+		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(this.event, this.attributedPerspective.getPerspective(), timeMillis));
 	}
 
 	@Override
 	public void setAlignmentPoint(final long timeMillis) {
-		this.delegate.ifPresent(delegate -> delegate.setAlignmentPoint(this.event, this.perspective, timeMillis));
+		this.delegate.ifPresent(delegate -> delegate.setAlignmentPoint(this.event, this.attributedPerspective.getPerspective(), timeMillis));
+	}
+
+	@Override
+	public void changePerspective(final String name, final long timeMillis) {
+		AttributedPerspective attributedPerspective = findPerspectiveByName(name);
+		if (attributedPerspective != null) {
+
+		}
 	}
 }
