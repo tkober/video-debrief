@@ -20,6 +20,7 @@ import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.perspectives.PerspectivesViewController;
+import de.kobair.videodebrief.ui.perspectives.model.TimelineItem;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController;
 import javafx.fxml.FXML;
@@ -178,7 +179,12 @@ public class PlaybackController extends Controller implements Initializable, Vid
 												 .collect(Collectors.toList());
 
 		this.videoPlayerViewController.setSelectedMedia(this.selectedPerspective, allPerspectives);
+
 		// TODO: set for perspectivs view
+		List<TimelineItem> timelineItems = this.attributedPerspectives.stream()
+												   .map(ap -> new TimelineItem(ap, this.relativeOffsets.get(ap)))
+												   .collect(Collectors.toList());
+		this.perspectivesViewController.showTimeline(timelineItems, this.selectedPerspective);
 	}
 
 	public void setDelegate(PlaybackDelegate delegate) {

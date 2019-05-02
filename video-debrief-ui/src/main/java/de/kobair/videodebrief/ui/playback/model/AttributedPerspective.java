@@ -28,5 +28,9 @@ public class AttributedPerspective {
 	public File getVideoFile() {
 		return videoFile;
 	}
-	
+
+	@Override
+	public boolean equals(final Object obj) {
+		return this.getPerspective().equals(obj);
+	}
 }
