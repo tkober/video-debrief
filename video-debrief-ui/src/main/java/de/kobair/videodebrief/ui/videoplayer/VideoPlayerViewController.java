@@ -55,6 +55,7 @@ public class VideoPlayerViewController implements Initializable {
 
 		public void changePerspective(String name, long timeMillis, boolean play);
 
+		public void timeChanged(long timeMillis);
 	}
 
 	@FXML
@@ -272,7 +273,6 @@ public class VideoPlayerViewController implements Initializable {
 
 	private void handleMediaPlayerStatusChange(ObservableValue<? extends MediaPlayer.Status> ov,
 			MediaPlayer.Status oldStatus, MediaPlayer.Status newStatus) {
-
 		switch (newStatus) {
 		
 		case READY:
@@ -309,6 +309,9 @@ public class VideoPlayerViewController implements Initializable {
 
 	private void handleMediaPlayerTimeChange(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
 		this.updateTimeline(newValue);
+		if (this.mediaPlayer.getStatus() == Status.PLAYING) {
+			this.delegate.ifPresent(delegate -> delegate.timeChanged((long) newValue.toMillis()));
+		}
 	}
 
 	private void updateTimeline(Duration time) {
@@ -331,8 +334,9 @@ public class VideoPlayerViewController implements Initializable {
 
 		String currentPerspectiveName = this.attributedPerspective.getPerspective().getName();
 		if (!currentPerspectiveName.equals(newValue)) {
-			boolean play = this.mediaPlayer.getStatus() == Status.PLAYING;
-			this.delegate.ifPresent(delegate -> delegate.changePerspective(newValue, (long) this.mediaPlayer.getCurrentTime().toMillis(), play));
+			boolean play = this.shouldPlayOnPerspectiveChange();
+			long time = this.getCurrentTime();
+			this.delegate.ifPresent(delegate -> delegate.changePerspective(newValue, time, play));
 		}
 	}
 
@@ -438,8 +442,21 @@ public class VideoPlayerViewController implements Initializable {
 	}
 
 	private void seekAndUpdateTimeSlider(Duration time) {
-		this.mediaPlayer.seek(time);
-		this.updateTimeline(time);
+		long mediaLength = (long) mediaPlayer.getMedia().getDuration().toMillis();
+		long timeMillis = (long) time.toMillis();
+		timeMillis = Math.max(timeMillis, 0);
+		timeMillis = Math.min(timeMillis, mediaLength);
+
+		this.mediaPlayer.seek(new Duration(timeMillis));
+		this.updateTimeline(new Duration(timeMillis));
+	}
+
+	public long getCurrentTime() {
+		return (long) this.mediaPlayer.getCurrentTime().toMillis();
+	}
+
+	public boolean shouldPlayOnPerspectiveChange() {
+		return this.mediaPlayer.getStatus() == Status.PLAYING;
 	}
 
 	public void setDelegate(final VideoPlayerDelegate delegate) {

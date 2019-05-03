@@ -249,4 +249,20 @@ public class PlaybackController extends Controller implements Initializable, Vid
 			this.changeToPerspective(attributedPerspective, timeInNewPerspective, play);
 		}
 	}
+
+	@Override
+	public void timeChanged(final long timeMillis) {
+		long overallTime = this.perspectiveTimeToOverallTime(this.selectedPerspective, timeMillis);
+		this.perspectivesViewController.updateTimeline(overallTime);
+	}
+
+	@Override
+	public void changeToPerspective(final AttributedPerspective perspective) {
+		if (!this.selectedPerspective.equals(perspective)) {
+			boolean play = this.videoPlayerViewController.shouldPlayOnPerspectiveChange();
+			long time = this.videoPlayerViewController.getCurrentTime();
+			long timeInNewPerspective = this.convertTimeBetweenPerspectives(time, this.selectedPerspective, perspective);
+			this.changeToPerspective(perspective, timeInNewPerspective, play);
+		}
+	}
 }

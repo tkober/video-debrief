@@ -21,5 +21,5 @@
 			</AnchorPane>
 		</content>
 	</ScrollPane>
-	<Pane layoutX="40.0" maxWidth="2.0" minWidth="2.0" prefWidth="2.0" style="-fx-background-color: #008dd3;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="0.0"/>
+	<Pane fx:id="timeMarkerPane" maxWidth="2.0" minWidth="2.0" prefWidth="2.0" style="-fx-background-color: #008dd3;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="40.0" AnchorPane.topAnchor="0.0"/>
 </AnchorPane>

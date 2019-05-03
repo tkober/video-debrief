@@ -31,6 +31,19 @@ public class AttributedPerspective {
 
 	@Override
 	public boolean equals(final Object obj) {
-		return this.getPerspective().equals(obj);
+		if (this == obj) {
+			return true;
+		}
+
+		if (obj == null) {
+			return false;
+		}
+
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		AttributedPerspective ap = (AttributedPerspective) obj;
+		return this.getPerspective().equals(ap.getPerspective());
 	}
 }
