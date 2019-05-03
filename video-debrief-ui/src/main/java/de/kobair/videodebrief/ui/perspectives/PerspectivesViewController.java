@@ -40,7 +40,6 @@ public class PerspectivesViewController implements Initializable {
 	private long timelineLength = 0;
 	private Optional<PerspectivesDelegate> delegate = Optional.empty();
 
-
 	private Node nodeForPerspective(AttributedPerspective perspective, long timelineLength, long relativeOffset) {
 		Button button = new Button();
 		button.setText(perspective.getPerspective().getName());
@@ -106,6 +105,16 @@ public class PerspectivesViewController implements Initializable {
 		for (TimelineItem timelineItem : timelineItems) {
 			this.timelineVBox.getChildren().add(nodeForPerspective(timelineItem.getAatributedPerspective(), this.timelineLength, timelineItem.getRelativeOffset()));
 		}
+		this.changeSelectedPerspective(perspectivePlaying);
+	}
+
+	public void clear() {
+		this.hideTimeMarker();
+		this.clearTimeline();
+	}
+
+	public void changeSelectedPerspective(AttributedPerspective perspective) {
+		System.out.println(perspective.getPerspective().getName());
 	}
 
 	public void updateTimeline(long time) {

@@ -167,7 +167,13 @@ public class PlaybackController extends Controller implements Initializable, Vid
 											   .collect(Collectors.toList());
 		this.videoPlayerViewController.setSelectedMedia(perspective, allPerspectives, time, play);
 
-		// TODO: set for perspectives view
+		this.perspectivesViewController.changeSelectedPerspective(perspective);
+	}
+
+	private List<TimelineItem> getTimelines() {
+		return this.attributedPerspectives.stream()
+				.map(ap -> new TimelineItem(ap, this.relativeOffsets.get(ap)))
+				.collect(Collectors.toList());
 	}
 
 	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
@@ -177,13 +183,9 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		List<String> allPerspectives = this.attributedPerspectives.stream()
 												 .map(ap -> ap.getPerspective().getName())
 												 .collect(Collectors.toList());
-
 		this.videoPlayerViewController.setSelectedMedia(this.selectedPerspective, allPerspectives);
 
-		// TODO: set for perspectivs view
-		List<TimelineItem> timelineItems = this.attributedPerspectives.stream()
-												   .map(ap -> new TimelineItem(ap, this.relativeOffsets.get(ap)))
-												   .collect(Collectors.toList());
+		List<TimelineItem> timelineItems = this.getTimelines();
 		this.perspectivesViewController.showTimeline(timelineItems, this.selectedPerspective);
 	}
 
@@ -202,14 +204,15 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	public void updateSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
 		this.updateModel(workspace, event, perspective);
 		this.calculateRelativeOffsets();
-
 		this.videoPlayerViewController.selectedMediaChanged(this.selectedPerspective);
-		// TODO: set for perspectives view
+
+		List<TimelineItem> timelineItems = this.getTimelines();
+		this.perspectivesViewController.showTimeline(timelineItems, this.selectedPerspective);
 	}
 
 	public void clearSelectedMedia() {
 		this.videoPlayerViewController.clearMedia();
-		// TODO: set for perspectives view
+		this.perspectivesViewController.clear();
 	}
 
 	@Override
