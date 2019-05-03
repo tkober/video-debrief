@@ -46,4 +46,9 @@ public class AttributedPerspective {
 		AttributedPerspective ap = (AttributedPerspective) obj;
 		return this.getPerspective().equals(ap.getPerspective());
 	}
+
+	@Override
+	public String toString() {
+		return this.getPerspective().getName();
+	}
 }

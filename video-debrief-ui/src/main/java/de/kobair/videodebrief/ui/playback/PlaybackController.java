@@ -2,14 +2,12 @@ package de.kobair.videodebrief.ui.playback;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.utils.LocalUtils;
@@ -18,6 +16,7 @@ import de.kobair.videodebrief.core.video.VideoInformation;
 import de.kobair.videodebrief.core.video.ffmpeg.FfmpegVideoHandler;
 import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
+import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.perspectives.PerspectivesViewController;
 import de.kobair.videodebrief.ui.perspectives.model.TimelineItem;
@@ -26,6 +25,7 @@ import de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
+import org.w3c.dom.Attr;
 
 public class PlaybackController extends Controller implements Initializable, VideoPlayerViewController.VideoPlayerDelegate, PerspectivesViewController.PerspectivesDelegate {
 
@@ -237,6 +237,39 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	@Override
 	public void exportSnapshot(final long timeMillis) {
 		this.delegate.ifPresent(delegate -> delegate.exportSnapshot(this.event, this.selectedPerspective.getPerspective(), timeMillis));
+	}
+
+	@Override
+	public void exportClip(AttributedPerspective perspective) {
+		List<AttributedPerspective> otherAvailablePerspectives = this.attributedPerspectives.stream()
+				.filter(p -> !perspective.equals(p) && isAdditionalPerspectiveForClip(perspective, p))
+				.collect(Collectors.toList());
+
+		List<AttributedPerspective> perspectivesToExport = new ArrayList<>();
+		perspectivesToExport.add(perspective);
+		if (otherAvailablePerspectives.size() > 0) {
+			Optional<Map<AttributedPerspective, Boolean>> selection = DialogFactory.chooseAdditionalPerspectivesDialog(otherAvailablePerspectives).showAndWait();
+			if (!selection.isPresent()) {
+				return;
+			}
+			for (AttributedPerspective ap : selection.get().keySet()) {
+				if (selection.get().get(ap)) {
+					perspectivesToExport.add(ap);
+				}
+			}
+		}
+		System.out.println(perspectivesToExport);
+	}
+
+	private boolean isAdditionalPerspectiveForClip(AttributedPerspective clip, AttributedPerspective additionalPerspective) {
+		long inPoint = clip.getPerspective().getInPoint();
+		long outPoint = clip.getPerspective().getOutPoint();
+		return this.isTimePointCoveredByOtherPerspective(inPoint, clip, additionalPerspective) && this.isTimePointCoveredByOtherPerspective(outPoint, clip, additionalPerspective);
+	}
+
+	private boolean isTimePointCoveredByOtherPerspective(long time, AttributedPerspective clip, AttributedPerspective perspective) {
+		long perspectiveTime = this.convertTimeBetweenPerspectives(time, clip, perspective);
+		return perspectiveTime >= 0 && perspectiveTime <= perspective.getVideoInformation().getDurationMillis();
 	}
 
 	@Override

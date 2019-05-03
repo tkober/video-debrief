@@ -114,7 +114,7 @@ public class PerspectivesViewController implements Initializable {
 	}
 
 	public void changeSelectedPerspective(AttributedPerspective perspective) {
-		System.out.println(perspective.getPerspective().getName());
+
 	}
 
 	public void updateTimeline(long time) {

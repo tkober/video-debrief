@@ -1,14 +1,16 @@
 package de.kobair.videodebrief.ui.dialogs;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
+import com.sun.org.apache.xpath.internal.operations.Bool;
 import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.TextInputDialog;
+import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 import javafx.stage.StageStyle;
 
 public class DialogFactory {
@@ -46,6 +48,7 @@ public class DialogFactory {
 	public static DialogConfig NAMING_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, null, null, "Name:");
 	public static DialogConfig IMPORT_MEDIA_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, null, null, "Perspective:");
 	public static DialogConfig DELETION_CONFIG  = new DialogConfig();
+	public static DialogConfig CHOOSE_PERSPECTIVES_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, "Additional Perspectives", "Choose additional perspectives to export:", null);
 
 	public static TextInputDialog namingDialog(String title, String placeholder) {
 		return textInputDialog(title, placeholder, NAMING_CONFIG);
@@ -82,5 +85,42 @@ public class DialogFactory {
 		alert.setContentText(question);
 
 		return alert;
+	}
+
+	public static Dialog<Map<AttributedPerspective, Boolean>> chooseAdditionalPerspectivesDialog(List<AttributedPerspective> additionalPerspectives) {
+		return multiSelectDialog(additionalPerspectives, CHOOSE_PERSPECTIVES_CONFIG);
+	}
+
+	public static <T extends Object> Dialog<Map<T, Boolean>> multiSelectDialog(List<T> options, DialogConfig config) {
+		Dialog<Map<T, Boolean>> dialog = new Dialog<>();
+		config.apply(dialog);
+
+		GridPane grid = new GridPane();
+		grid.setHgap(10);
+		grid.setVgap(10);
+
+		Map<T, CheckBox> optionsToCheckboxes = new HashMap<>(options.size());
+		for (int i = 0; i < options.size(); i++) {
+			final T option = options.get(i);
+			CheckBox checkBox = new CheckBox(option.toString());
+			optionsToCheckboxes.put(option, checkBox);
+			grid.add(checkBox, 0, i);
+		}
+		dialog.getDialogPane().setContent(grid);
+
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+		dialog.setResultConverter(dialogButton -> {
+			if (dialogButton.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+				Map<T, Boolean> result = new HashMap<>(optionsToCheckboxes.size());
+				for (T option : options) {
+					CheckBox checkBox = optionsToCheckboxes.get(option);
+					result.put(option, checkBox.isSelected());
+				}
+				return result;
+			}
+			return null;
+		});
+
+		return dialog;
 	}
 }

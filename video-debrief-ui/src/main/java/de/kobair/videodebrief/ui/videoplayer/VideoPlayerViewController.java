@@ -1,34 +1,17 @@
 package de.kobair.videodebrief.ui.videoplayer;
 
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.ResourceBundle;
-
-import org.apache.commons.lang3.time.DurationFormatUtils;
-
+import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Control;
-import javafx.scene.control.Label;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.StackPane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaErrorEvent;
 import javafx.scene.media.MediaPlayer;
@@ -36,6 +19,14 @@ import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.apache.commons.lang3.time.DurationFormatUtils;
+
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.*;
+
+import static de.kobair.videodebrief.ui.dialogs.DialogFactory.CHOOSE_PERSPECTIVES_CONFIG;
 
 public class VideoPlayerViewController implements Initializable {
 
@@ -50,6 +41,8 @@ public class VideoPlayerViewController implements Initializable {
 		public void setOutPoint(long outPoint);
 
 		public void exportSnapshot(long timeMillis);
+
+		public void exportClip(AttributedPerspective perspective);
 
 		public void setAlignmentPoint(long timeMillis);
 
@@ -124,7 +117,7 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	void onExportClipButtonPressed(ActionEvent actionEvent) {
-		System.out.println("onExportClipButtonPressed()");
+		this.delegate.ifPresent(delegate -> delegate.exportClip(this.attributedPerspective));
 	}
 
 	@FXML
