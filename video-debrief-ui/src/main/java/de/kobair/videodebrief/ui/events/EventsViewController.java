@@ -153,7 +153,7 @@ public class EventsViewController implements Initializable {
 		String question = String.format("Do you really want to delete the event '%s'", event.getName());
 		Optional<ButtonType> result = DialogFactory.confirmDeleteDialog("Delete Event", question).showAndWait();
 
-		if (result.isPresent()) {
+		if (result.isPresent() && result.get().getButtonData() != ButtonBar.ButtonData.NO) {
 			boolean keepFiles = shouldFilesBeKept(result);
 			this.delegate.ifPresent(delegate -> delegate.deleteEvent(event, keepFiles));
 		}
@@ -163,7 +163,7 @@ public class EventsViewController implements Initializable {
 		String question = String.format("Do you really want to delete the perspective '%s'", perspective.getName());
 		Optional<ButtonType> result = DialogFactory.confirmDeleteDialog("Delete Perspective", question).showAndWait();
 
-		if (result.isPresent()) {
+		if (result.isPresent() &&  result.get().getButtonData() != ButtonBar.ButtonData.NO) {
 			boolean keepFiles = shouldFilesBeKept(result);
 			this.delegate.ifPresent(delegate -> delegate.deletePerspective(event, perspective, keepFiles));
 		}
