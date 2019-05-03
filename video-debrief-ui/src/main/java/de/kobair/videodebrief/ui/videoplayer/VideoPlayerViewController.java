@@ -309,7 +309,7 @@ public class VideoPlayerViewController implements Initializable {
 
 	private void handleMediaPlayerTimeChange(ObservableValue<? extends Duration> observable, Duration oldValue, Duration newValue) {
 		this.updateTimeline(newValue);
-		if (this.mediaPlayer.getStatus() == Status.PLAYING) {
+		if (this.mediaPlayer.getStatus() == Status.PLAYING || this.mediaPlayer.getStatus() == Status.PAUSED) {
 			this.delegate.ifPresent(delegate -> delegate.timeChanged((long) newValue.toMillis()));
 		}
 	}
