@@ -269,7 +269,8 @@ public class EventsViewController implements Initializable {
 		else if (this.isImportPerspectiveDrop(dropEvent)) {
 			Dragboard dragboard = dropEvent.getDragboard();
 			File file = dragboard.getFiles().get(0);
-			String perspectiveName = null;
+			String[] fileNameParts = file.getName().split("[.]");
+			String perspectiveName = fileNameParts.length == 0 ? null : fileNameParts[0];
 			if (dragboard.hasString()) {
 				perspectiveName = dragboard.getString();
 			}
