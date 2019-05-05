@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.formats.FileFormat;
@@ -38,6 +39,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.util.Callback;
+import javafx.util.Pair;
 
 public class EventsViewController implements Initializable {
 
@@ -60,6 +62,8 @@ public class EventsViewController implements Initializable {
 		public void movePerspective(Event oldEvent, Event newEvent, Perspective perspective);
 		
 		public void showPerspective(Event event, Perspective perspective);
+
+		public void exportWorkspaceParts(List<Pair<Event, Perspective>> parts, String placeholder);
 
 	}
 
@@ -190,11 +194,16 @@ public class EventsViewController implements Initializable {
 	}
 
 	private void exportEvent(Event event) {
-
+		List<Pair<Event, Perspective>> parts = event.getAllPerspectives().stream()
+				.map(p -> new Pair<Event, Perspective>(event, p))
+				.collect(Collectors.toList());
+		this.delegate.ifPresent(delegate -> delegate.exportWorkspaceParts(parts, event.getName()));
 	}
 
 	private void exportPerspective(Event event, Perspective perspective) {
-
+		List<Pair<Event, Perspective>> parts = new ArrayList<>(1);
+		parts.add(new Pair<>(event, perspective));
+		this.delegate.ifPresent(delegate -> delegate.exportWorkspaceParts(parts, perspective.getName()));
 	}
 
 	private void importVideoFile(Event event, File file, String perspectiveName) {

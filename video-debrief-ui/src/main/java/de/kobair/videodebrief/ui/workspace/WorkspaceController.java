@@ -28,6 +28,7 @@ import de.kobair.videodebrief.core.workspace.error.CreateEventException;
 import de.kobair.videodebrief.core.workspace.error.RenameEventException;
 import de.kobair.videodebrief.core.workspace.error.RenamePerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
+import de.kobair.videodebrief.ui.App;
 import de.kobair.videodebrief.ui.cameras.CamerasViewController;
 import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.errors.ApplicationError;
@@ -38,6 +39,9 @@ import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.DirectoryChooser;
+import javafx.util.Pair;
+import org.apache.tools.ant.taskdefs.Local;
 
 public class WorkspaceController extends Controller implements EventsDelegate, PlaybackController.PlaybackDelegate {
 
@@ -55,6 +59,7 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 	private Workspace workspace;
 	private EventsViewController evnetEventsViewController;
 	private PlaybackController playbackViewController;
+	private App app;
 
 	private void updateEventsView() {
 		try {
@@ -121,9 +126,42 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 		return this.loadViewIntoAnchorPane(anchorPane, "Playback.fxml", PlaybackController.class);
 	}
 
+	private void exportWorkspace(List<ExportManager.ExportDescriptor> exportDescriptors, String placeholder) {
+		String workspaceName = placeholder !=  null ? placeholder  : this.workspace.getWorkspaceDirectory().getName();
+		Optional<String> result = DialogFactory.namingDialog("Export content", workspaceName).showAndWait();
+		if (result.isPresent()) {
+			String exportName = result.get();
+
+			File exportDirectory = LocalUtils.extendDirectory(this.workspace.getWorkspaceDirectory(), this.workspace.getExportDirectory());
+			DirectoryChooser chooser = new DirectoryChooser();
+			chooser.setInitialDirectory(exportDirectory);
+			chooser.setTitle(String.format("Pick destination for '%s'", exportName));
+			File chosen = chooser.showDialog(this.getApp().getPrimaryStage());
+
+			if (chosen != null) {
+				File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);
+				try {
+					this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
+				} catch (ExportException e) {
+					new ApplicationWarning(e).throwOnMainThread();
+				} catch (UnknwonExportException | UnknownWorkspaceException e) {
+					new ApplicationError(e).throwOnMainThread();
+				}
+			}
+		}
+	}
+
 	public void setWorkspace(Workspace workspace) {
 		this.workspace = workspace;
 		this.workspaceChanged();
+	}
+
+	public App getApp() {
+		return app;
+	}
+
+	public void setApp(App app) {
+		this.app = app;
 	}
 
 	@Override
@@ -220,6 +258,14 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 		} catch (UnknownWorkspaceException | IOException e) {
 			new ApplicationError(e).throwOnMainThread();
 		}
+	}
+
+	@Override
+	public void exportWorkspaceParts(List<Pair<Event, Perspective>> parts, String placeholder) {
+		List<ExportManager.ExportDescriptor> exportDescriptors = parts.stream()
+				.map(part -> new ExportManager.ExportDescriptor(this.workspace, part.getKey(), part.getValue()))
+				.collect(Collectors.toList());
+		this.exportWorkspace(exportDescriptors, placeholder);
 	}
 
 	@Override
