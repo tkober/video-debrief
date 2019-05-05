@@ -4,12 +4,12 @@
 <?import javafx.scene.control.TreeView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane prefHeight="315.0" prefWidth="427.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.events.EventsViewController">
+<AnchorPane xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.events.EventsViewController">
 	<children>
-		<TreeView fx:id="eventsTreeView" layoutY="45.0" prefHeight="270.0" prefWidth="427.0" showRoot="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="45.0"/>
-		<Button layoutY="10.0" mnemonicParsing="false" onAction="#onRenameSelectedWorkspaceItem" text="E" AnchorPane.leftAnchor="10.0" AnchorPane.topAnchor="10.0"/>
-		<Button layoutY="10.0" mnemonicParsing="false" onAction="#onDeleteSelectedWorkspaceItem" text="-" AnchorPane.rightAnchor="45.0" AnchorPane.topAnchor="10.0"/>
-		<Button layoutY="10.0" mnemonicParsing="false" onAction="#onCreateEventButtonPressed" text="+" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="10.0"/>
-
+		<Button mnemonicParsing="false" text="Export" AnchorPane.rightAnchor="8.0" AnchorPane.topAnchor="8.0" />
+		<TreeView fx:id="eventsTreeView" showRoot="false" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0" />
+		<Button mnemonicParsing="false" onAction="#onRenameSelectedWorkspaceItem" text="E" AnchorPane.bottomAnchor="8.0" AnchorPane.leftAnchor="8.0" />
+		<Button mnemonicParsing="false" onAction="#onDeleteSelectedWorkspaceItem" text="-" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="45.0" />
+		<Button mnemonicParsing="false" onAction="#onCreateEventButtonPressed" text="+" AnchorPane.bottomAnchor="8.0" AnchorPane.rightAnchor="8.0" />
 	</children>
 </AnchorPane>
