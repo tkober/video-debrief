@@ -39,10 +39,30 @@ public interface ExportManager {
 		}
 	}
 
+	public class ClipDescriptor extends ExportDescriptor {
+
+		private final long begin;
+		private final long duration;
+
+		public ClipDescriptor(Workspace workspace, Event event, Perspective perspective, long begin, long duration) {
+			super(workspace, event, perspective);
+			this.begin = begin;
+			this.duration = duration;
+		}
+
+		public long getBegin() {
+			return begin;
+		}
+
+		public long getDuration() {
+			return duration;
+		}
+	}
+
 	public void exportSnapshot(ExportDescriptor exportDescriptor, long time, File exportFile)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException;
 
-	public void exportClip(List<ExportDescriptor> exportDescriptors, long begin, long duration, File exportDirectory)
+	public void exportClip(List<ClipDescriptor> clipDescriptors, File exportDirectory)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException;
 
 	public void exportWorkspace(List<ExportDescriptor> exportDescriptors, File exportDirectory)

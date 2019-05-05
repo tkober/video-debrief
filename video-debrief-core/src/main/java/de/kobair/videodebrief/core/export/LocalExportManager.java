@@ -20,7 +20,7 @@ public class LocalExportManager implements ExportManager {
 		return new FfmpegVideoHandler();
 	}
 
-	private boolean sameWorkspace(List<ExportDescriptor> descriptors) {
+	private boolean sameWorkspace(List<? extends ExportDescriptor> descriptors) {
 		Workspace workspace = null;
 		for (ExportDescriptor descriptor : descriptors) {
 			if (workspace != null) {
@@ -33,7 +33,7 @@ public class LocalExportManager implements ExportManager {
 		return true;
 	}
 
-	private boolean sameEvent(List<ExportDescriptor> descriptors) {
+	private boolean sameEvent(List<? extends ExportDescriptor> descriptors) {
 		Event event = null;
 		for (ExportDescriptor descriptor : descriptors) {
 			if (event != null) {
@@ -71,7 +71,7 @@ public class LocalExportManager implements ExportManager {
 		return ExportCheckResult.OKAY;
 	}
 
-	private ExportCheckResult checkCanExportClip(File exportDirectory, List<ExportDescriptor> exportDescriptors) {
+	private ExportCheckResult checkCanExportClip(File exportDirectory, List<? extends ExportDescriptor> exportDescriptors) {
 		ExportCheckResult result = checkContainingDirectory(exportDirectory.getParentFile());
 		if (result != ExportCheckResult.OKAY) {
 			return result;
@@ -137,9 +137,9 @@ public class LocalExportManager implements ExportManager {
 	}
 
 	@Override
-	public void exportClip(List<ExportDescriptor> exportDescriptors, long begin, long duration, File exportDirectory)
+	public void exportClip(List<ClipDescriptor> clipDescriptors, File exportDirectory)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException {
-		ExportCheckResult checkResult = this.checkCanExportClip(exportDirectory, exportDescriptors);
+		ExportCheckResult checkResult = this.checkCanExportClip(exportDirectory, clipDescriptors);
 		if (checkResult != ExportCheckResult.OKAY) {
 			throw new ExportException(checkResult);
 		} else {
@@ -147,13 +147,13 @@ public class LocalExportManager implements ExportManager {
 				throw new UnknwonExportException("", null); // TODO
 			}
 
-			for (ExportDescriptor descriptor : exportDescriptors) {
-				File videoFile = getFileForPerspective(descriptor);
+			for (ClipDescriptor clip : clipDescriptors) {
+				File videoFile = getFileForPerspective(clip);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
-				String name = descriptor.getPerspective().getName() + exportFormat.getDefaultFileExtension();
+				String name = clip.getPerspective().getName() + exportFormat.getDefaultFileExtension();
 				File targetFile = LocalUtils.extendDirectory(exportDirectory, name);
 				try {
-					this.getVideoHandler().exportClip(videoFile, begin, duration, targetFile);
+					this.getVideoHandler().exportClip(videoFile, clip.getBegin(), clip.getDuration(), targetFile);
 				} catch (IOException e) {
 					throw new UnknwonExportException("", e); // TODO
 				}
