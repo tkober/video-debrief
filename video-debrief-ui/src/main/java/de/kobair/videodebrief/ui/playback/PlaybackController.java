@@ -200,6 +200,25 @@ public class PlaybackController extends Controller implements Initializable, Vid
 				.collect(Collectors.toList());
 	}
 
+	private PlaybackDelegate.Clip clipForExport(AttributedPerspective perspective, AttributedPerspective additionalPerspective) {
+		long relativeBegin = perspective.getPerspective().getInPoint();
+		long relativeEnd = perspective.getPerspective().getOutPoint();
+		long begin = this.convertTimeBetweenPerspectives(relativeBegin, perspective, additionalPerspective);
+		long end = this.convertTimeBetweenPerspectives(relativeEnd, perspective, additionalPerspective);
+		return new PlaybackDelegate.Clip(additionalPerspective.getPerspective(), begin, end);
+	}
+
+	private boolean isAdditionalPerspectiveForClip(AttributedPerspective clip, AttributedPerspective additionalPerspective) {
+		long inPoint = clip.getPerspective().getInPoint();
+		long outPoint = clip.getPerspective().getOutPoint();
+		return this.isTimePointCoveredByOtherPerspective(inPoint, clip, additionalPerspective) && this.isTimePointCoveredByOtherPerspective(outPoint, clip, additionalPerspective);
+	}
+
+	private boolean isTimePointCoveredByOtherPerspective(long time, AttributedPerspective clip, AttributedPerspective perspective) {
+		long perspectiveTime = this.convertTimeBetweenPerspectives(time, clip, perspective);
+		return perspectiveTime >= 0 && perspectiveTime <= perspective.getVideoInformation().getDurationMillis();
+	}
+
 	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
 		this.updateModel(workspace, event, perspective);
 		this.calculateRelativeOffsets();
@@ -286,25 +305,6 @@ public class PlaybackController extends Controller implements Initializable, Vid
 				.map(ap -> this.clipForExport(perspective, ap))
 				.collect(Collectors.toList());
 		this.delegate.ifPresent(delegate -> delegate.exportClips(this.event, clips));
-	}
-
-	private PlaybackDelegate.Clip clipForExport(AttributedPerspective perspective, AttributedPerspective additionalPerspective) {
-		long relativeBegin = perspective.getPerspective().getInPoint();
-		long relativeEnd = perspective.getPerspective().getOutPoint();
-		long begin = this.convertTimeBetweenPerspectives(relativeBegin, perspective, additionalPerspective);
-		long end = this.convertTimeBetweenPerspectives(relativeEnd, perspective, additionalPerspective);
-		return new PlaybackDelegate.Clip(additionalPerspective.getPerspective(), begin, end);
-	}
-
-	private boolean isAdditionalPerspectiveForClip(AttributedPerspective clip, AttributedPerspective additionalPerspective) {
-		long inPoint = clip.getPerspective().getInPoint();
-		long outPoint = clip.getPerspective().getOutPoint();
-		return this.isTimePointCoveredByOtherPerspective(inPoint, clip, additionalPerspective) && this.isTimePointCoveredByOtherPerspective(outPoint, clip, additionalPerspective);
-	}
-
-	private boolean isTimePointCoveredByOtherPerspective(long time, AttributedPerspective clip, AttributedPerspective perspective) {
-		long perspectiveTime = this.convertTimeBetweenPerspectives(time, clip, perspective);
-		return perspectiveTime >= 0 && perspectiveTime <= perspective.getVideoInformation().getDurationMillis();
 	}
 
 	@Override
