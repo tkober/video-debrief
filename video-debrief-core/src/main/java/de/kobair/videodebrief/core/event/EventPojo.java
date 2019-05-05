@@ -1,6 +1,7 @@
 package de.kobair.videodebrief.core.event;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -43,6 +44,11 @@ public class EventPojo implements Event {
 	
 	public void setPerspectives(Map<String, PerspectivePojo> perspectives) {
 		this.perspectives = perspectives;
+	}
+
+	@Override
+	public Collection<? extends  Perspective> getAllPerspectives() {
+		return this.perspectives.values();
 	}
 
 	@Override

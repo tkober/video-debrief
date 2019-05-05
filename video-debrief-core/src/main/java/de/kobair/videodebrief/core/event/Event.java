@@ -1,5 +1,6 @@
 package de.kobair.videodebrief.core.event;
 
+import java.util.Collection;
 import java.util.List;
 
 import de.kobair.videodebrief.core.perspective.Perspective;
@@ -15,5 +16,7 @@ public interface Event {
 	public boolean containsPerspectiveWithId(String id);
 	
 	public Perspective getPerspectiveById(String id);
+
+	public Collection<? extends  Perspective> getAllPerspectives();
 	
 }
