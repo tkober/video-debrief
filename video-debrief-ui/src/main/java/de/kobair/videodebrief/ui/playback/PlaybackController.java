@@ -2,12 +2,10 @@ package de.kobair.videodebrief.ui.playback;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.URL;
 import java.util.*;
 import java.util.stream.Collectors;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.utils.LocalUtils;
@@ -25,17 +23,43 @@ import de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.layout.AnchorPane;
-import org.w3c.dom.Attr;
 
 public class PlaybackController extends Controller implements Initializable, VideoPlayerViewController.VideoPlayerDelegate, PerspectivesViewController.PerspectivesDelegate {
 
 	public interface PlaybackDelegate {
+
+		public class Clip {
+
+			private final Perspective perspective;
+			private final long begin;
+			private final long end;
+
+			public Clip(Perspective perspective, long begin, long end) {
+				this.perspective = perspective;
+				this.begin = begin;
+				this.end = end;
+			}
+
+			public Perspective getPerspective() {
+				return perspective;
+			}
+
+			public long getBegin() {
+				return begin;
+			}
+
+			public long getEnd() {
+				return end;
+			}
+		}
 
 		public void setInPoint(Event event, Perspective perspective, long inPoint);
 
 		public void setOutPoint(Event event, Perspective perspective, long outPoint);
 
 		public void exportSnapshot(Event event, Perspective perspective, long timeMillis);
+
+		public void exportClips(Event event, List<Clip> clips);
 
 		public void setAlignmentPoint(Event event, Perspective perspective, long timeMillis);
 
@@ -60,7 +84,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 				throw new RuntimeException(e);
 			}
 		}
-		
+
 	}
 	
 	@FXML
@@ -258,7 +282,18 @@ public class PlaybackController extends Controller implements Initializable, Vid
 				}
 			}
 		}
-		System.out.println(perspectivesToExport);
+		List<PlaybackDelegate.Clip> clips = perspectivesToExport.stream()
+				.map(ap -> this.clipForExport(perspective, ap))
+				.collect(Collectors.toList());
+		this.delegate.ifPresent(delegate -> delegate.exportClips(this.event, clips));
+	}
+
+	private PlaybackDelegate.Clip clipForExport(AttributedPerspective perspective, AttributedPerspective additionalPerspective) {
+		long relativeBegin = perspective.getPerspective().getInPoint();
+		long relativeEnd = perspective.getPerspective().getOutPoint();
+		long begin = this.convertTimeBetweenPerspectives(relativeBegin, perspective, additionalPerspective);
+		long end = this.convertTimeBetweenPerspectives(relativeEnd, perspective, additionalPerspective);
+		return new PlaybackDelegate.Clip(additionalPerspective.getPerspective(), begin, end);
 	}
 
 	private boolean isAdditionalPerspectiveForClip(AttributedPerspective clip, AttributedPerspective additionalPerspective) {

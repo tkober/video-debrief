@@ -117,7 +117,16 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	void onExportClipButtonPressed(ActionEvent actionEvent) {
+		boolean isPlaying = this.mediaPlayer.getStatus() == Status.PLAYING;
+		if (isPlaying) {
+			this.mediaPlayer.pause();
+		}
+
 		this.delegate.ifPresent(delegate -> delegate.exportClip(this.attributedPerspective));
+
+		if (isPlaying) {
+			this.mediaPlayer.play();
+		}
 	}
 
 	@FXML

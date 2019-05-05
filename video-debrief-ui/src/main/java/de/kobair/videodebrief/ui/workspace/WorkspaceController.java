@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.export.ExportException;
@@ -257,6 +258,28 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 			File exportFile = LocalUtils.extendDirectory(workspace.getWorkspaceDirectory(), workspace.getExportDirectory(), fileName);
 			try {
 				this.exportManager.exportSnapshot(descriptor, timeMillis, exportFile);
+			} catch (ExportException e) {
+				new ApplicationWarning(e).throwOnMainThread();
+			} catch (UnknwonExportException | UnknownWorkspaceException e) {
+				new ApplicationError(e).throwOnMainThread();
+			}
+		}
+	}
+
+	@Override
+	public void exportClips(Event event, List<Clip> clips) {
+		List<ExportManager.ClipDescriptor> clipDescriptors = clips.stream()
+				.map(c -> new ExportManager.ClipDescriptor(this.workspace, event, c.getPerspective(), c.getBegin(), c.getEnd() - c.getBegin()))
+				.collect(Collectors.toList());
+
+		String placeholder = event.getName() + "_Clip";
+		Optional<String> result = DialogFactory.namingDialog("Export Clip", placeholder).showAndWait();
+
+		if (result.isPresent()) {
+			String dirName = result.get().trim();
+			File exportDirectory = LocalUtils.extendDirectory(workspace.getWorkspaceDirectory(), workspace.getExportDirectory(), dirName);
+			try {
+				this.exportManager.exportClip(clipDescriptors, exportDirectory);
 			} catch (ExportException e) {
 				new ApplicationWarning(e).throwOnMainThread();
 			} catch (UnknwonExportException | UnknownWorkspaceException e) {
