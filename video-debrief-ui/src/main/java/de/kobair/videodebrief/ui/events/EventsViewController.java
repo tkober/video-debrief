@@ -405,13 +405,7 @@ public class EventsViewController implements Initializable {
 			}
 			items.add(eventTreeItem);
 		}
-		items.sort(new Comparator<TreeItem<WorkspaceItem>>() {
-
-			@Override
-			public int compare(TreeItem<WorkspaceItem> a, TreeItem<WorkspaceItem> b) {
-				return a.getValue().toString().compareTo(b.getValue().toString());
-			}
-		});
+		items.sort(Comparator.comparing(a -> a.getValue().toString()));
 		this.events.addAll(items);
 	}
 
