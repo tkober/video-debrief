@@ -107,6 +107,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	private AttributedPerspective selectedPerspective;
 	private List<AttributedPerspective> attributedPerspectives;
 	private Map<AttributedPerspective, Long> relativeOffsets;
+	private Stage videoPlayerWindow;
 
 	private VideoPlayerViewController loadVideoPlayerView() {
 		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "VideoPlayer.fxml", VideoPlayerViewController.class);
@@ -226,6 +227,39 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		return perspectiveTime >= 0 && perspectiveTime <= perspective.getVideoInformation().getDurationMillis();
 	}
 
+	private void showVideoPlayerInFullscreen() {
+		this.isFullScreen = true;
+		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerAnchorPane.getChildren().get(0);
+		this.videoPlayerAnchorPane.getChildren().clear();
+
+		this.videoPlayerWindow = new Stage();
+		Scene scene = new Scene(videoPlayer);
+		this.videoPlayerWindow.setScene(scene);
+		this.videoPlayerWindow.setFullScreen(true);
+		this.videoPlayerWindow.show();
+		this.videoPlayerWindow.fullScreenProperty().addListener(this::videoPlayerFullscreenChanged);
+		videoPlayerWindow.setOnCloseRequest(this::onVideoPlayerWindowCloseRequest);
+	}
+
+	private void endVideoPlayerFullScreen() {
+		this.isFullScreen = false;
+		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerWindow.getScene().getRoot();
+		this.videoPlayerAnchorPane.getChildren().add(videoPlayer);
+		this.videoPlayerWindow.fullScreenProperty().removeListener(this::videoPlayerFullscreenChanged);
+		this.videoPlayerWindow.setFullScreen(false);
+		this.videoPlayerWindow.close();
+	}
+
+	private void videoPlayerFullscreenChanged(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
+		if (!newValue && this.isFullScreen) {
+			PlaybackController.this.endVideoPlayerFullScreen();
+		}
+	}
+
+	private void onVideoPlayerWindowCloseRequest(final WindowEvent event) {
+		PlaybackController.this.endVideoPlayerFullScreen();
+	}
+
 	public void setSelectedMedia(Workspace workspace, Event event, Perspective perspective) throws UnknownWorkspaceException, IOException {
 		this.updateModel(workspace, event, perspective);
 		this.calculateRelativeOffsets();
@@ -343,42 +377,6 @@ public class PlaybackController extends Controller implements Initializable, Vid
 		} else {
 			this.showVideoPlayerInFullscreen();
 		}
-	}
-
-	private Stage videoPlayerWindow;
-
-	private void showVideoPlayerInFullscreen() {
-		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerAnchorPane.getChildren().get(0);
-		this.videoPlayerAnchorPane.getChildren().clear();
-
-		this.videoPlayerWindow = new Stage();
-		Scene scene = new Scene(videoPlayer);
-		this.videoPlayerWindow.setScene(scene);
-		this.videoPlayerWindow.setFullScreen(true);
-		this.videoPlayerWindow.show();
-		this.videoPlayerWindow.fullScreenProperty().addListener(new ChangeListener<Boolean>() {
-			@Override
-			public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
-				if (!newValue) {
-					PlaybackController.this.endVideoPlayerFullScreen();
-				}
-			}
-		});
-		videoPlayerWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
-			@Override
-			public void handle(final WindowEvent event) {
-				PlaybackController.this.endVideoPlayerFullScreen();
-			}
-		});
-		this.isFullScreen = true;
-	}
-
-	private void endVideoPlayerFullScreen() {
-		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerWindow.getScene().getRoot();
-		this.videoPlayerAnchorPane.getChildren().add(videoPlayer);
-		this.videoPlayerWindow.close();
-		this.videoPlayerWindow = null;
-		this.isFullScreen = false;
 	}
 
 	@Override
