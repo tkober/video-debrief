@@ -10,8 +10,7 @@
         fx:controller="de.kobair.videodebrief.ui.workspace.WorkspaceController">
     <AnchorPane minHeight="600" minWidth="1000">
         <children>
-            <SplitPane dividerPositions="0.4" layoutX="29.0"
-                       layoutY="31.0" AnchorPane.bottomAnchor="0.0"
+            <SplitPane dividerPositions="0.4" AnchorPane.bottomAnchor="0.0"
                        AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
                        AnchorPane.topAnchor="0.0">
                 <items>
