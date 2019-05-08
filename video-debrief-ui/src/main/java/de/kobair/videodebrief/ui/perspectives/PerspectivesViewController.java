@@ -19,16 +19,12 @@ import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 
 public class PerspectivesViewController implements Initializable {
-
 
 	public interface PerspectivesDelegate {
 
@@ -43,33 +39,14 @@ public class PerspectivesViewController implements Initializable {
 	@FXML
 	private Pane timeMarkerPane;
 
+	private static final Insets BADGE_INSETS =  new Insets(3, 8, 3, 0);
+	private static final Insets NAME_VIEW_INSETS = new Insets(0,20, 0,8 );
+
 	private long timelineLength = 0;
 	private Optional<PerspectivesDelegate> delegate = Optional.empty();
 
 	private Node nodeForPerspective(AttributedPerspective perspective, long timelineLength, long relativeOffset) {
-		VideoInformation.VideoTrack videoTrack =  perspective.getVideoInformation().getVideoInformation().get(0);
-		VideoInformation.AudioTrack audioTrack =  perspective.getVideoInformation().getAudioInformation().get(0);
-
-
-		HBox view = new HBox();
-
-		Label perspectiveNameLabel = new Label(perspective.getPerspective().getName());
-		HBox.setMargin(perspectiveNameLabel, new Insets(5,10, 5,5 ));
-
-		Node videoTrackBadge = TrackBadgeFactory.badgeForVideoTrack(videoTrack);
-		Node audioTrackBadge = TrackBadgeFactory.badgeForAudioTrack(audioTrack);
-
-		view.getChildren().add(perspectiveNameLabel);
-		view.getChildren().add(audioTrackBadge);
-		view.getChildren().add(videoTrackBadge);
-		view.setStyle("-fx-background-color: rgb(202,202,202)"); // TODO: propper styling
-
-		view.setOnMouseClicked(new EventHandler<MouseEvent>() {
-			@Override
-			public void handle(final MouseEvent event) {
-				PerspectivesViewController.this.delegate.ifPresent(delegate -> delegate.changeToPerspective(perspective));
-			}
-		});
+		Pane view = this.videoViewForPerspective(perspective);
 
 		double lengthProportion = (double) perspective.getVideoInformation().getDurationMillis() / (double) timelineLength;
 		DoubleBinding widthBinidng = this.perspectivesContainer.widthProperty().multiply(lengthProportion).subtract(2);
@@ -90,9 +67,46 @@ public class PerspectivesViewController implements Initializable {
 		return container;
 	}
 
-	private String shortInfoStringFromVideoTrack(VideoInformation.VideoTrack track) {
-		int fps = (int) Math.round(track.getFramesPerSecond());
-		return String.format("%s %sp (%s)", track.getCodecName(), track.getHeight(), fps);
+	private Pane videoViewForPerspective(AttributedPerspective perspective) {
+		VideoInformation.VideoTrack videoTrack =  perspective.getVideoInformation().getVideoInformation().get(0);
+		VideoInformation.AudioTrack audioTrack =  perspective.getVideoInformation().getAudioInformation().get(0);
+
+		HBox view = new HBox();
+
+		Node perspectiveNameView = this.nameLabelForPerspective(perspective);
+		HBox.setMargin(perspectiveNameView, NAME_VIEW_INSETS);
+
+		Node spacer = new Pane();
+		HBox.setHgrow(spacer, Priority.ALWAYS);
+
+		Node videoTrackBadge = TrackBadgeFactory.badgeForVideoTrack(videoTrack);
+		HBox.setMargin(videoTrackBadge, BADGE_INSETS);
+
+		Node audioTrackBadge = TrackBadgeFactory.badgeForAudioTrack(audioTrack);
+		HBox.setMargin(audioTrackBadge, BADGE_INSETS);
+
+		view.getChildren().addAll(perspectiveNameView, spacer, audioTrackBadge, videoTrackBadge);
+		view.setStyle("-fx-background-color: rgb(202,202,202)"); // TODO: propper styling
+
+		view.setOnMouseClicked(new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(final MouseEvent event) {
+				PerspectivesViewController.this.delegate.ifPresent(delegate -> delegate.changeToPerspective(perspective));
+			}
+		});
+
+		return view;
+	}
+
+	private Node nameLabelForPerspective(AttributedPerspective perspective) {
+		Label perspectiveNameLabel = new Label(perspective.getPerspective().getName());
+
+		VBox result = new VBox();
+		result.setAlignment(Pos.CENTER_LEFT);
+		result.getChildren().add(perspectiveNameLabel);
+		VBox.setVgrow(perspectiveNameLabel, Priority.ALWAYS);
+
+		return result;
 	}
 
 	private void clearTimeline() {
