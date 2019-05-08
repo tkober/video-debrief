@@ -274,8 +274,8 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 		File videoFile = LocalUtils.extendDirectory(this.workspace.getWorkspaceDirectory(), event.getSubPath(), perspective.getFileName());
 		try {
 			Desktop.getDesktop().open(videoFile);
-		} catch (IOException e) {
-			new ApplicationWarning(e).throwOnMainThread();
+		} catch (IOException | IllegalArgumentException e) {
+			new ApplicationError(e).throwOnMainThread();
 		}
 	}
 
