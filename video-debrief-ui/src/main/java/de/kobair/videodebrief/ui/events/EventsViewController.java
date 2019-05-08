@@ -1,6 +1,8 @@
 package de.kobair.videodebrief.ui.events;
 
+import java.awt.*;
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -23,14 +25,9 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.ButtonBar;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.ContextMenu;
+import javafx.scene.control.*;
+import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.SeparatorMenuItem;
-import javafx.scene.control.TreeCell;
-import javafx.scene.control.TreeItem;
-import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
@@ -64,6 +61,8 @@ public class EventsViewController implements Initializable {
 		public void showPerspective(Event event, Perspective perspective);
 
 		public void exportWorkspaceParts(List<Pair<Event, Perspective>> parts, String placeholder);
+
+		public void playWithSystemPlayer(Event event, Perspective perspective);
 
 	}
 
@@ -337,8 +336,26 @@ public class EventsViewController implements Initializable {
 	
 		MenuItem export = new MenuItem("Export");
 		export.setOnAction(this::onExportSelectedWorkspaceItem);
-	
-		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export);
+
+		MenuItem playWithSystemPlayer = new MenuItem("Play with System Player");
+		playWithSystemPlayer.setOnAction(this::onPlayWithSystemPlayer);
+
+		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export, new SeparatorMenuItem(), playWithSystemPlayer);
+	}
+
+	private void onPlayWithSystemPlayer(ActionEvent actionEvent) {
+		TreeItem<WorkspaceItem> treeItem = this.selectedWorkspaceItemProperty.get();
+		if (treeItem != null) {
+			WorkspaceItem item = treeItem.getValue();
+			if (item != null) {
+				Object content = item.getContent();
+				if (content instanceof Perspective) {
+					Perspective perspective = (Perspective) content;
+					Event event = (Event) treeItem.getParent().getValue().getContent();
+					this.delegate.ifPresent(delegate -> delegate.playWithSystemPlayer(event, perspective));
+				}
+			}
+		}
 	}
 
 	private void setUpContextMenuForEventCell(TreeCell<WorkspaceItem> cell) {

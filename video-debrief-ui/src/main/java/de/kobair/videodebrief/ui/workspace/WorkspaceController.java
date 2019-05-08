@@ -1,5 +1,6 @@
 package de.kobair.videodebrief.ui.workspace;
 
+import java.awt.*;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -266,6 +267,16 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 				.map(part -> new ExportManager.ExportDescriptor(this.workspace, part.getKey(), part.getValue()))
 				.collect(Collectors.toList());
 		this.exportWorkspace(exportDescriptors, placeholder);
+	}
+
+	@Override
+	public void playWithSystemPlayer(Event event, Perspective perspective) {
+		File videoFile = LocalUtils.extendDirectory(this.workspace.getWorkspaceDirectory(), event.getSubPath(), perspective.getFileName());
+		try {
+			Desktop.getDesktop().open(videoFile);
+		} catch (IOException e) {
+			new ApplicationWarning(e).throwOnMainThread();
+		}
 	}
 
 	@Override
