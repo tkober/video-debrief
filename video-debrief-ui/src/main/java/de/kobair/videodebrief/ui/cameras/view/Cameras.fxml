@@ -52,7 +52,7 @@
                                 </HBox>
                             </children>
                         </GridPane>
-                        <ListView fx:id="camerasListView" minHeight="50.0"/>
+                        <ListView fx:id="camerasListView" minHeight="50.0" VBox.vgrow="ALWAYS"/>
                     </children>
                 </VBox>
                 <AnchorPane>
