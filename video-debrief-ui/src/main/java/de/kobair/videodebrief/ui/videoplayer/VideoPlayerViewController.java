@@ -49,6 +49,8 @@ public class VideoPlayerViewController implements Initializable {
 		public void changePerspective(String name, long timeMillis, boolean play);
 
 		public void timeChanged(long timeMillis);
+
+		public void toggleFullscreen();
 	}
 
 	@FXML
@@ -170,8 +172,7 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	private void onFullscreenButtonPressed(ActionEvent actionEvent) {
-		((Stage)mediaView.getScene().getWindow()).setFullScreen(true);
-		System.out.println("onFullscreenButtonPressed()");
+		this.delegate.ifPresent(delegate -> delegate.toggleFullscreen());
 	}
 
 	@FXML

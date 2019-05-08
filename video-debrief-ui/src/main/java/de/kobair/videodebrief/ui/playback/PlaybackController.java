@@ -20,9 +20,16 @@ import de.kobair.videodebrief.ui.perspectives.PerspectivesViewController;
 import de.kobair.videodebrief.ui.perspectives.model.TimelineItem;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
+import sun.plugin.javascript.navig.Anchor;
 
 public class PlaybackController extends Controller implements Initializable, VideoPlayerViewController.VideoPlayerDelegate, PerspectivesViewController.PerspectivesDelegate {
 
@@ -325,6 +332,53 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	public void timeChanged(final long timeMillis) {
 		long overallTime = this.perspectiveTimeToOverallTime(this.selectedPerspective, timeMillis);
 		this.perspectivesViewController.updateTimeline(overallTime);
+	}
+
+	private boolean isFullScreen = false;
+
+	@Override
+	public void toggleFullscreen() {
+		if (this.isFullScreen) {
+			this.endVideoPlayerFullScreen();
+		} else {
+			this.showVideoPlayerInFullscreen();
+		}
+	}
+
+	private Stage videoPlayerWindow;
+
+	private void showVideoPlayerInFullscreen() {
+		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerAnchorPane.getChildren().get(0);
+		this.videoPlayerAnchorPane.getChildren().clear();
+
+		this.videoPlayerWindow = new Stage();
+		Scene scene = new Scene(videoPlayer);
+		this.videoPlayerWindow.setScene(scene);
+		this.videoPlayerWindow.setFullScreen(true);
+		this.videoPlayerWindow.show();
+		this.videoPlayerWindow.fullScreenProperty().addListener(new ChangeListener<Boolean>() {
+			@Override
+			public void changed(final ObservableValue<? extends Boolean> observable, final Boolean oldValue, final Boolean newValue) {
+				if (!newValue) {
+					PlaybackController.this.endVideoPlayerFullScreen();
+				}
+			}
+		});
+		videoPlayerWindow.setOnCloseRequest(new EventHandler<WindowEvent>() {
+			@Override
+			public void handle(final WindowEvent event) {
+				PlaybackController.this.endVideoPlayerFullScreen();
+			}
+		});
+		this.isFullScreen = true;
+	}
+
+	private void endVideoPlayerFullScreen() {
+		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerWindow.getScene().getRoot();
+		this.videoPlayerAnchorPane.getChildren().add(videoPlayer);
+		this.videoPlayerWindow.close();
+		this.videoPlayerWindow = null;
+		this.isFullScreen = false;
 	}
 
 	@Override
