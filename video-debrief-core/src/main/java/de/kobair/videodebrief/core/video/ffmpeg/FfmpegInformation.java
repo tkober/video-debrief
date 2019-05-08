@@ -1,8 +1,11 @@
 package de.kobair.videodebrief.core.video.ffmpeg;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import de.kobair.videodebrief.core.video.VideoInformation;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import net.bramp.ffmpeg.probe.FFmpegStream;
@@ -50,7 +53,7 @@ public class FfmpegInformation implements VideoInformation {
 	public List<AudioTrack> getAudioInformation() {
 		return this.audioTracks;
 	}
-	
+
 	@Override
 	public long getSizeInBytes() {
 		return this.probeResult.getFormat().size;
@@ -59,5 +62,10 @@ public class FfmpegInformation implements VideoInformation {
 	@Override
 	public Object getRawInformation() {
 		return this.probeResult;
+	}
+
+	@Override
+	public String getRawInformationAsString() {
+		return new GsonBuilder().setPrettyPrinting().create().toJson(this.probeResult);
 	}
 }

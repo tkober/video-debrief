@@ -30,5 +30,9 @@ public class FfmpegAudioTrack implements AudioTrack {
 	public String getChannelLayout() {
 		return this.stream.channel_layout;
 	}
-	
+
+	@Override
+	public long getBitRate() {
+		return this.stream.bit_rate;
+	}
 }

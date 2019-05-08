@@ -4,48 +4,49 @@ import java.util.List;
 
 public interface VideoInformation {
 
-	public  interface Track {
+    public interface Track {
 
-		public String getCodecName();
+        public String getCodecName();
 
-	}
+        public long getBitRate();
+    }
 
-	public interface VideoTrack extends Track {
+    public interface VideoTrack extends Track {
 
-		public int getHeight();
+        public int getHeight();
 
-		public int getWidth();
+        public int getWidth();
 
-		public String getDisplayAspectRatio();
+        public String getDisplayAspectRatio();
 
-		public double getFramesPerSecond();
+        public double getFramesPerSecond();
 
-		public long getNumberOfFrames();
+        public long getNumberOfFrames();
+    }
 
-		public long getBitRate();
-	}
+    public interface AudioTrack extends Track {
 
-	public interface AudioTrack extends Track {
+        public long getSampleRate();
 
-		public long getSampleRate();
+        public long getNumberOfChannels();
 
-		public long getNumberOfChannels();
+        public String getChannelLayout();
+    }
 
-		public String getChannelLayout();
-	}
+    public String getFormatName();
 
-	public String getFormatName();
+    public long getDurationMillis();
 
-	public long getDurationMillis();
+    public long getBitRate();
 
-	public long getBitRate();
+    public List<VideoTrack> getVideoInformation();
 
-	public List<VideoTrack> getVideoInformation();
+    public List<AudioTrack> getAudioInformation();
 
-	public List<AudioTrack> getAudioInformation();
+    public Object getRawInformation();
 
-	public Object getRawInformation();
+    public String getRawInformationAsString();
 
-	public  long getSizeInBytes();
+    public long getSizeInBytes();
 
 }
