@@ -64,6 +64,8 @@ public class EventsViewController implements Initializable {
 
 		public void playWithSystemPlayer(Event event, Perspective perspective);
 
+		public void showDetailInformation(Event event, Perspective perspective);
+
 	}
 
 	private ObservableList<TreeItem<WorkspaceItem>> events;
@@ -125,6 +127,36 @@ public class EventsViewController implements Initializable {
 				} else if (content instanceof Perspective) {
 					Event containingEvent = (Event) treeItem.getParent().getValue().getContent();
 					deletePerspective(containingEvent, (Perspective) content);
+				}
+			}
+		}
+	}
+
+	private void onPlayWithSystemPlayer(ActionEvent actionEvent) {
+		TreeItem<WorkspaceItem> treeItem = this.selectedWorkspaceItemProperty.get();
+		if (treeItem != null) {
+			WorkspaceItem item = treeItem.getValue();
+			if (item != null) {
+				Object content = item.getContent();
+				if (content instanceof Perspective) {
+					Perspective perspective = (Perspective) content;
+					Event event = (Event) treeItem.getParent().getValue().getContent();
+					this.delegate.ifPresent(delegate -> delegate.playWithSystemPlayer(event, perspective));
+				}
+			}
+		}
+	}
+
+	private void onShowDetailInformation(ActionEvent actionEvent) {
+		TreeItem<WorkspaceItem> treeItem = this.selectedWorkspaceItemProperty.get();
+		if (treeItem != null) {
+			WorkspaceItem item = treeItem.getValue();
+			if (item != null) {
+				Object content = item.getContent();
+				if (content instanceof Perspective) {
+					Perspective perspective = (Perspective) content;
+					Event event = (Event) treeItem.getParent().getValue().getContent();
+					this.delegate.ifPresent(delegate -> delegate.showDetailInformation(event, perspective));
 				}
 			}
 		}
@@ -333,29 +365,25 @@ public class EventsViewController implements Initializable {
 	
 		MenuItem delete = new MenuItem("Delete");
 		delete.setOnAction(this::onDeleteSelectedWorkspaceItem);
-	
-		MenuItem export = new MenuItem("Export");
-		export.setOnAction(this::onExportSelectedWorkspaceItem);
 
 		MenuItem playWithSystemPlayer = new MenuItem("Play with System Player");
 		playWithSystemPlayer.setOnAction(this::onPlayWithSystemPlayer);
 
-		return new ContextMenu(rename, delete, new SeparatorMenuItem(), export, new SeparatorMenuItem(), playWithSystemPlayer);
-	}
+		MenuItem showDetails = new MenuItem("Show Details");
+		showDetails.setOnAction(this::onShowDetailInformation);
 
-	private void onPlayWithSystemPlayer(ActionEvent actionEvent) {
-		TreeItem<WorkspaceItem> treeItem = this.selectedWorkspaceItemProperty.get();
-		if (treeItem != null) {
-			WorkspaceItem item = treeItem.getValue();
-			if (item != null) {
-				Object content = item.getContent();
-				if (content instanceof Perspective) {
-					Perspective perspective = (Perspective) content;
-					Event event = (Event) treeItem.getParent().getValue().getContent();
-					this.delegate.ifPresent(delegate -> delegate.playWithSystemPlayer(event, perspective));
-				}
-			}
-		}
+		MenuItem export = new MenuItem("Export");
+		export.setOnAction(this::onExportSelectedWorkspaceItem);
+
+		return new ContextMenu(
+				rename,
+				delete,
+				new SeparatorMenuItem(),
+				playWithSystemPlayer,
+				showDetails,
+				new SeparatorMenuItem(),
+				export
+		);
 	}
 
 	private void setUpContextMenuForEventCell(TreeCell<WorkspaceItem> cell) {

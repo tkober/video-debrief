@@ -1,19 +1,69 @@
 package de.kobair.videodebrief.ui.dialogs;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.core.perspective.Perspective;
+import de.kobair.videodebrief.core.video.VideoInformation;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Priority;
 import javafx.stage.StageStyle;
+import javafx.util.Pair;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 
 public class DialogFactory {
+
+	private static abstract class SummaryItem {
+		abstract void renderInGrid(GridPane gridPane, int rowIndex);
+	}
+
+	private static class KeyValuePair extends SummaryItem {
+
+		private static final Insets INSETS = new Insets(0, 0, 0, 8);
+
+		private final String key;
+		private final Object value;
+
+		private KeyValuePair(String key, Object value) {
+			this.key = key;
+			this.value = value;
+		}
+
+		@Override
+		void renderInGrid(GridPane gridPane, int rowIndex) {
+			Label keyLabel = new Label(key+":");
+			gridPane.add(keyLabel, 0, rowIndex);
+
+			Label valueLabel = new Label(value.toString());
+			GridPane.setMargin(valueLabel, INSETS);
+			gridPane.add(valueLabel, 1, rowIndex);
+		}
+	}
+
+	private static class SectionHeader extends SummaryItem {
+		private static final Insets INSETS = new Insets(10, 0, 0, 0);
+
+		private final String title;
+
+		private SectionHeader(String title) {
+			this.title = title;
+		}
+
+		@Override
+		void renderInGrid(GridPane gridPane, int rowIndex) {
+			Label titleLabel = new Label(title);
+			GridPane.setMargin(titleLabel, INSETS);
+			gridPane.add(titleLabel, 0, rowIndex, 2, 1);
+		}
+	}
 
 	public static class DialogConfig {
 
@@ -49,6 +99,35 @@ public class DialogFactory {
 	public static DialogConfig IMPORT_MEDIA_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, null, null, "Perspective:");
 	public static DialogConfig DELETION_CONFIG  = new DialogConfig();
 	public static DialogConfig CHOOSE_PERSPECTIVES_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, "Additional Perspectives", "Choose additional perspectives to export:", null);
+	public static DialogConfig VIDEO_INFORMATION_CONFIG = new DialogConfig();
+
+	private static String fileSizeString(long sizeBytes) {
+		final long KILOBYTE = 1<<10;
+		final long MEGABYTE = KILOBYTE<<10;
+		final long GIGABYTE = MEGABYTE<<10;
+
+
+		if (sizeBytes > GIGABYTE) {
+			double sizeGigabyte = sizeBytes / (double) GIGABYTE;
+			return String.format("%.2f GB", sizeGigabyte);
+		}
+
+		if (sizeBytes > MEGABYTE) {
+			double sizeMegabyte = sizeBytes / (double) MEGABYTE;
+			return String.format("%.2f MB", sizeMegabyte);
+		}
+
+		if (sizeBytes > KILOBYTE) {
+			double sizeKilobyte = sizeBytes / (double) KILOBYTE;
+			return String.format("%.2f KB", sizeKilobyte);
+		}
+
+		return String.format("%s bytes", sizeBytes);
+	}
+
+	private static String durationString(long durationMillis) {
+		return DurationFormatUtils.formatDuration(durationMillis, "HH:mm:ss.SSS");
+	}
 
 	public static TextInputDialog namingDialog(String title, String placeholder) {
 		return textInputDialog(title, placeholder, NAMING_CONFIG);
@@ -120,6 +199,96 @@ public class DialogFactory {
 			}
 			return null;
 		});
+
+		return dialog;
+	}
+
+	public static Dialog<ButtonType> videoInformationDialog(VideoInformation videoInformation, Perspective perspective) {
+		String title = perspective.getName() + " - Details";
+		String detailsText = videoInformation.getRawInformationAsString();
+
+		List<SummaryItem> summaryItems = new ArrayList<>();
+
+		summaryItems.add(new SectionHeader("General"));
+		summaryItems.add(new KeyValuePair("Format", videoInformation.getFormatName()));
+		String duration = durationString(videoInformation.getDurationMillis());
+		summaryItems.add(new KeyValuePair("Duration", duration));
+		String fileSize = fileSizeString(videoInformation.getSizeInBytes());
+		summaryItems.add(new KeyValuePair("Size", fileSize));
+
+		String overallBitrate = String.format("%s kBit/s", videoInformation.getBitRate() / 1000);
+		summaryItems.add(new KeyValuePair("Bitrate", overallBitrate));
+
+		if (videoInformation.getVideoInformation().size() > 0) {
+			VideoInformation.VideoTrack videoTrack = videoInformation.getVideoInformation().get(0);
+			summaryItems.add(new SectionHeader("Video"));
+
+			summaryItems.add(new KeyValuePair("Codec", videoTrack.getCodecName()));
+
+			String resolution = String.format("%s x %s", videoTrack.getWidth(), videoTrack.getHeight());
+			summaryItems.add(new KeyValuePair("Resolution", resolution));
+
+			summaryItems.add(new KeyValuePair("Aspect Ratio", videoTrack.getDisplayAspectRatio()));
+
+			String fps = String.format("%.2f fps", videoTrack.getFramesPerSecond());
+			summaryItems.add(new KeyValuePair("Framerate", fps));
+
+			String bitrate = String.format("%s kBit/s", videoTrack.getBitRate() / 1000);
+			summaryItems.add(new KeyValuePair("Bitrate", bitrate));
+		}
+
+		if (videoInformation.getAudioInformation().size() > 0) {
+			VideoInformation.AudioTrack audioTrack = videoInformation.getAudioInformation().get(0);
+			summaryItems.add(new SectionHeader("Audio"));
+
+			summaryItems.add(new KeyValuePair("Codec", audioTrack.getCodecName()));
+
+			String bitrate = String.format("%s kBit/s", audioTrack.getBitRate() / 1000);
+			summaryItems.add(new KeyValuePair("Bitrate", bitrate));
+
+			String channels = String.format("%s (%s)", audioTrack.getNumberOfChannels(), audioTrack.getChannelLayout());
+			summaryItems.add(new KeyValuePair("Channels", channels));
+
+			String sampleRate = String.format("%s Hz", audioTrack.getSampleRate());
+			summaryItems.add(new KeyValuePair("Sample Rate", sampleRate));
+		}
+
+		return expandableDetailsDialog(title, summaryItems, detailsText, VIDEO_INFORMATION_CONFIG);
+	}
+
+	public static Dialog<ButtonType> expandableDetailsDialog(String title, List<SummaryItem> summaryItems, String detailsText, DialogConfig config) {
+		Dialog<ButtonType> dialog = new Dialog<>();
+		config.apply(dialog);
+		dialog.setTitle(title);
+
+		GridPane summaryContent = new GridPane();
+		summaryContent.setMaxWidth(Double.MAX_VALUE);
+		int i = 0;
+		for (SummaryItem item : summaryItems) {
+			item.renderInGrid(summaryContent, i);
+			i++;
+		}
+
+		Label label = new Label("Details:");
+
+		TextArea textArea = new TextArea(detailsText);
+		textArea.setEditable(false);
+		textArea.setWrapText(true);
+
+		textArea.setMaxWidth(Double.MAX_VALUE);
+		textArea.setMaxHeight(Double.MAX_VALUE);
+		GridPane.setVgrow(textArea, Priority.ALWAYS);
+		GridPane.setHgrow(textArea, Priority.ALWAYS);
+
+		GridPane expContent = new GridPane();
+		expContent.setMaxWidth(Double.MAX_VALUE);
+		expContent.add(label, 0, 0);
+		expContent.add(textArea, 0, 1);
+
+		// Set expandable Exception into the dialog pane.
+		dialog.getDialogPane().setContent(summaryContent);
+		dialog.getDialogPane().setExpandableContent(expContent);
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK);
 
 		return dialog;
 	}
