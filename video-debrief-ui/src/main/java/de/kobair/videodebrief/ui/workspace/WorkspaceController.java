@@ -246,8 +246,16 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 
     @Override
     public void movePerspective(Event oldEvent, Event newEvent, Perspective perspective) {
-        System.out.println("TODO: movePerspective()");
-        System.out.println(String.format("(%s):\t(%s) -> (%s)", perspective.getName(), oldEvent.getName(), newEvent.getName()));
+        try {
+            File file = LocalUtils.extendDirectory(this.workspace.getWorkspaceDirectory(), newEvent.getSubPath(), perspective.getFileName());
+            this.workspace.addPerspectiveToEvent(newEvent, file, perspective.getName());
+            this.workspace.deletePerspective(oldEvent, perspective);
+            this.workspaceChanged();
+        } catch (AddPerspectiveException e) {
+            new ApplicationWarning(e).throwOnMainThread();
+        } catch (UnknownWorkspaceException e) {
+            new ApplicationError(e).throwOnMainThread();
+        }
     }
 
     @Override
