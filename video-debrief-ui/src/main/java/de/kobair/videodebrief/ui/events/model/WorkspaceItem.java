@@ -2,8 +2,12 @@ package de.kobair.videodebrief.ui.events.model;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 
 public abstract class WorkspaceItem {
+
+	public BooleanProperty itemSelectedProperty = new SimpleBooleanProperty(false);
 	
 	public abstract Object getContent();
 

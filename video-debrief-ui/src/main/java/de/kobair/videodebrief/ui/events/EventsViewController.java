@@ -20,7 +20,10 @@ import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.EventItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.PerspectiveItem;
+import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -71,6 +74,7 @@ public class EventsViewController implements Initializable {
 	private ObservableList<TreeItem<WorkspaceItem>> events;
 	private ReadOnlyObjectProperty<TreeItem<WorkspaceItem>> selectedWorkspaceItemProperty;
 	private Optional<EventsDelegate> delegate = Optional.empty();
+	private boolean evaluatePerspectiveSelectionUpdate = true;
 
 	@FXML
 	private TreeView<WorkspaceItem> eventsTreeView;
@@ -424,6 +428,14 @@ public class EventsViewController implements Initializable {
 			public TreeCell<WorkspaceItem> call(TreeView<WorkspaceItem> p) {
 				CheckBoxTreeCell<WorkspaceItem> cell = new CheckBoxTreeCell<WorkspaceItem>();
 
+				cell.setSelectedStateCallback(new Callback<TreeItem<WorkspaceItem>, ObservableValue<Boolean>>() {
+					@Override
+					public ObservableValue<Boolean> call(final TreeItem<WorkspaceItem> param) {
+						BooleanProperty selectedProperty = param.getValue().itemSelectedProperty;
+						return param.getValue().itemSelectedProperty;
+					}
+				});
+
 				cell.itemProperty().addListener((obs, old, item) -> {
 					EventsViewController.this.resetCell(cell);
 					EventsViewController.this.setUpCell(cell);
@@ -440,11 +452,27 @@ public class EventsViewController implements Initializable {
 			EventItem eventItem = new EventItem(event);
 			TreeItem<WorkspaceItem> eventTreeItem = new TreeItem<WorkspaceItem>(eventItem);
 			eventTreeItem.setExpanded(true);
+			eventItem.itemSelectedProperty.addListener((observable, oldValue, newValue) -> {
+				evaluatePerspectiveSelectionUpdate = false;
+				eventTreeItem.getChildren().forEach(treeItem -> treeItem.getValue().itemSelectedProperty.set(newValue));
+				evaluatePerspectiveSelectionUpdate = true;
+			});
 
 			List<Perspective> perspectives = content.get(event);
 			for (Perspective perspective : perspectives) {
 				PerspectiveItem perspectiveItem = new PerspectiveItem(perspective);
 				TreeItem<WorkspaceItem> perspectiveTreeItem = new TreeItem<WorkspaceItem>(perspectiveItem);
+				perspectiveItem.itemSelectedProperty.addListener((observable, oldValue, newValue) -> {
+					if (evaluatePerspectiveSelectionUpdate) {
+						boolean allSelected = true;
+						List<TreeItem<WorkspaceItem>> children = eventTreeItem.getChildren();
+						for (TreeItem<WorkspaceItem> treeItem : children) {
+							allSelected = allSelected && treeItem.getValue().itemSelectedProperty.get();
+						}
+
+						eventItem.itemSelectedProperty.set(allSelected);
+					}
+				});
 
 				eventTreeItem.getChildren().add(perspectiveTreeItem);
 			}
