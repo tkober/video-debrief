@@ -1,6 +1,5 @@
 package de.kobair.videodebrief.ui.videoplayer;
 
-import de.kobair.videodebrief.ui.dialogs.DialogFactory;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -8,16 +7,21 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaErrorEvent;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
-import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -25,8 +29,6 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.*;
-
-import static de.kobair.videodebrief.ui.dialogs.DialogFactory.CHOOSE_PERSPECTIVES_CONFIG;
 
 public class VideoPlayerViewController implements Initializable {
 
@@ -54,7 +56,7 @@ public class VideoPlayerViewController implements Initializable {
 	}
 
 	@FXML
-	private AnchorPane mediaViewAnchorPane;
+	private BorderPane borderPane;
 	@FXML
 	private Button exportSnapshotButton;
 	@FXML
@@ -287,6 +289,7 @@ public class VideoPlayerViewController implements Initializable {
 			if (this.playOnReady) {
 				mediaPlayer.play();
 			}
+			this.mediaViewContainerResized();
 			break;
 			
 		case PAUSED:
@@ -528,5 +531,42 @@ public class VideoPlayerViewController implements Initializable {
 		this.perspectivesComboBox.valueProperty().addListener(this::handlePerspectiveComboBoxChanged);
 
 		this.mediaView.setSmooth(true); // TODO: ?
+
+		this.borderPane.widthProperty().addListener(this::mediaViewContainerResized);
+		this.borderPane.heightProperty().addListener(this::mediaViewContainerResized);
+	}
+
+	private void mediaViewContainerResized(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
+		this.mediaViewContainerResized();
+	}
+
+	private void mediaViewContainerResized() {
+		if (this.media != null) {
+			Pane top = (Pane) this.borderPane.getTop();
+			Pane bottom = (Pane) this.borderPane.getBottom();
+			Pane left = (Pane) this.borderPane.getLeft();
+			Pane right = (Pane) this.borderPane.getRight();
+
+			double leftWidth = left == null ? 0 : left.getWidth();
+			double rightWidth = right == null ? 0 : right.getWidth();
+			double maxWidth = this.borderPane.getWidth() - leftWidth - rightWidth;
+
+			double topHeight = top == null ? 0 : top.getHeight();
+			double bottomHeight = bottom == null ? 0 : bottom.getHeight();
+			double maxHeight = this.borderPane.getHeight() - topHeight - bottomHeight;
+
+			double aspectRatio = (double) this.media.getWidth() / (double) this.media.getHeight();
+
+			double height = maxHeight;
+			double width = Math.floor(height * aspectRatio);
+
+			if (width > maxWidth) {
+				width = maxWidth;
+				height = Math.floor(width / aspectRatio);
+			}
+
+			this.mediaView.setFitWidth(width);
+			this.mediaView.setFitHeight(height);
+		}
 	}
 }

@@ -25,8 +25,11 @@ import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import sun.plugin.javascript.navig.Anchor;
@@ -110,7 +113,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	private Stage videoPlayerWindow;
 
 	private VideoPlayerViewController loadVideoPlayerView() {
-		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "VideoPlayer.fxml", VideoPlayerViewController.class);
+		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "VideoPlayer2.fxml", VideoPlayerViewController.class);
 	}
 
 	private PerspectivesViewController loadPerspectivesView() {
@@ -229,7 +232,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 	private void showVideoPlayerInFullscreen() {
 		this.isFullScreen = true;
-		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerAnchorPane.getChildren().get(0);
+		Parent videoPlayer = (Parent) this.videoPlayerAnchorPane.getChildren().get(0);
 		this.videoPlayerAnchorPane.getChildren().clear();
 
 		this.videoPlayerWindow = new Stage();
@@ -243,7 +246,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 	private void endVideoPlayerFullScreen() {
 		this.isFullScreen = false;
-		AnchorPane videoPlayer = (AnchorPane) this.videoPlayerWindow.getScene().getRoot();
+		Node videoPlayer = this.videoPlayerWindow.getScene().getRoot();
 		this.videoPlayerAnchorPane.getChildren().add(videoPlayer);
 		this.videoPlayerWindow.fullScreenProperty().removeListener(this::videoPlayerFullscreenChanged);
 		this.videoPlayerWindow.setFullScreen(false);

@@ -2,9 +2,11 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -13,176 +15,109 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.media.MediaView?>
 
-<?import javafx.scene.control.ComboBox?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
-	<children>
-		<AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-			<HBox fx:id="utilButtonsHBox" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-				<children>
-					<GridPane HBox.hgrow="ALWAYS">
-						<columnConstraints>
-							<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
-							<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
-							<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
-						</columnConstraints>
-						<rowConstraints>
-							<RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-						</rowConstraints>
-						<children>
-							<HBox alignment="CENTER_LEFT" GridPane.columnIndex="0">
-								<children>
-									<Button fx:id="exportSnapshotButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportSnapshotButtonPressed" text="SS">
-										<HBox.margin>
-											<Insets left="8.0"/>
-										</HBox.margin>
-									</Button>
-									<Button fx:id="exportClipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onExportClipButtonPressed" text="CL">
-										<HBox.margin>
-											<Insets left="8.0"/>
-										</HBox.margin>
-									</Button>
-								</children>
-							</HBox>
-							<HBox alignment="CENTER" GridPane.columnIndex="1">
-								<children>
-									<Button fx:id="setInpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetInpointButtonPressed" text="[">
-										<HBox.margin>
-											<Insets left="8.0"/>
-										</HBox.margin>
-									</Button>
-									<Button fx:id="setAlignmentPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetAlignmentPointButtonPressed" text="|">
-										<HBox.margin>
-											<Insets left="8.0"/>
-										</HBox.margin>
-									</Button>
-									<Button fx:id="setOutpointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSetOutpointButtonPressed" text="]">
-										<HBox.margin>
-											<Insets left="8.0"/>
-										</HBox.margin>
-									</Button>
-								</children>
-							</HBox>
-							<HBox alignment="CENTER_RIGHT" GridPane.columnIndex="2">
-								<children>
-									<ComboBox fx:id="perspectivesComboBox" prefWidth="150.0"/>
-								</children>
-							</HBox>
-						</children>
-					</GridPane>
-				</children>
-			</HBox>
-		</AnchorPane>
-		<AnchorPane fx:id="mediaViewAnchorPane" layoutX="14.0" layoutY="14.0" AnchorPane.bottomAnchor="60.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="30.0">
+<BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
+	<top>
+		<GridPane BorderPane.alignment="CENTER">
+			<columnConstraints>
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" />
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+			</rowConstraints>
 			<children>
-				<MediaView fx:id="mediaView" fitHeight="${mediaViewAnchorPane.height}" fitWidth="${mediaViewAnchorPane.width}" layoutX="1.0" onError="#onMediaViewError" onMouseClicked="#onMediaViewClick"/>
+				<HBox alignment="CENTER_LEFT">
+					<children>
+						<Button fx:id="exportSnapshotButton" mnemonicParsing="false" onAction="#onExportSnapshotButtonPressed" text="SS" />
+						<Button fx:id="exportClipButton" mnemonicParsing="false" onAction="#onExportClipButtonPressed" text="CL" />
+					</children>
+				</HBox>
+				<HBox alignment="CENTER" GridPane.columnIndex="1">
+					<children>
+						<Button fx:id="setInpointButton" mnemonicParsing="false" onAction="#onSetInpointButtonPressed" text="[" />
+						<Button fx:id="setAlignmentPointButton" mnemonicParsing="false" onAction="#onSetAlignmentPointButtonPressed" text="|" />
+						<Button fx:id="setOutpointButton" mnemonicParsing="false" onAction="#onSetOutpointButtonPressed" text="]" />
+					</children>
+				</HBox>
+				<HBox alignment="CENTER_RIGHT" GridPane.columnIndex="2">
+					<children>
+						<ComboBox fx:id="perspectivesComboBox" prefWidth="150.0" />
+					</children>
+				</HBox>
 			</children>
-		</AnchorPane>
-		<AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.bottomAnchor="30.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+		</GridPane>
+	</top>
+	<center>
+      <HBox alignment="CENTER" style="-fx-background-color: black;">
+         <children>
+      		<MediaView fx:id="mediaView" fitHeight="50" fitWidth="50" onError="#onMediaViewError" onMouseClicked="#onMediaViewClick" />
+         </children>
+      </HBox>
+	</center>
+	<bottom>
+		<GridPane BorderPane.alignment="CENTER">
+			<columnConstraints>
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+				<ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+				<ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+			</columnConstraints>
+			<rowConstraints>
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+				<RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+			</rowConstraints>
 			<children>
-				<HBox fx:id="positionHBox" alignment="CENTER" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+				<HBox alignment="CENTER" GridPane.columnSpan="3">
 					<children>
 						<Label fx:id="currentTimeLabel" minWidth="70.0" text="00:00.000">
 							<HBox.margin>
-								<Insets left="8.0"/>
+								<Insets left="8.0" />
 							</HBox.margin>
 						</Label>
 						<StackPane HBox.hgrow="ALWAYS">
 							<HBox.margin>
-								<Insets left="8.0" right="8.0"/>
+								<Insets left="8.0" right="8.0" />
 							</HBox.margin>
 							<children>
 								<AnchorPane fx:id="timelineAnchorPane">
 									<children>
-										<Pane fx:id="outPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0"/>
-										<Pane fx:id="inPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="0.0"/>
-										<Pane fx:id="alignmentPointPane" maxWidth="2.0" minWidth="2.0" prefWidth="2.0" style="-fx-background-color: #d37a00;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0"/>
+										<Pane fx:id="outPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="0.0" />
+										<Pane fx:id="inPointPane" prefWidth="0.0" style="-fx-background-color: #D3D3D3;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="5.0" AnchorPane.topAnchor="0.0" />
+										<Pane fx:id="alignmentPointPane" maxWidth="2.0" minWidth="2.0" prefWidth="2.0" style="-fx-background-color: #d37a00;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.topAnchor="0.0" />
 									</children>
 								</AnchorPane>
-								<Slider fx:id="timeSlider" onMousePressed="#onTimeSliderMousePressed" onMouseReleased="#onTimeSliderMouseReleased"/>
+								<Slider fx:id="timeSlider" onMousePressed="#onTimeSliderMousePressed" onMouseReleased="#onTimeSliderMouseReleased" />
 							</children>
 						</StackPane>
 						<Label fx:id="durationLabel" minWidth="70.0" text="99:99.999">
 							<HBox.margin>
-								<Insets right="8.0"/>
+								<Insets right="8.0" />
 							</HBox.margin>
 						</Label>
 					</children>
 				</HBox>
-			</children>
-		</AnchorPane>
-		<AnchorPane maxHeight="30.0" minHeight="30.0" prefHeight="30.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-			<children>
-				<HBox fx:id="playerButtonsHBox" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+				<HBox alignment="CENTER_LEFT" GridPane.rowIndex="1">
 					<children>
-						<GridPane HBox.hgrow="ALWAYS">
-							<columnConstraints>
-								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
-								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
-								<ColumnConstraints halignment="CENTER" hgrow="SOMETIMES"/>
-							</columnConstraints>
-							<rowConstraints>
-								<RowConstraints minHeight="30.0" prefHeight="30.0" vgrow="SOMETIMES"/>
-							</rowConstraints>
-							<children>
-								<HBox alignment="CENTER_LEFT" GridPane.columnIndex="0">
-									<children>
-										<!-- Rate slider -->
-									</children>
-								</HBox>
-								<HBox alignment="CENTER" GridPane.columnIndex="1">
-									<children>
-										<Button fx:id="goToAlignmentPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onGoToAlignmentPointButtonPressed" text="*|">
-											<HBox.margin>
-												<Insets right="8.0"/>
-											</HBox.margin>
-										</Button>
-										<Button fx:id="goToInPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onGoToInPointButtonPressed" text="*[">
-											<HBox.margin>
-												<Insets right="32.0"/>
-											</HBox.margin>
-										</Button>
-										<Button fx:id="previousFrameButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onPreviousFrameButtonPressed" text="&lt;&lt;">
-											<HBox.margin>
-												<Insets right="8.0"/>
-											</HBox.margin>
-										</Button>
-										<Button fx:id="backButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onBackButtonPressed" text="&lt;">
-											<HBox.margin>
-												<Insets right="8.0"/>
-											</HBox.margin>
-										</Button>
-										<Button fx:id="playPauseButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onPlayPauseButtonPressed" text="P"/>
-										<Button fx:id="skipButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onSkipButtonPressed" text="&gt;">
-											<HBox.margin>
-												<Insets left="8.0"/>
-											</HBox.margin>
-										</Button>
-										<Button fx:id="nextFrameButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onNextFrameButtonPressed" text="&gt;&gt;">
-											<HBox.margin>
-												<Insets left="8.0"/>
-											</HBox.margin>
-										</Button>
-										<Button fx:id="goToOutPointButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onGoToOutPointButtonPressed" text="*]">
-											<HBox.margin>
-												<Insets left="32.0"/>
-											</HBox.margin>
-										</Button>
-									</children>
-								</HBox>
-								<HBox alignment="CENTER_RIGHT" GridPane.columnIndex="2">
-									<children>
-										<Button fx:id="fullscreenButton" minHeight="${playerButtonsHBox.height}" minWidth="${playerButtonsHBox.height}" mnemonicParsing="false" onAction="#onFullscreenButtonPressed" text="FS">
-											<HBox.margin>
-												<Insets right="8.0"/>
-											</HBox.margin>
-										</Button>
-									</children>
-								</HBox>
-							</children>
-						</GridPane>
+						<Button fx:id="goToAlignmentPointButton" mnemonicParsing="false" onAction="#onGoToAlignmentPointButtonPressed" text="*|" />
+					</children>
+				</HBox>
+				<HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
+					<children>
+						<Button fx:id="goToInPointButton" mnemonicParsing="false" onAction="#onGoToInPointButtonPressed" text="*[" />
+						<Button fx:id="previousFrameButton" mnemonicParsing="false" onAction="#onPreviousFrameButtonPressed" text="&lt;" />
+						<Button fx:id="backButton" mnemonicParsing="false" onAction="#onBackButtonPressed" text="&lt;&lt;" />
+						<Button fx:id="playPauseButton" mnemonicParsing="false" onAction="#onPlayPauseButtonPressed" text="P" />
+						<Button fx:id="skipButton" mnemonicParsing="false" onAction="#onSkipButtonPressed" text="&gt;&gt;" />
+						<Button fx:id="nextFrameButton" mnemonicParsing="false" onAction="#onNextFrameButtonPressed" text="&gt;" />
+						<Button fx:id="goToOutPointButton" mnemonicParsing="false" onAction="#onGoToOutPointButtonPressed" text="*]" />
+					</children>
+				</HBox>
+				<HBox alignment="CENTER_RIGHT" GridPane.columnIndex="2" GridPane.rowIndex="1">
+					<children>
+						<Button fx:id="fullscreenButton" mnemonicParsing="false" onAction="#onFullscreenButtonPressed" text="FS" />
 					</children>
 				</HBox>
 			</children>
-		</AnchorPane>
-	</children>
-</AnchorPane>
+		</GridPane>
+	</bottom>
+</BorderPane>
