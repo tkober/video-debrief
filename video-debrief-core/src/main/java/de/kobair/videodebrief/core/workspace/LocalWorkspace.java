@@ -374,9 +374,16 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 				this.workspaceFile);
 		this.saveWorkspaceAndRollbackOnError(causeMessage);
 		if (deletionStrategy == DeletionStrategy.DELETE_FILES) {
-			File eventDirectory = LocalUtils.extendDirectory(getWorkspaceDirectory(), event.getSubPath());
 			try {
-				FileUtils.deleteDirectory(eventDirectory);
+				File eventDirectory = LocalUtils.extendDirectory(getWorkspaceDirectory(), event.getSubPath());
+				for (Perspective perspective : pojo.getAllPerspectives()) {
+					File perspectiveFile = LocalUtils.extendDirectory(eventDirectory, perspective.getFileName());
+					FileUtils.forceDelete(perspectiveFile);
+				}
+
+				if (eventDirectory.listFiles().length == 0) {
+					FileUtils.deleteDirectory(eventDirectory);
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
 				return false;
