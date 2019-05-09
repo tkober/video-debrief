@@ -17,6 +17,7 @@
                 <HBox alignment="CENTER_RIGHT">
                     <children>
                         <Button mnemonicParsing="false" text="Export">
+                        <Button mnemonicParsing="false" text="Export" fx:id="exportSelectionButton" onAction="#onExportSelectionButtonPressed">
                             <HBox.margin>
                                 <Insets bottom="5.0" right="8.0" top="5.0"/>
                             </HBox.margin>

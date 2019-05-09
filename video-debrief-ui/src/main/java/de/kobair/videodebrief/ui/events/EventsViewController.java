@@ -1,8 +1,6 @@
 package de.kobair.videodebrief.ui.events;
 
-import java.awt.*;
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -22,15 +20,20 @@ import de.kobair.videodebrief.ui.events.model.WorkspaceItem.EventItem;
 import de.kobair.videodebrief.ui.events.model.WorkspaceItem.PerspectiveItem;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.*;
-import javafx.scene.control.Menu;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.SeparatorMenuItem;
+import javafx.scene.control.TreeCell;
+import javafx.scene.control.TreeItem;
+import javafx.scene.control.TreeView;
 import javafx.scene.control.cell.CheckBoxTreeCell;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
@@ -78,6 +81,8 @@ public class EventsViewController implements Initializable {
 
 	@FXML
 	private TreeView<WorkspaceItem> eventsTreeView;
+	@FXML
+	private Button exportSelectionButton;
 
 	@FXML
 	private void onCreateEventButtonPressed(ActionEvent event) {
@@ -133,6 +138,26 @@ public class EventsViewController implements Initializable {
 					deletePerspective(containingEvent, (Perspective) content);
 				}
 			}
+		}
+	}
+
+	@FXML
+	private void onExportSelectionButtonPressed(ActionEvent actionEvent) {
+		List<Pair<Event, Perspective>> itemsToExport = new ArrayList<>();
+
+		List<TreeItem<WorkspaceItem>> eventItems = this.eventsTreeView.getRoot().getChildren();
+		for (TreeItem<WorkspaceItem> eventItem : eventItems) {
+			Event event = (Event) eventItem.getValue().getContent();
+			List<Pair<Event, Perspective>> selected = eventItem.getChildren()
+															  .stream()
+															  .filter(treeItem -> treeItem.getValue().itemSelectedProperty.getValue())
+															  .map(treeItem -> new Pair<Event, Perspective>(event, (Perspective) treeItem.getValue().getContent()))
+															  .collect(Collectors.toList());
+			itemsToExport.addAll(selected);
+		}
+
+		if (itemsToExport.size() > 0) {
+			this.delegate.ifPresent(delegate -> delegate.exportWorkspaceParts(itemsToExport, null));
 		}
 	}
 
@@ -445,6 +470,20 @@ public class EventsViewController implements Initializable {
 		});
 	}
 
+	private void updateExportButton() {
+		List<TreeItem<WorkspaceItem>> eventItems = this.eventsTreeView.getRoot().getChildren();
+		for (TreeItem<WorkspaceItem> eventItem : eventItems) {
+			List<TreeItem<WorkspaceItem>> perspectiveItems = eventItem.getChildren();
+			for (TreeItem<WorkspaceItem> perspectiveItem : perspectiveItems) {
+				if (perspectiveItem.getValue().itemSelectedProperty.getValue()) {
+					this.exportSelectionButton.setDisable(false);
+					return;
+				}
+			}
+		}
+		this.exportSelectionButton.setDisable(true);
+	}
+
 	public void reload(Map<Event, List<Perspective>> content) {
 		this.events.clear();
 		List<TreeItem<WorkspaceItem>> items = new ArrayList<>();
@@ -456,6 +495,7 @@ public class EventsViewController implements Initializable {
 				evaluatePerspectiveSelectionUpdate = false;
 				eventTreeItem.getChildren().forEach(treeItem -> treeItem.getValue().itemSelectedProperty.set(newValue));
 				evaluatePerspectiveSelectionUpdate = true;
+				this.updateExportButton();
 			});
 
 			List<Perspective> perspectives = content.get(event);
@@ -471,6 +511,7 @@ public class EventsViewController implements Initializable {
 						}
 
 						eventItem.itemSelectedProperty.set(allSelected);
+						this.updateExportButton();
 					}
 				});
 
@@ -480,6 +521,7 @@ public class EventsViewController implements Initializable {
 		}
 		items.sort(Comparator.comparing(a -> a.getValue().toString()));
 		this.events.addAll(items);
+		this.updateExportButton();
 	}
 
 	public void setDelegate(final EventsDelegate delegate) {
