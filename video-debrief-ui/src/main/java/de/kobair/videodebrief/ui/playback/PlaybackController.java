@@ -113,7 +113,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	private Stage videoPlayerWindow;
 
 	private VideoPlayerViewController loadVideoPlayerView() {
-		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "VideoPlayer2.fxml", VideoPlayerViewController.class);
+		return this.loadViewIntoAnchorPane(videoPlayerAnchorPane, "VideoPlayer.fxml", VideoPlayerViewController.class);
 	}
 
 	private PerspectivesViewController loadPerspectivesView() {
