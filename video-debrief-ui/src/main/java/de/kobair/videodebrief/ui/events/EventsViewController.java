@@ -83,6 +83,12 @@ public class EventsViewController implements Initializable {
 	private TreeView<WorkspaceItem> eventsTreeView;
 	@FXML
 	private Button exportSelectionButton;
+	@FXML
+	private Button editButton;
+	@FXML
+	private Button deleteButton;
+	@FXML
+	private Button addButton;
 
 	@FXML
 	private void onCreateEventButtonPressed(ActionEvent event) {
@@ -534,7 +540,18 @@ public class EventsViewController implements Initializable {
 
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
+		this.editButton.setDisable(true);
+		this.deleteButton.setDisable(true);
 		this.selectedWorkspaceItemProperty = this.eventsTreeView.getSelectionModel().selectedItemProperty();
+		this.selectedWorkspaceItemProperty.addListener((observable, oldValue, newValue) -> {
+			if (newValue == null) {
+				this.editButton.setDisable(true);
+				this.deleteButton.setDisable(true);
+			} else {
+				this.editButton.setDisable(false);
+				this.deleteButton.setDisable(false);
+			}
+		});
 		this.eventsTreeView.setRoot(new TreeItem<WorkspaceItem>());
 		this.eventsTreeView.setCellFactory(CheckBoxTreeCell.forTreeView());
 		this.setUpTreeCellFactory(this.eventsTreeView);

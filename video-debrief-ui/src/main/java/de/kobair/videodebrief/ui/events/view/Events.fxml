@@ -16,7 +16,6 @@
             <children>
                 <HBox alignment="CENTER_RIGHT">
                     <children>
-                        <Button mnemonicParsing="false" text="Export">
                         <Button mnemonicParsing="false" text="Export" fx:id="exportSelectionButton" onAction="#onExportSelectionButtonPressed">
                             <HBox.margin>
                                 <Insets bottom="5.0" right="8.0" top="5.0"/>
@@ -37,19 +36,19 @@
                         <RowConstraints minHeight="10.0" vgrow="SOMETIMES"/>
                     </rowConstraints>
                     <children>
-                        <Button mnemonicParsing="false" onAction="#onRenameSelectedWorkspaceItem" text="E">
+                        <Button mnemonicParsing="false" fx:id="editButton" onAction="#onRenameSelectedWorkspaceItem" text="E">
                             <GridPane.margin>
                                 <Insets bottom="5.0" left="8.0" top="5.0"/>
                             </GridPane.margin>
                         </Button>
                         <HBox alignment="CENTER_RIGHT" GridPane.columnIndex="1">
                             <children>
-                                <Button mnemonicParsing="false" onAction="#onDeleteSelectedWorkspaceItem" text="-">
+                                <Button mnemonicParsing="false" fx:id="deleteButton" onAction="#onDeleteSelectedWorkspaceItem" text="-">
                                     <HBox.margin>
                                         <Insets bottom="5.0" right="8.0" top="5.0"/>
                                     </HBox.margin>
                                 </Button>
-                                <Button mnemonicParsing="false" onAction="#onCreateEventButtonPressed" text="+">
+                                <Button mnemonicParsing="false" fx:id="addButton" onAction="#onCreateEventButtonPressed" text="+">
                                     <HBox.margin>
                                         <Insets bottom="5.0" right="8.0" top="5.0"/>
                                     </HBox.margin>
