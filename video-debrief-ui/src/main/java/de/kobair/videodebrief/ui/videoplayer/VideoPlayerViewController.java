@@ -1,5 +1,16 @@
 package de.kobair.videodebrief.ui.videoplayer;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+
+import org.apache.commons.lang3.time.DurationFormatUtils;
+
+import de.kobair.videodebrief.core.video.VideoInformation;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -7,33 +18,25 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Control;
+import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaErrorEvent;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
 import javafx.util.Duration;
-import org.apache.commons.lang3.time.DurationFormatUtils;
-
-import java.io.File;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
 
 public class VideoPlayerViewController implements Initializable {
 
 	private static final int SEEK_DURATION_MILLIS = 5000;
-	private static final int FRAME_STEPS_MILLIS = 17; // TODO:
 	public static final int SLIDER_PADDING = 5;
 
 	public interface VideoPlayerDelegate {
@@ -159,7 +162,7 @@ public class VideoPlayerViewController implements Initializable {
 		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
 			this.mediaPlayer.pause();
 		}
-		Duration time = this.mediaPlayer.getCurrentTime().add(new Duration(FRAME_STEPS_MILLIS));
+		Duration time = this.mediaPlayer.getCurrentTime().add(new Duration(frameStepMillis));
 		this.seekAndUpdateTimeSlider(time);
 	}
 
@@ -168,7 +171,7 @@ public class VideoPlayerViewController implements Initializable {
 		if (this.mediaPlayer.getStatus() != Status.PAUSED) {
 			this.mediaPlayer.pause();
 		}
-		Duration time = this.mediaPlayer.getCurrentTime().subtract(new Duration(FRAME_STEPS_MILLIS));
+		Duration time = this.mediaPlayer.getCurrentTime().subtract(new Duration(frameStepMillis));
 		this.seekAndUpdateTimeSlider(time);
 	}
 
@@ -260,6 +263,7 @@ public class VideoPlayerViewController implements Initializable {
 	private boolean playOnReady;
 	private ObservableList<String> perspectives;
 	private Duration startTime;
+	private int frameStepMillis = 17;
 
 	private void mediaDurationAvailable(Duration duration) {
 		this.timeSlider.setMax(duration.toMillis());
@@ -457,6 +461,13 @@ public class VideoPlayerViewController implements Initializable {
 		this.updateTimeline(new Duration(timeMillis));
 	}
 
+	private int millisPerFrame(AttributedPerspective perspective) {
+		VideoInformation.VideoTrack track = perspective.getVideoInformation().getVideoInformation().get(0);
+		double fps = Math.ceil(track.getFramesPerSecond());
+		double result = 1000.0 / fps;
+		return (int) Math.ceil(result);
+	}
+
 	public long getCurrentTime() {
 		return (long) this.mediaPlayer.getCurrentTime().toMillis();
 	}
@@ -501,6 +512,8 @@ public class VideoPlayerViewController implements Initializable {
 		this.perspectives.clear();
 		this.perspectives.addAll(allPerspectives);
 		this.perspectivesComboBox.valueProperty().set(attributedPerspective.getPerspective().getName());
+
+		this.frameStepMillis = this.millisPerFrame(attributedPerspective);
 	}
 
 	public void selectedMediaChanged(AttributedPerspective attributedPerspective) {
