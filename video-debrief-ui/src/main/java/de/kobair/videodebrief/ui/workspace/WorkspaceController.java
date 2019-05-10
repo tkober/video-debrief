@@ -26,6 +26,7 @@ import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
 import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Pair;
@@ -161,6 +162,8 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 
     public void setApp(App app) {
         this.app = app;
+        Scene scene = app.getPrimaryStage().getScene();
+        this.playbackViewController.setScene(scene);
     }
 
     @Override

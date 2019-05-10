@@ -237,6 +237,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 		this.videoPlayerWindow = new Stage();
 		Scene scene = new Scene(videoPlayer);
+		this.videoPlayerViewController.addKeyboardShortcuts(scene);
 		this.videoPlayerWindow.setScene(scene);
 		this.videoPlayerWindow.setFullScreen(true);
 		this.videoPlayerWindow.show();
@@ -300,6 +301,10 @@ public class PlaybackController extends Controller implements Initializable, Vid
 	public void clearSelectedMedia() {
 		this.videoPlayerViewController.clearMedia();
 		this.perspectivesViewController.clear();
+	}
+
+	public void setScene(Scene scene) {
+		this.videoPlayerViewController.addKeyboardShortcuts(scene);
 	}
 
 	@Override

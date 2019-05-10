@@ -18,11 +18,16 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
@@ -35,6 +40,16 @@ import javafx.scene.media.MediaView;
 import javafx.util.Duration;
 
 public class VideoPlayerViewController implements Initializable {
+
+	private static final KeyCombination PREVIOUS_FRAME_KEY_COMBINATION = new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_ANY);
+	private static final KeyCombination NEXT_FRAME_KEY_COMBINATION = new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_ANY);
+	private static final KeyCombination GO_TO_INPOINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.I, KeyCombination.SHIFT_ANY);
+	private static final KeyCombination GO_TO_OUTPOINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.O, KeyCombination.SHIFT_ANY);
+	private static final KeyCombination GO_TO_ALIGNMENT_POINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.A, KeyCombination.SHIFT_ANY);
+
+	private static final List<MediaPlayer.Status> INTERACTABLE_STATES = Arrays.asList(new MediaPlayer.Status[] {
+			Status.READY, Status.PLAYING, Status.PAUSED
+	});
 
 	private static final int SEEK_DURATION_MILLIS = 5000;
 	public static final int SLIDER_PADDING = 5;
@@ -215,7 +230,7 @@ public class VideoPlayerViewController implements Initializable {
 	}
 
 	@FXML
-	private void onSetAlignmentPointButtonPressed() {
+	private void onSetAlignmentPointButtonPressed(ActionEvent actionEvent) {
 		long time = (long) this.mediaPlayer.getCurrentTime().toMillis();
 		this.delegate.ifPresent(delegate -> delegate.setAlignmentPoint(time));
 	}
@@ -283,7 +298,7 @@ public class VideoPlayerViewController implements Initializable {
 	private void handleMediaPlayerStatusChange(ObservableValue<? extends MediaPlayer.Status> ov,
 			MediaPlayer.Status oldStatus, MediaPlayer.Status newStatus) {
 		switch (newStatus) {
-		
+
 		case READY:
 			this.enableMediaPlayerControls();
 			this.mediaDurationAvailable(this.media.getDuration());
@@ -295,18 +310,18 @@ public class VideoPlayerViewController implements Initializable {
 			}
 			this.mediaViewContainerResized();
 			break;
-			
+
 		case PAUSED:
 			if (sliderAndPlayerAsynchronous) {
 				this.synchronizeTimeSliderAndMediaPlayer();
 			}
 			this.showPlayButton();
 			break;
-			
+
 		case PLAYING:
 			this.showPauseButton();
 			break;
-			
+
 		case STOPPED:
 			this.showPlayButton();
 			break;
@@ -406,11 +421,11 @@ public class VideoPlayerViewController implements Initializable {
 			}
 		}
 	}
-	
+
 	private void showPlayButton() {
 		this.playPauseButton.setText(">");
 	}
-	
+
 	private void showPauseButton() {
 		this.playPauseButton.setText("||");
 	}
@@ -419,7 +434,7 @@ public class VideoPlayerViewController implements Initializable {
 		double inPointWidth = 0;
 		double outPointWidth = 0;
 		if (this.attributedPerspective != null) {
-			double totalWidth = this.timelineAnchorPane.getWidth() - 2*SLIDER_PADDING; // padding of slider
+			double totalWidth = this.timelineAnchorPane.getWidth() - 2 * SLIDER_PADDING; // padding of slider
 			long duration = this.attributedPerspective.getVideoInformation().getDurationMillis();
 			double pixelPerMillisecond = totalWidth / duration;
 
@@ -439,7 +454,7 @@ public class VideoPlayerViewController implements Initializable {
 	private void updateAlignmentPointView() {
 		double alignmentPoint = SLIDER_PADDING;
 		if (this.attributedPerspective != null) {
-			double totalWidth = this.timelineAnchorPane.getWidth() - 2*SLIDER_PADDING; // padding of slider
+			double totalWidth = this.timelineAnchorPane.getWidth() - 2 * SLIDER_PADDING; // padding of slider
 			long duration = this.attributedPerspective.getVideoInformation().getDurationMillis();
 			double pixelPerMillisecond = totalWidth / duration;
 
@@ -503,6 +518,65 @@ public class VideoPlayerViewController implements Initializable {
 		}
 	}
 
+	private boolean isKeyEventApplicable() {
+		return this.mediaPlayer != null && INTERACTABLE_STATES.contains(this.mediaPlayer.getStatus());
+	}
+
+	private void handleKeyPressedEvent(KeyEvent event) {
+		if (!this.isKeyEventApplicable()) {
+			return;
+		}
+
+		if (PREVIOUS_FRAME_KEY_COMBINATION.match(event)) {
+			this.onPreviousFrameButtonPressed(null);
+		} else if (NEXT_FRAME_KEY_COMBINATION.match(event)) {
+			this.onNextFrameButtonPressed(null);
+		} else if (GO_TO_INPOINT_KEY_COMBINATION.match(event)) {
+			this.onGoToInPointButtonPressed(null);
+		} else if (GO_TO_OUTPOINT_KEY_COMBINATION.match(event)) {
+			this.onGoToOutPointButtonPressed(null);
+		} else if (GO_TO_ALIGNMENT_POINT_KEY_COMBINATION.match(event)) {
+			this.onGoToAlignmentPointButtonPressed(null);
+		} else {
+			switch (event.getCode()) {
+
+			case SPACE:
+				this.onPlayPauseButtonPressed(null);
+				break;
+
+			case I:
+				this.onSetInpointButtonPressed(null);
+				break;
+
+			case O:
+				this.onSetOutpointButtonPressed(null);
+				break;
+
+			case A:
+				this.onSetAlignmentPointButtonPressed(null);
+				break;
+
+			case LEFT:
+				this.onBackButtonPressed(null);
+				break;
+
+			case RIGHT:
+				this.onSkipButtonPressed(null);
+				break;
+
+			case F:
+				this.onFullscreenButtonPressed(null);
+				break;
+
+			default:
+				return;
+
+			}
+		}
+
+		event.consume();
+	}
+
 	public long getCurrentTime() {
 		return (long) this.mediaPlayer.getCurrentTime().toMillis();
 	}
@@ -556,15 +630,20 @@ public class VideoPlayerViewController implements Initializable {
 		this.updateInOutPointView();
 		this.updateAlignmentPointView();
 	}
+
 	public void clearMedia() {
 		// TODO
 		System.out.println("clearMedia(): Not yet implemented");
 	}
 
+	public void addKeyboardShortcuts(Scene scene) {
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, this::handleKeyPressedEvent);
+	}
+
 	@Override
 	public void initialize(URL location, ResourceBundle resources) {
 		this.mediaPlayerControls = Arrays.asList(
-				new Control[] { exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
+				new Control[] {exportSnapshotButton, exportClipButton, playPauseButton, setInpointButton, skipButton,
 						backButton, nextFrameButton, previousFrameButton, setOutpointButton, fullscreenButton, timeSlider,
 						goToAlignmentPointButton, goToInPointButton, goToOutPointButton, setAlignmentPointButton, perspectivesComboBox});
 		this.disableMediaPlayerControls();
