@@ -453,9 +453,10 @@ public class VideoPlayerViewController implements Initializable {
 
 	private void seekAndUpdateTimeSlider(Duration time) {
 		long mediaLength = (long) mediaPlayer.getMedia().getDuration().toMillis();
+		long maxSeekPosition = mediaLength - 50;
 		long timeMillis = (long) time.toMillis();
 		timeMillis = Math.max(timeMillis, 0);
-		timeMillis = Math.min(timeMillis, mediaLength);
+		timeMillis = Math.min(timeMillis, maxSeekPosition);
 
 		this.mediaPlayer.seek(new Duration(timeMillis));
 		this.updateTimeline(new Duration(timeMillis));
