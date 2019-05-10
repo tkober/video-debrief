@@ -142,6 +142,9 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 			String exportName = result.get();
 
 			File exportDirectory = LocalUtils.extendDirectory(this.workspace.getWorkspaceDirectory(), this.workspace.getExportDirectory());
+			if (!exportDirectory.exists()) {
+				exportDirectory = this.workspace.getWorkspaceDirectory();
+			}
 			DirectoryChooser chooser = new DirectoryChooser();
 			chooser.setInitialDirectory(exportDirectory);
 			chooser.setTitle(String.format("Pick destination for '%s'", exportName));
