@@ -469,6 +469,40 @@ public class VideoPlayerViewController implements Initializable {
 		return (int) Math.ceil(result);
 	}
 
+	private void mediaViewContainerResized(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
+		this.mediaViewContainerResized();
+	}
+
+	private void mediaViewContainerResized() {
+		if (this.media != null) {
+			Pane top = (Pane) this.borderPane.getTop();
+			Pane bottom = (Pane) this.borderPane.getBottom();
+			Pane left = (Pane) this.borderPane.getLeft();
+			Pane right = (Pane) this.borderPane.getRight();
+
+			double leftWidth = left == null ? 0 : left.getWidth();
+			double rightWidth = right == null ? 0 : right.getWidth();
+			double maxWidth = this.borderPane.getWidth() - leftWidth - rightWidth;
+
+			double topHeight = top == null ? 0 : top.getHeight();
+			double bottomHeight = bottom == null ? 0 : bottom.getHeight();
+			double maxHeight = this.borderPane.getHeight() - topHeight - bottomHeight;
+
+			double aspectRatio = (double) this.media.getWidth() / (double) this.media.getHeight();
+
+			double height = maxHeight;
+			double width = Math.floor(height * aspectRatio);
+
+			if (width > maxWidth) {
+				width = maxWidth;
+				height = Math.floor(width / aspectRatio);
+			}
+
+			this.mediaView.setFitWidth(width);
+			this.mediaView.setFitHeight(height);
+		}
+	}
+
 	public long getCurrentTime() {
 		return (long) this.mediaPlayer.getCurrentTime().toMillis();
 	}
@@ -548,39 +582,5 @@ public class VideoPlayerViewController implements Initializable {
 
 		this.borderPane.widthProperty().addListener(this::mediaViewContainerResized);
 		this.borderPane.heightProperty().addListener(this::mediaViewContainerResized);
-	}
-
-	private void mediaViewContainerResized(final ObservableValue<? extends Number> observable, final Number oldValue, final Number newValue) {
-		this.mediaViewContainerResized();
-	}
-
-	private void mediaViewContainerResized() {
-		if (this.media != null) {
-			Pane top = (Pane) this.borderPane.getTop();
-			Pane bottom = (Pane) this.borderPane.getBottom();
-			Pane left = (Pane) this.borderPane.getLeft();
-			Pane right = (Pane) this.borderPane.getRight();
-
-			double leftWidth = left == null ? 0 : left.getWidth();
-			double rightWidth = right == null ? 0 : right.getWidth();
-			double maxWidth = this.borderPane.getWidth() - leftWidth - rightWidth;
-
-			double topHeight = top == null ? 0 : top.getHeight();
-			double bottomHeight = bottom == null ? 0 : bottom.getHeight();
-			double maxHeight = this.borderPane.getHeight() - topHeight - bottomHeight;
-
-			double aspectRatio = (double) this.media.getWidth() / (double) this.media.getHeight();
-
-			double height = maxHeight;
-			double width = Math.floor(height * aspectRatio);
-
-			if (width > maxWidth) {
-				width = maxWidth;
-				height = Math.floor(width / aspectRatio);
-			}
-
-			this.mediaView.setFitWidth(width);
-			this.mediaView.setFitHeight(height);
-		}
 	}
 }
