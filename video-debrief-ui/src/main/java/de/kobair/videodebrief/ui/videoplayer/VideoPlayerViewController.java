@@ -52,7 +52,9 @@ public class VideoPlayerViewController implements Initializable {
 	});
 
 	private static final int SEEK_DURATION_MILLIS = 5000;
-	public static final int SLIDER_PADDING = 5;
+	private static final int SLIDER_PADDING = 5;
+	private static final long SEEK_MARGIN_RIGHT = 50;
+	private static final String VIDEO_DURATION_FORMAT = "mm:ss.SSS";
 
 	public interface VideoPlayerDelegate {
 
@@ -287,7 +289,7 @@ public class VideoPlayerViewController implements Initializable {
 	}
 
 	private String stringFromDuration(Duration duration) {
-		return DurationFormatUtils.formatDuration((long) duration.toMillis(), "mm:ss.SSS");
+		return DurationFormatUtils.formatDuration((long) duration.toMillis(), VIDEO_DURATION_FORMAT);
 	}
 
 	private void synchronizeTimeSliderAndMediaPlayer() {
@@ -468,7 +470,7 @@ public class VideoPlayerViewController implements Initializable {
 
 	private void seekAndUpdateTimeSlider(Duration time) {
 		long mediaLength = (long) mediaPlayer.getMedia().getDuration().toMillis();
-		long maxSeekPosition = mediaLength - 50;
+		long maxSeekPosition = mediaLength - SEEK_MARGIN_RIGHT;
 		long timeMillis = (long) time.toMillis();
 		timeMillis = Math.max(timeMillis, 0);
 		timeMillis = Math.min(timeMillis, maxSeekPosition);
@@ -657,7 +659,7 @@ public class VideoPlayerViewController implements Initializable {
 		this.perspectivesComboBox.setItems(this.perspectives);
 		this.perspectivesComboBox.valueProperty().addListener(this::handlePerspectiveComboBoxChanged);
 
-		this.mediaView.setSmooth(true); // TODO: ?
+		this.mediaView.setSmooth(true);
 
 		this.borderPane.widthProperty().addListener(this::mediaViewContainerResized);
 		this.borderPane.heightProperty().addListener(this::mediaViewContainerResized);
