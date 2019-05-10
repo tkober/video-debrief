@@ -10,7 +10,9 @@ import java.util.ResourceBundle;
 
 import org.apache.commons.lang3.time.DurationFormatUtils;
 
+import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.video.VideoInformation;
+import de.kobair.videodebrief.ui.errors.ApplicationError;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -34,6 +36,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaErrorEvent;
+import javafx.scene.media.MediaException;
 import javafx.scene.media.MediaPlayer;
 import javafx.scene.media.MediaPlayer.Status;
 import javafx.scene.media.MediaView;
@@ -55,6 +58,22 @@ public class VideoPlayerViewController implements Initializable {
 	private static final int SLIDER_PADDING = 5;
 	private static final long SEEK_MARGIN_RIGHT = 50;
 	private static final String VIDEO_DURATION_FORMAT = "mm:ss.SSS";
+
+	public abstract class VideoPlayerException extends Exception {
+
+
+		public VideoPlayerException(String message, Throwable cause) {
+			super(message, cause);
+		}
+
+	}
+
+	public class UnknownVideoPlayerException extends VideoPlayerException {
+
+		public UnknownVideoPlayerException(Perspective perspective, Throwable cause) {
+			super(String.format("An unkown error occured during the playback of '%s'.", perspective.getName()), cause);
+		}
+	}
 
 	public interface VideoPlayerDelegate {
 
@@ -239,7 +258,8 @@ public class VideoPlayerViewController implements Initializable {
 
 	@FXML
 	private void onMediaViewError(MediaErrorEvent event) {
-		System.out.println(event);
+		MediaException mediaException = event.getMediaError();
+		this.handleUnexpectedError(mediaException);
 	}
 
 	@FXML
@@ -374,17 +394,14 @@ public class VideoPlayerViewController implements Initializable {
 		try {
 			mediaUrl = file.toURI().toURL();
 		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			// TODO: error handling
+			this.handleUnexpectedError(e);
 			return null;
 		}
 
 		Media media = new Media(mediaUrl.toExternalForm());
-		media.setOnError(new Runnable() {
-			public void run() {
-				// Handle asynchronous error in Media object.
-				System.out.println(VideoPlayerViewController.this.media.getError());
-			}
+		media.setOnError(() -> {
+			MediaException mediaException = this.media.getError();
+			this.handleUnexpectedError(mediaException);
 		});
 		return media;
 	}
@@ -579,6 +596,11 @@ public class VideoPlayerViewController implements Initializable {
 		event.consume();
 	}
 
+	private void handleUnexpectedError(Throwable cause) {
+		UnknownVideoPlayerException e = new UnknownVideoPlayerException(this.attributedPerspective.getPerspective(), cause);
+		new ApplicationError(e).throwOnMainThread();
+	}
+
 	public long getCurrentTime() {
 		return (long) this.mediaPlayer.getCurrentTime().toMillis();
 	}
@@ -606,11 +628,9 @@ public class VideoPlayerViewController implements Initializable {
 		this.mediaPlayer = new MediaPlayer(this.media);
 		this.mediaPlayer.statusProperty().addListener(this::handleMediaPlayerStatusChange);
 
-		this.mediaPlayer.setOnError(new Runnable() {
-			public void run() {
-				// Handle asynchronous error in Player object.
-				System.out.println(VideoPlayerViewController.this.mediaPlayer.getError());
-			}
+		this.mediaPlayer.setOnError(() -> {
+			MediaException mediaException = this.mediaPlayer.getError();
+			this.handleUnexpectedError(mediaException);
 		});
 
 		this.mediaView.setMediaPlayer(this.mediaPlayer);
