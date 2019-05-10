@@ -148,14 +148,19 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 			File chosen = chooser.showDialog(this.getApp().getPrimaryStage());
 
 			if (chosen != null) {
-				File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);
-				try {
-					this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
-				} catch (ExportException e) {
-					new ApplicationWarning(e).throwOnMainThread();
-				} catch (UnknwonExportException | UnknownWorkspaceException e) {
-					new ApplicationError(e).throwOnMainThread();
-				}
+				this.longTermOperationsService.submit(new Runnable() {
+					@Override
+					public void run() {
+						File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);
+						try {
+							WorkspaceController.this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
+						} catch (ExportException e) {
+							new ApplicationWarning(e).throwOnMainThread();
+						} catch (UnknwonExportException | UnknownWorkspaceException e) {
+							new ApplicationError(e).throwOnMainThread();
+						}
+					}
+				});
 			}
 		}
 	}
