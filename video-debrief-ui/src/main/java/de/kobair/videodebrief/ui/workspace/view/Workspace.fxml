@@ -4,33 +4,66 @@
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.layout.AnchorPane?>
 
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.Pane?>
 <Scene
         xmlns="http://javafx.com/javafx/8.0.172-ea"
         xmlns:fx="http://javafx.com/fxml/1"
         fx:controller="de.kobair.videodebrief.ui.workspace.WorkspaceController">
     <AnchorPane minHeight="600" minWidth="1000">
         <children>
-            <SplitPane dividerPositions="0.4" AnchorPane.bottomAnchor="0.0"
-                       AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-                       AnchorPane.topAnchor="0.0">
-                <items>
-                    <AnchorPane>
-                        <children>
-                            <SplitPane dividerPositions="0.5"
-                                       AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-                                       AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                                <items>
-                                    <AnchorPane fx:id="camerasAnchorPane"
-                                                minHeight="0.0" minWidth="0.0"/>
-                                    <AnchorPane fx:id="eventsAnchorPane" minHeight="0.0"
-                                                minWidth="0.0"/>
-                                </items>
-                            </SplitPane>
-                        </children>
-                    </AnchorPane>
-                    <AnchorPane fx:id="playbackAnchorPane"/>
-                </items>
-            </SplitPane>
+            <VBox AnchorPane.bottomAnchor="0.0"
+				  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+				  AnchorPane.topAnchor="0.0">
+				<children>
+
+					<SplitPane dividerPositions="0.4" VBox.vgrow="ALWAYS">
+						<items>
+							<AnchorPane>
+								<children>
+									<SplitPane dividerPositions="0.5"
+											   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
+											   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+										<items>
+											<AnchorPane fx:id="camerasAnchorPane"
+														minHeight="0.0" minWidth="0.0"/>
+											<AnchorPane fx:id="eventsAnchorPane" minHeight="0.0"
+														minWidth="0.0"/>
+										</items>
+									</SplitPane>
+								</children>
+							</AnchorPane>
+							<AnchorPane fx:id="playbackAnchorPane"/>
+						</items>
+					</SplitPane>
+
+					<HBox>
+						<children>
+
+							<HBox alignment="CENTER_LEFT">
+								<children>
+									<Label text="Last saved:"></Label>
+									<Label fx:id="lastSavedLabel"></Label>
+								</children>
+							</HBox>
+
+							<Pane HBox.hgrow="ALWAYS"/>
+
+							<HBox alignment="CENTER_RIGHT">
+								<children>
+									<Label fx:id="jobsStatusLabel" text="No jobs running"></Label>
+									<ProgressBar></ProgressBar>
+								</children>
+							</HBox>
+
+						</children>
+					</HBox>
+
+				</children>
+			</VBox>
         </children>
     </AnchorPane>
 </Scene>
