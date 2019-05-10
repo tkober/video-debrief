@@ -584,12 +584,12 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 	}
 
 	@Override
-	public void save() throws IOException {
+	public synchronized void save() throws IOException {
 		this.saveJsonPojo(workspaceFile, this.workspaceData);
 	}
 
 	@Override
-	public void reload() throws FileNotFoundException {
+	public synchronized void reload() throws FileNotFoundException {
 		this.workspaceData = this.loadJsonPojo(workspaceFile, WorkspacePojo.class);
 	}
 
