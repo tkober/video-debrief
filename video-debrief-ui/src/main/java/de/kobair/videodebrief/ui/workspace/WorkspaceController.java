@@ -148,17 +148,14 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 			File chosen = chooser.showDialog(this.getApp().getPrimaryStage());
 
 			if (chosen != null) {
-				this.longTermOperationsService.submit(new Runnable() {
-					@Override
-					public void run() {
-						File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);
-						try {
-							WorkspaceController.this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
-						} catch (ExportException e) {
-							new ApplicationWarning(e).throwOnMainThread();
-						} catch (UnknwonExportException | UnknownWorkspaceException e) {
-							new ApplicationError(e).throwOnMainThread();
-						}
+				this.longTermOperationsService.submit(() -> {
+					File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);
+					try {
+						WorkspaceController.this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
+					} catch (ExportException e) {
+						new ApplicationWarning(e).throwOnMainThread();
+					} catch (UnknwonExportException | UnknownWorkspaceException e) {
+						new ApplicationError(e).throwOnMainThread();
 					}
 				});
 			}
@@ -228,22 +225,14 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 
 	@Override
 	public void importFile(final Event event, final File file, final String perspectivename) {
-		this.longTermOperationsService.execute(new Runnable() {
-			@Override
-			public void run() {
-				try {
-					WorkspaceController.this.importManager.importFile(WorkspaceController.this.workspace, file, event, perspectivename, null);
-					Platform.runLater(new Runnable() {
-						@Override
-						public void run() {
-							WorkspaceController.this.workspaceChanged();
-						}
-					});
-				} catch (ImportException | AddPerspectiveException e) {
-					new ApplicationWarning(e).throwOnMainThread();
-				} catch (UnknownWorkspaceException | UnknownImportException e) {
-					new ApplicationError(e).throwOnMainThread();
-				}
+		this.longTermOperationsService.execute(() -> {
+			try {
+				WorkspaceController.this.importManager.importFile(WorkspaceController.this.workspace, file, event, perspectivename, null);
+				Platform.runLater(() -> WorkspaceController.this.workspaceChanged());
+			} catch (ImportException | AddPerspectiveException e) {
+				new ApplicationWarning(e).throwOnMainThread();
+			} catch (UnknownWorkspaceException | UnknownImportException e) {
+				new ApplicationError(e).throwOnMainThread();
 			}
 		});
 	}
