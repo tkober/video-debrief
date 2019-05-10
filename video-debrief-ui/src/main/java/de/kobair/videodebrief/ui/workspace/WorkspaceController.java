@@ -151,7 +151,7 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 				this.longTermOperationsService.submit(() -> {
 					File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);
 					try {
-						WorkspaceController.this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
+						this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
 					} catch (ExportException e) {
 						new ApplicationWarning(e).throwOnMainThread();
 					} catch (UnknwonExportException | UnknownWorkspaceException e) {
@@ -227,8 +227,8 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 	public void importFile(final Event event, final File file, final String perspectivename) {
 		this.longTermOperationsService.execute(() -> {
 			try {
-				WorkspaceController.this.importManager.importFile(WorkspaceController.this.workspace, file, event, perspectivename, null);
-				Platform.runLater(() -> WorkspaceController.this.workspaceChanged());
+				this.importManager.importFile(WorkspaceController.this.workspace, file, event, perspectivename, null);
+				Platform.runLater(() -> this.workspaceChanged());
 			} catch (ImportException | AddPerspectiveException e) {
 				new ApplicationWarning(e).throwOnMainThread();
 			} catch (UnknownWorkspaceException | UnknownImportException e) {
