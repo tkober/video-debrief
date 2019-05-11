@@ -124,7 +124,7 @@ public class LocalExportManager implements ExportManager {
 			File videoFile = getFileForPerspective(exportDescriptor);
 
 			File exportDirectory = exportFile.getParentFile();
-			if (!exportDirectory.mkdir()) {
+			if (!exportDirectory.mkdir() && !exportDirectory.exists()) {
 				throw new UnknwonExportException("", null); // TODO
 			}
 
@@ -143,7 +143,7 @@ public class LocalExportManager implements ExportManager {
 		if (checkResult != ExportCheckResult.OKAY) {
 			throw new ExportException(checkResult);
 		} else {
-			if (!exportDirectory.mkdir()) {
+			if (!exportDirectory.mkdir() && !exportDirectory.exists()) {
 				throw new UnknwonExportException("", null); // TODO
 			}
 
@@ -168,7 +168,7 @@ public class LocalExportManager implements ExportManager {
 		if (checkResult != ExportCheckResult.OKAY) {
 			throw new ExportException(checkResult);
 		} else {
-			if (!exportDirectory.mkdir()) {
+			if (!exportDirectory.mkdir() && !exportDirectory.exists()) {
 				throw new UnknwonExportException("", null); // TODO
 			}
 
