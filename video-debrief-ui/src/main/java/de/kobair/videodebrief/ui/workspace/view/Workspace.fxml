@@ -55,7 +55,7 @@
 							<HBox alignment="CENTER_RIGHT">
 								<children>
 									<Label fx:id="jobsStatusLabel" text="No jobs running"></Label>
-									<ProgressBar></ProgressBar>
+<!--									<ProgressBar></ProgressBar>-->
 								</children>
 							</HBox>
 
