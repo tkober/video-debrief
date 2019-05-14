@@ -121,6 +121,7 @@ public class LocalImportManager implements ImportManager {
 
 			// 3.) Copy the actual file (placeholder will be overwritten)
 			try {
+				operation.ifPresent(op -> op.updateDescription(String.format("Copying '%s'", file.getName())));
 				LocalUtils.copyFile(file, destination, operation);
 			} catch (IOException e) {
 				String message = String.format("Failed copying '%s' to '%s'.", file, destination);

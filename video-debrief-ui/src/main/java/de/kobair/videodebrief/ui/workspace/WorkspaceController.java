@@ -199,7 +199,7 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 
 			if (chosen != null) {
 				this.longTermOperationsService.execute(() -> {
-					LongTermOperation operation = new LongTermOperation("Export Workspace", "Preparing");
+					LongTermOperation operation = new LongTermOperation("Export Workspace", "Preparing", 0, 1, exportDescriptors.size());
 					this.pushLongTermOperation(operation);
 
 					File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);

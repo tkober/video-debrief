@@ -151,11 +151,12 @@ public class LocalExportManager implements ExportManager {
 			}
 			operation.ifPresent(op -> op.updateProgress(-1));
 
-			final int nClips = clipDescriptors.size();
 			int i = 1;
 			for (ClipDescriptor clip : clipDescriptors) {
-				String currentStatus = String.format("(%d of %d) Creating clip for '%s/%s'", i, nClips, clip.getEvent().getName(), clip.getPerspective().getName());
+				String currentStatus = String.format("Creating clip for '%s/%s'", clip.getEvent().getName(), clip.getPerspective().getName());
 				operation.ifPresent(op -> op.updateDescription(currentStatus));
+				final int step = i;
+				operation.ifPresent(op -> op.updateStep(step));
 
 				File videoFile = getFileForPerspective(clip);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
@@ -183,7 +184,6 @@ public class LocalExportManager implements ExportManager {
 			}
 			operation.ifPresent(op -> op.updateProgress(-1));
 
-			final int nDescriptors = exportDescriptors.size();
 			int i = 1;
 			for (ExportDescriptor descriptor : exportDescriptors) {
 				String currentStatus = String.format("Copying '%s/%s'", descriptor.getEvent().getName(), descriptor.getPerspective().getName());
