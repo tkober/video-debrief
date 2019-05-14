@@ -587,6 +587,14 @@ public class VideoPlayerViewController implements Initializable {
 				this.onFullscreenButtonPressed(null);
 				break;
 
+			case S:
+				this.onExportSnapshotButtonPressed(null);
+				break;
+
+			case C:
+				this.onExportClipButtonPressed(null);
+				break;
+
 			default:
 				return;
 
