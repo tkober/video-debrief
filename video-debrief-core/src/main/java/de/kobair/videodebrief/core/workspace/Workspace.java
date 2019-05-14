@@ -3,6 +3,8 @@ package de.kobair.videodebrief.core.workspace;
 import java.io.File;
 import java.util.List;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
+
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.workspace.error.AddPerspectiveException;
@@ -13,8 +15,14 @@ import de.kobair.videodebrief.core.workspace.error.RenamePerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 
 public interface Workspace {
-	
-	public static final String WORKSPACE_VERSION = "0.9";
+
+	public interface WorkspaceDelegate {
+
+		public void workspaceSaved(Workspace workspace);
+
+	}
+
+	public final String WORKSPACE_VERSION = "0.9";
 
 	public enum NameMatching {
 		CASE_INSENSITIVE, CASE_SENSITIVE;
@@ -25,8 +33,11 @@ public interface Workspace {
 	}
 
 	public static final NameMatching DEFAULT_NAME_MATCHING = NameMatching.CASE_INSENSITIVE;
-
 	public static final DeletionStrategy DEFAULT_DELETION_STRATEGY = DeletionStrategy.KEEP_FILES;
+
+	public WorkspaceDelegate getDelegate();
+
+	public void setDelegate(WorkspaceDelegate delegate);
 
 	public File getWorkspaceDirectory();
 

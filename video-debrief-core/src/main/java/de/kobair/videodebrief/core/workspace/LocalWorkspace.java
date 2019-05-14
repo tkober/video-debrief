@@ -9,6 +9,7 @@ import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -54,6 +55,7 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 
 	private final File workspaceFile;
 	private WorkspaceData workspaceData;
+	private Optional<WorkspaceDelegate> delegate;
 
 	protected LocalWorkspace(File workspaceFile) {
 		this(workspaceFile, null);
@@ -94,6 +96,8 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 		Gson gson = new GsonBuilder().setPrettyPrinting().create();
 		gson.toJson(object, writer);
 		writer.close();
+
+		this.delegate.ifPresent(delegate -> delegate.workspaceSaved(this));
 	}
 
 	private boolean isNonEmptyName(String name) {
@@ -257,6 +261,16 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 			directory = LocalUtils.extendDirectory(getWorkingDirectory(), uuid.toString());
 		} while (directory.exists());
 		return directory;
+	}
+
+	@Override
+	public WorkspaceDelegate getDelegate() {
+		return delegate.isPresent() ? delegate.get() : null;
+	}
+
+	@Override
+	public void setDelegate(final WorkspaceDelegate delegate) {
+		this.delegate = Optional.ofNullable(delegate);
 	}
 
 	@Override
