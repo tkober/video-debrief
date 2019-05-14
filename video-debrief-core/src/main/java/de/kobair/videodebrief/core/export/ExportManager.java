@@ -2,8 +2,10 @@ package de.kobair.videodebrief.core.export;
 
 import java.io.File;
 import java.util.List;
+import java.util.Optional;
 
 import de.kobair.videodebrief.core.event.Event;
+import de.kobair.videodebrief.core.operations.Operation;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
@@ -59,13 +61,13 @@ public interface ExportManager {
 		}
 	}
 
-	public void exportSnapshot(ExportDescriptor exportDescriptor, long time, File exportFile)
+	public void exportSnapshot(ExportDescriptor exportDescriptor, long time, File exportFile, Optional<Operation> operation)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException;
 
-	public void exportClip(List<ClipDescriptor> clipDescriptors, File exportDirectory)
+	public void exportClip(List<ClipDescriptor> clipDescriptors, File exportDirectory, Optional<Operation> operation)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException;
 
-	public void exportWorkspace(List<ExportDescriptor> exportDescriptors, File exportDirectory)
+	public void exportWorkspace(List<ExportDescriptor> exportDescriptors, File exportDirectory, Optional<Operation> operation)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException;
 
 }

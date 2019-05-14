@@ -15,6 +15,7 @@ import de.kobair.videodebrief.core.importing.error.UnknownImportException;
 import de.kobair.videodebrief.core.media.MediaFile;
 import de.kobair.videodebrief.core.media.dcf.DcfDevice;
 import de.kobair.videodebrief.core.media.dcf.DcfMediaFile;
+import de.kobair.videodebrief.core.operations.Operation;
 import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.core.workspace.Workspace;
@@ -74,7 +75,7 @@ public class LocalImportManager implements ImportManager {
 		return file;
 	}
 
-	private void copyFile(File source, File destination, Optional<ImportStatusUpdate> statusUpdate) throws IOException {
+	private void copyFile(File source, File destination, Optional<Operation> operation) throws IOException {
 		FileInputStream inputStream = null;
 		FileOutputStream outputStream = null;
 		long length = source.length();
@@ -82,8 +83,9 @@ public class LocalImportManager implements ImportManager {
 		int r = 0;
 		byte[] b = new byte[8096];
 		int progress = 0;
-		
+
 		final String message = String.format("Copying '%s' to '%s'", source, destination);
+		operation.ifPresent(op -> op.updateCurrentStep(message));
 		try {
 			inputStream = new FileInputStream(source);
 			outputStream = new FileOutputStream(destination);
@@ -93,7 +95,7 @@ public class LocalImportManager implements ImportManager {
 				if (progress != newProgress) {
 					progress = newProgress;
 					final int _progress = progress;
-					statusUpdate.ifPresent(onUpdate -> onUpdate.updateStatus(_progress, message));
+					operation.ifPresent(op -> op.updateProgress(_progress));
 				}
 				outputStream.write(b, 0, r);
 			}
@@ -121,7 +123,7 @@ public class LocalImportManager implements ImportManager {
 	 * 		with the given name.
 	 */
 	@Override
-	public ImportResult importFile(Workspace workspace, File file, Event event, String perspectiveName, ImportStatusUpdate statusUpdate)
+	public ImportResult importFile(Workspace workspace, File file, Event event, String perspectiveName, Optional<Operation> operation)
 			throws ImportException, AddPerspectiveException, UnknownWorkspaceException, UnknownImportException {
 		File destinationDirectory = LocalUtils.extendDirectory(workspace.getWorkspaceDirectory(), event.getSubPath());
 		ImportCheckResult checkResult = checkCanImport(file, destinationDirectory);
@@ -150,7 +152,7 @@ public class LocalImportManager implements ImportManager {
 
 			// 3.) Copy the actual file (placeholder will be overwritten)
 			try {
-				this.copyFile(file, destination, Optional.ofNullable(statusUpdate));
+				this.copyFile(file, destination, operation);
 			} catch (IOException e) {
 				String message = String.format("Failed copying '%s' to '%s'.", file, destination);
 				throw new UnknownImportException(message, e);
@@ -162,15 +164,15 @@ public class LocalImportManager implements ImportManager {
 
 	@Override
 	public ImportResult importMediaFile(final Workspace workspace, final MediaFile mediaFile, final Event event,
-			final String perspecitveName, ImportStatusUpdate statusUpdate)
+			final String perspecitveName, Optional<Operation> operation)
 			throws ImportException, AddPerspectiveException, UnknownWorkspaceException, UnknownImportException {
-		return this.importFile(workspace, mediaFile.getFile(), event, perspecitveName, statusUpdate);
+		return this.importFile(workspace, mediaFile.getFile(), event, perspecitveName, operation);
 	}
 
 	@Override
 	public ImportResult importMediaFile(final Workspace workspace, final DcfDevice device, final DcfMediaFile mediaFile,
-			final Event event, ImportStatusUpdate statusUpdate)
+			final Event event, Optional<Operation> operation)
 			throws ImportException, AddPerspectiveException, UnknownWorkspaceException, UnknownImportException {
-		return this.importMediaFile(workspace, mediaFile, event, device.getName(), statusUpdate);
+		return this.importMediaFile(workspace, mediaFile, event, device.getName(), operation);
 	}
 }

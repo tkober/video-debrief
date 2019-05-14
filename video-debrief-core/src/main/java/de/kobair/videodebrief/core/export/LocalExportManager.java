@@ -3,11 +3,13 @@ package de.kobair.videodebrief.core.export;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 
 import org.apache.commons.io.FileUtils;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.formats.FileFormat;
+import de.kobair.videodebrief.core.operations.Operation;
 import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.core.video.VideoHandler;
 import de.kobair.videodebrief.core.video.ffmpeg.FfmpegVideoHandler;
@@ -115,7 +117,7 @@ public class LocalExportManager implements ExportManager {
 	}
 
 	@Override
-	public void exportSnapshot(ExportDescriptor exportDescriptor, long time, File exportFile)
+	public void exportSnapshot(ExportDescriptor exportDescriptor, long time, File exportFile, Optional<Operation> operation)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException {
 		ExportCheckResult checkResult = this.checkCanExportSnapshot(exportFile);
 		if (checkResult != ExportCheckResult.OKAY) {
@@ -129,6 +131,9 @@ public class LocalExportManager implements ExportManager {
 			}
 
 			try {
+				operation.ifPresent(op -> op.updateProgress(-1));
+				operation.ifPresent(op -> op.updateCurrentStep(String.format("Creating snapshot for '%s/%s'", exportDescriptor.getEvent().getName(), exportDescriptor.getPerspective().getName())));
+
 				this.getVideoHandler().exportSnapshot(videoFile, time, exportFile);
 			} catch (IOException e) {
 				throw new UnknwonExportException("", e); // TODO
@@ -137,7 +142,7 @@ public class LocalExportManager implements ExportManager {
 	}
 
 	@Override
-	public void exportClip(List<ClipDescriptor> clipDescriptors, File exportDirectory)
+	public void exportClip(List<ClipDescriptor> clipDescriptors, File exportDirectory, Optional<Operation> operation)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException {
 		ExportCheckResult checkResult = this.checkCanExportClip(exportDirectory, clipDescriptors);
 		if (checkResult != ExportCheckResult.OKAY) {
@@ -146,8 +151,14 @@ public class LocalExportManager implements ExportManager {
 			if (!exportDirectory.mkdir() && !exportDirectory.exists()) {
 				throw new UnknwonExportException("", null); // TODO
 			}
+			operation.ifPresent(op -> op.updateProgress(-1));
 
+			final int nClips = clipDescriptors.size();
+			int i = 1;
 			for (ClipDescriptor clip : clipDescriptors) {
+				String currentStatus = String.format("(%d of %d) Creating clip for '%s/%s'", i, nClips, clip.getEvent().getName(), clip.getPerspective().getName());
+				operation.ifPresent(op -> op.updateCurrentStep(currentStatus));
+
 				File videoFile = getFileForPerspective(clip);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
 				String name = clip.getPerspective().getName() + exportFormat.getDefaultFileExtension();
@@ -157,12 +168,13 @@ public class LocalExportManager implements ExportManager {
 				} catch (IOException e) {
 					throw new UnknwonExportException("", e); // TODO
 				}
+				i++;
 			}
 		}
 	}
 
 	@Override
-	public void exportWorkspace(List<ExportDescriptor> exportDescriptors, File exportDirectory)
+	public void exportWorkspace(List<ExportDescriptor> exportDescriptors, File exportDirectory, Optional<Operation> operation)
 			throws UnknownWorkspaceException, UnknwonExportException, ExportException {
 		ExportCheckResult checkResult = this.checkCanExportWorkspace(exportDirectory, exportDescriptors);
 		if (checkResult != ExportCheckResult.OKAY) {
@@ -171,8 +183,14 @@ public class LocalExportManager implements ExportManager {
 			if (!exportDirectory.mkdir() && !exportDirectory.exists()) {
 				throw new UnknwonExportException("", null); // TODO
 			}
+			operation.ifPresent(op -> op.updateProgress(-1));
 
+			final int nDescriptors = exportDescriptors.size();
+			int i = 1;
 			for (ExportDescriptor descriptor : exportDescriptors) {
+				String currentStatus = String.format("(%d of %d) Exporting '%s/%s'", i, nDescriptors, descriptor.getEvent().getName(), descriptor.getPerspective().getName());
+				operation.ifPresent(op -> op.updateCurrentStep(currentStatus));
+
 				File videoFile = getFileForPerspective(descriptor);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
 				String eventName = descriptor.getEvent().getName();
@@ -186,6 +204,7 @@ public class LocalExportManager implements ExportManager {
 				} catch (IOException e) {
 					throw new UnknwonExportException("", e); // TODO
 				}
+				i++;
 			}
 		}
 	}
