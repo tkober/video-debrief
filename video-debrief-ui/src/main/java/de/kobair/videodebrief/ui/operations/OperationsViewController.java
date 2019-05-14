@@ -64,24 +64,8 @@ public class OperationsViewController implements Initializable {
 				/* Description */
 				HBox description = new HBox();
 				description.setAlignment(Pos.CENTER_LEFT);
-				Label desciptionLabel = new Label();
-				desciptionLabel.textProperty().bind(operation.descriptionProperty);
-				description.getChildren().add(desciptionLabel);
-				HBox.setHgrow(desciptionLabel, Priority.ALWAYS);
 
-				/* Progress */
-				HBox progress = new HBox();
-
-				// Bar
-				ProgressBar progressBar = new ProgressBar();
-				progressBar.progressProperty().bind(operation.progressProperty);
-				HBox progressBarContainer = new HBox();
-				progressBarContainer.setAlignment(Pos.CENTER_LEFT);
-				progressBarContainer.getChildren().add(progressBar);
-				progress.getChildren().add(progressBarContainer);
-				HBox.setHgrow(progressBarContainer, Priority.ALWAYS);
-
-				// Label
+				// Progress
 				Label percentLabel = new Label();
 				percentLabel.textProperty();
 				operation.progressProperty.addListener((observable, oldValue, newValue) -> {
@@ -92,13 +76,26 @@ public class OperationsViewController implements Initializable {
 						percentLabel.setText(null);
 					}
 				});
-				HBox percentContainer = new HBox();
-				percentContainer.setAlignment(Pos.CENTER_RIGHT);
-				percentContainer.getChildren().add(percentLabel);
-				progress.getChildren().add(percentContainer);
+				description.getChildren().add(percentLabel);
+
+				// Text
+				Label desciptionLabel = new Label();
+				desciptionLabel.textProperty().bind(operation.descriptionProperty);
+				description.getChildren().add(desciptionLabel);
+				HBox.setHgrow(desciptionLabel, Priority.ALWAYS);
+
+
+				/* Progress Bar */
+				ProgressBar progressBar = new ProgressBar();
+				progressBar.progressProperty().bind(operation.progressProperty);
+				progressBar.prefWidthProperty().bind(listWidth);
+				HBox progressBarContainer = new HBox();
+				progressBarContainer.setAlignment(Pos.CENTER_LEFT);
+				progressBarContainer.getChildren().add(progressBar);
+				HBox.setHgrow(progressBarContainer, Priority.ALWAYS);
 
 				VBox content = new VBox();
-				content.getChildren().addAll(header, description, progress);
+				content.getChildren().addAll(header, description, progressBarContainer);
 				this.setGraphic(content);
 				this.setText(null);
 

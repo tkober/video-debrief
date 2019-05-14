@@ -268,6 +268,53 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 		this.workspace.setDelegate(this);
 		this.updateLastSavedLabel();
 		this.workspaceChanged();
+
+		this.longTermOperationsService.execute(() -> {
+			LongTermOperation operation = new LongTermOperation("Import Perspective", "Preparing");
+			this.pushLongTermOperation(operation);
+
+			try {
+				for (int i = 1; i <= 100; i++) {
+					Thread.sleep(1000);
+					operation.updateProgress((double) i/100.0);
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				this.popLongTermOperation(operation);
+			}
+		});
+
+		this.longTermOperationsService.execute(() -> {
+			LongTermOperation operation = new LongTermOperation("Import Perspective", "Preparing", 0, 1, 2);
+			this.pushLongTermOperation(operation);
+
+			try {
+				for (int j = 1; j <= 2; j++) {
+					operation.updateStep(j);
+					for (int i = 1; i <= 100; i++) {
+						Thread.sleep(500);
+						operation.updateProgress((double) i/100.0);
+					}
+				}
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				this.popLongTermOperation(operation);
+			}
+		});
+		this.longTermOperationsService.execute(() -> {
+			LongTermOperation operation = new LongTermOperation("Import Perspective", "Preparing");
+			this.pushLongTermOperation(operation);
+
+			try {
+				Thread.sleep(100000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} finally {
+				this.popLongTermOperation(operation);
+			}
+		});
 	}
 
 	public App getApp() {

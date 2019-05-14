@@ -47,4 +47,11 @@ public class LongTermOperation implements Operation {
 			this.progressProperty.set(progress);
 		});
 	}
+
+	@Override
+	public void updateStep(int step) {
+		Platform.runLater(() -> {
+			this.stepProperty.set(step);
+		});
+	}
 }

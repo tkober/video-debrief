@@ -6,4 +6,6 @@ public interface Operation {
 
 	public void updateProgress(double progress);
 
+	public void updateStep(int step);
+
 }
