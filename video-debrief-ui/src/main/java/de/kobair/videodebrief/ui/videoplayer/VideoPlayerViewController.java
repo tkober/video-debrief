@@ -44,11 +44,11 @@ import javafx.util.Duration;
 
 public class VideoPlayerViewController implements Initializable {
 
-	private static final KeyCombination PREVIOUS_FRAME_KEY_COMBINATION = new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_ANY);
-	private static final KeyCombination NEXT_FRAME_KEY_COMBINATION = new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_ANY);
-	private static final KeyCombination GO_TO_INPOINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.I, KeyCombination.SHIFT_ANY);
-	private static final KeyCombination GO_TO_OUTPOINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.O, KeyCombination.SHIFT_ANY);
-	private static final KeyCombination GO_TO_ALIGNMENT_POINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.A, KeyCombination.SHIFT_ANY);
+	private static final KeyCombination PREVIOUS_FRAME_KEY_COMBINATION = new KeyCodeCombination(KeyCode.LEFT, KeyCombination.SHIFT_DOWN);
+	private static final KeyCombination NEXT_FRAME_KEY_COMBINATION = new KeyCodeCombination(KeyCode.RIGHT, KeyCombination.SHIFT_DOWN);
+	private static final KeyCombination GO_TO_INPOINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.I, KeyCombination.SHIFT_DOWN);
+	private static final KeyCombination GO_TO_OUTPOINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.O, KeyCombination.SHIFT_DOWN);
+	private static final KeyCombination GO_TO_ALIGNMENT_POINT_KEY_COMBINATION = new KeyCodeCombination(KeyCode.A, KeyCombination.SHIFT_DOWN);
 
 	private static final List<MediaPlayer.Status> INTERACTABLE_STATES = Arrays.asList(new MediaPlayer.Status[] {
 			Status.READY, Status.PLAYING, Status.PAUSED
