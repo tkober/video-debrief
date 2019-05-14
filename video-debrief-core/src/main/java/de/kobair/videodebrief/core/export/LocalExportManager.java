@@ -49,11 +49,11 @@ public class LocalExportManager implements ExportManager {
 	}
 
 	private ExportCheckResult checkContainingDirectory(File containingDirectory) {
-		if (!containingDirectory.getParentFile().exists()) {
+		if (!containingDirectory.exists()) {
 			return ExportCheckResult.CONTAINING_DIRECTORY_DOES_NOT_EXIST;
 		}
 
-		if (!containingDirectory.getParentFile().canWrite()) {
+		if (!containingDirectory.canWrite()) {
 			return ExportCheckResult.MISSING_WRITE_PERMISSION;
 		}
 
