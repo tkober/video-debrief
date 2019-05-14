@@ -47,10 +47,15 @@ import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
 import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
+import de.kobair.videodebrief.ui.workspace.model.LongTermOperation;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Pair;
@@ -68,6 +73,10 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 	private AnchorPane playbackAnchorPane;
 	@FXML
 	private Label lastSavedLabel;
+	@FXML
+	private Label operationsStatusLabel;
+	@FXML
+	private ProgressBar operationsProgressBar;
 
 	private final ImportManager importManager = new LocalImportManager();
 	private final ExportManager exportManager = new LocalExportManager();
@@ -78,6 +87,7 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 	private PlaybackController playbackViewController;
 	private App app;
 	private ExecutorService longTermOperationsService = Executors.newCachedThreadPool();
+	private ObservableList<LongTermOperation> runningLongTermOperations = FXCollections.observableArrayList();
 
 	private void updateEventsView() {
 		try {
@@ -160,14 +170,19 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 			File chosen = chooser.showDialog(this.getApp().getPrimaryStage());
 
 			if (chosen != null) {
-				this.longTermOperationsService.submit(() -> {
+				this.longTermOperationsService.execute(() -> {
+					LongTermOperation operation = new LongTermOperation("Export Workspace", "Preparing");
+					this.pushLongTermOperation(operation);
+
 					File targetDirectory = LocalUtils.extendDirectory(chosen, exportName);
 					try {
-						this.exportManager.exportWorkspace(exportDescriptors, targetDirectory);
+						this.exportManager.exportWorkspace(exportDescriptors, targetDirectory, Optional.of(operation));
 					} catch (ExportException e) {
 						new ApplicationWarning(e).throwOnMainThread();
 					} catch (UnknwonExportException | UnknownWorkspaceException e) {
 						new ApplicationError(e).throwOnMainThread();
+					} finally {
+						this.popLongTermOperation(operation);
 					}
 				});
 			}
@@ -182,6 +197,36 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 
 		String lastSavedText = DateFormatUtils.format(lastModifiedDate, LAST_SAVED_DATE_FORMAT);
 		this.lastSavedLabel.setText(lastSavedText);
+	}
+
+	private void updateoOerationsStatus() {
+		Platform.runLater(() -> {
+			int numberOfOperations = this.runningLongTermOperations.size();
+
+			if (numberOfOperations == 0) {
+				operationsProgressBar.setProgress(0);
+				operationsProgressBar.setDisable(true);
+				this.operationsStatusLabel.setText("No jobs running");
+			} else if (numberOfOperations == 1) {
+				operationsProgressBar.setProgress(-1);
+				operationsProgressBar.setDisable(false);
+				this.operationsStatusLabel.setText("1 job running");
+			} else {
+				operationsProgressBar.setProgress(-1);
+				operationsProgressBar.setDisable(false);
+				this.operationsStatusLabel.setText(String.format("%d jobs running", numberOfOperations));
+			}
+		});
+	}
+
+	private synchronized void pushLongTermOperation(LongTermOperation operation) {
+		this.runningLongTermOperations.add(operation);
+	}
+
+	private synchronized void popLongTermOperation(LongTermOperation operation) {
+		if (this.runningLongTermOperations.contains(operation)) {
+			this.runningLongTermOperations.remove(operation);
+		}
 	}
 
 	public void setWorkspace(Workspace workspace) {
@@ -203,7 +248,9 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 
 	@Override
 	public void workspaceSaved(final Workspace workspace) {
-		this.updateLastSavedLabel();
+		Platform.runLater(() -> {
+			this.updateLastSavedLabel();
+		});
 	}
 
 	@Override
@@ -215,6 +262,14 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 
 		this.playbackViewController = this.loadPlaybackView(playbackAnchorPane);
 		this.playbackViewController.setDelegate(this);
+
+		runningLongTermOperations.addListener(new ListChangeListener<Object>() {
+			@Override
+			public void onChanged(final Change<?> c) {
+				WorkspaceController.this.updateoOerationsStatus();
+			}
+		});
+		this.updateoOerationsStatus();
 	}
 
 	@Override
@@ -255,13 +310,17 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 	@Override
 	public void importFile(final Event event, final File file, final String perspectivename) {
 		this.longTermOperationsService.execute(() -> {
+			LongTermOperation operation = new LongTermOperation("Import Perspective", "Preparing");
+			this.pushLongTermOperation(operation);
 			try {
-				this.importManager.importFile(WorkspaceController.this.workspace, file, event, perspectivename, null);
+				this.importManager.importFile(WorkspaceController.this.workspace, file, event, perspectivename, Optional.of(operation));
 				Platform.runLater(() -> this.workspaceChanged());
 			} catch (ImportException | AddPerspectiveException e) {
 				new ApplicationWarning(e).throwOnMainThread();
 			} catch (UnknownWorkspaceException | UnknownImportException e) {
 				new ApplicationError(e).throwOnMainThread();
+			} finally {
+				this.popLongTermOperation(operation);
 			}
 		});
 	}
@@ -375,13 +434,18 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 		if (result.isPresent()) {
 			String fileName = result.get().trim() + DEFAULT_SNAPSHOT_FORMAT;
 			File exportFile = LocalUtils.extendDirectory(workspace.getWorkspaceDirectory(), workspace.getExportDirectory(), fileName);
-			this.longTermOperationsService.submit(() -> {
+			this.longTermOperationsService.execute(() -> {
+				LongTermOperation operation = new LongTermOperation("Export Snapshot", "Creating Snapshot");
+				this.pushLongTermOperation(operation);
+
 				try {
-					this.exportManager.exportSnapshot(descriptor, timeMillis, exportFile);
+					this.exportManager.exportSnapshot(descriptor, timeMillis, exportFile, Optional.of(operation));
 				} catch (ExportException e) {
 					new ApplicationWarning(e).throwOnMainThread();
 				} catch (UnknwonExportException | UnknownWorkspaceException e) {
 					new ApplicationError(e).throwOnMainThread();
+				} finally {
+					this.popLongTermOperation(operation);
 				}
 			});
 		}
@@ -399,13 +463,18 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 		if (result.isPresent()) {
 			String dirName = result.get().trim();
 			File exportDirectory = LocalUtils.extendDirectory(workspace.getWorkspaceDirectory(), workspace.getExportDirectory(), dirName);
-			this.longTermOperationsService.submit(() -> {
+			this.longTermOperationsService.execute(() -> {
+				LongTermOperation operation = new LongTermOperation("Export Clip", "Gathering Perspectives");
+				this.pushLongTermOperation(operation);
+
 				try {
-					this.exportManager.exportClip(clipDescriptors, exportDirectory);
+					this.exportManager.exportClip(clipDescriptors, exportDirectory, Optional.of(operation));
 				} catch (ExportException e) {
 					new ApplicationWarning(e).throwOnMainThread();
 				} catch (UnknwonExportException | UnknownWorkspaceException e) {
 					new ApplicationError(e).throwOnMainThread();
+				} finally {
+					this.popLongTermOperation(operation);
 				}
 			});
 		}
