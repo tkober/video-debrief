@@ -1,4 +1,4 @@
-package de.kobair.videodebrief.ui.workspace.model;
+package de.kobair.videodebrief.ui.operations.model;
 
 import de.kobair.videodebrief.core.operations.Operation;
 import javafx.beans.property.IntegerProperty;

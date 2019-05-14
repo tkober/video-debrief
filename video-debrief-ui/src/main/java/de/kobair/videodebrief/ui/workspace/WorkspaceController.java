@@ -46,18 +46,23 @@ import de.kobair.videodebrief.ui.errors.ApplicationWarning;
 import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
 import de.kobair.videodebrief.ui.generics.Controller;
+import de.kobair.videodebrief.ui.operations.OperationsViewController;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
-import de.kobair.videodebrief.ui.workspace.model.LongTermOperation;
+import de.kobair.videodebrief.ui.operations.model.LongTermOperation;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
+import javafx.stage.Stage;
 import javafx.util.Pair;
 
 public class WorkspaceController extends Controller implements Workspace.WorkspaceDelegate, EventsDelegate, PlaybackController.PlaybackDelegate {
@@ -87,7 +92,18 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 	private PlaybackController playbackViewController;
 	private App app;
 	private ExecutorService longTermOperationsService = Executors.newCachedThreadPool();
-	private ObservableList<LongTermOperation> runningLongTermOperations = FXCollections.observableArrayList();
+	private ObservableList<LongTermOperation> runningLongTermOperations;
+	private Stage operationsStage;
+	private OperationsViewController operationsViewController;
+
+	@FXML
+	private void showHideOperationsList(MouseEvent event) {
+		if (this.operationsStage.isShowing()) {
+			this.operationsStage.hide();
+		} else {
+			this.operationsStage.show();
+		}
+	}
 
 	private void updateEventsView() {
 		try {
@@ -152,6 +168,18 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 
 	private PlaybackController loadPlaybackView(AnchorPane anchorPane) {
 		return this.loadViewIntoAnchorPane(anchorPane, "Playback.fxml", PlaybackController.class);
+	}
+
+	private void loadOperationsView() {
+		Pair<Node, OperationsViewController> loaded = this.loadView("Operations.fxml", OperationsViewController.class);
+		Parent view = (Parent) loaded.getKey();
+		Scene scene = new Scene(view);
+		this.operationsViewController = loaded.getValue();
+		this.operationsStage = new Stage();
+		this.operationsStage.setScene(scene);
+		this.operationsStage.setTitle("Running Operations");
+
+		this.runningLongTermOperations = this.operationsViewController.getOperations();
 	}
 
 	private void exportWorkspace(List<ExportManager.ExportDescriptor> exportDescriptors, String placeholder) {
@@ -223,10 +251,16 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 		this.runningLongTermOperations.add(operation);
 	}
 
-	private synchronized void popLongTermOperation(LongTermOperation operation) {
+	private synchronized void removeLongTermOperation(LongTermOperation operation) {
 		if (this.runningLongTermOperations.contains(operation)) {
 			this.runningLongTermOperations.remove(operation);
 		}
+	}
+
+	private void popLongTermOperation(LongTermOperation operation) {
+		Platform.runLater(() -> {
+			this.removeLongTermOperation(operation);
+		});
 	}
 
 	public void setWorkspace(Workspace workspace) {
@@ -262,6 +296,8 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 
 		this.playbackViewController = this.loadPlaybackView(playbackAnchorPane);
 		this.playbackViewController.setDelegate(this);
+
+		this.loadOperationsView();
 
 		runningLongTermOperations.addListener(new ListChangeListener<Object>() {
 			@Override
