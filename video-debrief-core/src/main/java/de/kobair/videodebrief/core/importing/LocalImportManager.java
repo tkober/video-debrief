@@ -22,6 +22,7 @@ import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.core.workspace.error.AddPerspectiveException;
 import de.kobair.videodebrief.core.workspace.error.UnknownWorkspaceException;
 import de.kobair.videodebrief.core.workspace.error.WorkspaceException;
+import org.apache.tools.ant.taskdefs.Local;
 
 public class LocalImportManager implements ImportManager {
 
@@ -75,38 +76,6 @@ public class LocalImportManager implements ImportManager {
 		return file;
 	}
 
-	private void copyFile(File source, File destination, Optional<Operation> operation) throws IOException {
-		FileInputStream inputStream = null;
-		FileOutputStream outputStream = null;
-		long length = source.length();
-		long counter = 0;
-		int r = 0;
-		byte[] b = new byte[8096];
-		double progress = 0;
-
-		final String message = String.format("Copying '%s' to '%s'", source, destination);
-		operation.ifPresent(op -> op.updateDescription(message));
-		try {
-			inputStream = new FileInputStream(source);
-			outputStream = new FileOutputStream(destination);
-			while ((r = inputStream.read(b)) != -1) {
-				counter += r;
-				double newProgress = Math.ceil(100.0 * counter / length) / 100.0;
-				if (progress != newProgress) {
-					progress = newProgress;
-					final double _progress = progress;
-					operation.ifPresent(op -> op.updateProgress(_progress));
-				}
-				outputStream.write(b, 0, r);
-			}
-		} catch (IOException e) {
-			throw e;
-		} finally {
-			inputStream.close();
-			outputStream.close();
-		}
-	}
-
 	private void createPlaceholder(File file) throws UnknownImportException {
 		try {
 			file.createNewFile();
@@ -152,7 +121,7 @@ public class LocalImportManager implements ImportManager {
 
 			// 3.) Copy the actual file (placeholder will be overwritten)
 			try {
-				this.copyFile(file, destination, operation);
+				LocalUtils.copyFile(file, destination, operation);
 			} catch (IOException e) {
 				String message = String.format("Failed copying '%s' to '%s'.", file, destination);
 				throw new UnknownImportException(message, e);

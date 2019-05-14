@@ -5,8 +5,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import org.apache.commons.io.FileUtils;
-
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.formats.FileFormat;
 import de.kobair.videodebrief.core.operations.Operation;
@@ -188,8 +186,10 @@ public class LocalExportManager implements ExportManager {
 			final int nDescriptors = exportDescriptors.size();
 			int i = 1;
 			for (ExportDescriptor descriptor : exportDescriptors) {
-				String currentStatus = String.format("(%d of %d) Exporting '%s/%s'", i, nDescriptors, descriptor.getEvent().getName(), descriptor.getPerspective().getName());
+				String currentStatus = String.format("Copying '%s/%s'", descriptor.getEvent().getName(), descriptor.getPerspective().getName());
 				operation.ifPresent(op -> op.updateDescription(currentStatus));
+				final int step = i;
+				operation.ifPresent(op -> op.updateStep(step));
 
 				File videoFile = getFileForPerspective(descriptor);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
@@ -200,7 +200,7 @@ public class LocalExportManager implements ExportManager {
 				File targetFile = LocalUtils.extendDirectory(exportDirectory, name);
 				
 				try {
-					FileUtils.copyFile(videoFile, targetFile);
+					LocalUtils.copyFile(videoFile, targetFile, operation);
 				} catch (IOException e) {
 					throw new UnknwonExportException("", e); // TODO
 				}
