@@ -132,7 +132,7 @@ public class LocalExportManager implements ExportManager {
 
 			try {
 				operation.ifPresent(op -> op.updateProgress(-1));
-				operation.ifPresent(op -> op.updateCurrentStep(String.format("Creating snapshot for '%s/%s'", exportDescriptor.getEvent().getName(), exportDescriptor.getPerspective().getName())));
+				operation.ifPresent(op -> op.updateDescription(String.format("Creating snapshot for '%s/%s'", exportDescriptor.getEvent().getName(), exportDescriptor.getPerspective().getName())));
 
 				this.getVideoHandler().exportSnapshot(videoFile, time, exportFile);
 			} catch (IOException e) {
@@ -157,7 +157,7 @@ public class LocalExportManager implements ExportManager {
 			int i = 1;
 			for (ClipDescriptor clip : clipDescriptors) {
 				String currentStatus = String.format("(%d of %d) Creating clip for '%s/%s'", i, nClips, clip.getEvent().getName(), clip.getPerspective().getName());
-				operation.ifPresent(op -> op.updateCurrentStep(currentStatus));
+				operation.ifPresent(op -> op.updateDescription(currentStatus));
 
 				File videoFile = getFileForPerspective(clip);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;
@@ -189,7 +189,7 @@ public class LocalExportManager implements ExportManager {
 			int i = 1;
 			for (ExportDescriptor descriptor : exportDescriptors) {
 				String currentStatus = String.format("(%d of %d) Exporting '%s/%s'", i, nDescriptors, descriptor.getEvent().getName(), descriptor.getPerspective().getName());
-				operation.ifPresent(op -> op.updateCurrentStep(currentStatus));
+				operation.ifPresent(op -> op.updateDescription(currentStatus));
 
 				File videoFile = getFileForPerspective(descriptor);
 				FileFormat exportFormat = FileFormat.MPEG4_CONTAINER;

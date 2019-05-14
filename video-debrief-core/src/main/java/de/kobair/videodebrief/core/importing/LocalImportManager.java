@@ -85,7 +85,7 @@ public class LocalImportManager implements ImportManager {
 		int progress = 0;
 
 		final String message = String.format("Copying '%s' to '%s'", source, destination);
-		operation.ifPresent(op -> op.updateCurrentStep(message));
+		operation.ifPresent(op -> op.updateDescription(message));
 		try {
 			inputStream = new FileInputStream(source);
 			outputStream = new FileOutputStream(destination);

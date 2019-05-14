@@ -2,8 +2,8 @@ package de.kobair.videodebrief.core.operations;
 
 public interface Operation {
 
-	public void updateCurrentStep(String currentStep);
+	public void updateDescription(String description);
 
-	public void updateProgress(int progress);
+	public void updateProgress(double progress);
 
 }
