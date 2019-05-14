@@ -4,6 +4,7 @@ import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +14,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.time.DateFormatUtils;
+
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.export.ExportException;
 import de.kobair.videodebrief.core.export.ExportManager;
 import de.kobair.videodebrief.core.export.LocalExportManager;
 import de.kobair.videodebrief.core.export.UnknwonExportException;
+import de.kobair.videodebrief.core.formats.FileFormat;
 import de.kobair.videodebrief.core.importing.ImportManager;
 import de.kobair.videodebrief.core.importing.LocalImportManager;
 import de.kobair.videodebrief.core.importing.error.ImportException;
@@ -46,19 +50,24 @@ import de.kobair.videodebrief.ui.playback.PlaybackController;
 import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.DirectoryChooser;
 import javafx.util.Pair;
 
-public class WorkspaceController extends Controller implements EventsDelegate, PlaybackController.PlaybackDelegate {
+public class WorkspaceController extends Controller implements Workspace.WorkspaceDelegate, EventsDelegate, PlaybackController.PlaybackDelegate {
 
 	public static final String DEFAULT_SNAPSHOT_FORMAT = ".jpg";
+	public static final String LAST_SAVED_DATE_FORMAT = "dd. MMMM yyyy 'at' HH:mm";
+
 	@FXML
 	private AnchorPane camerasAnchorPane;
 	@FXML
 	private AnchorPane eventsAnchorPane;
 	@FXML
 	private AnchorPane playbackAnchorPane;
+	@FXML
+	private Label lastSavedLabel;
 
 	private final ImportManager importManager = new LocalImportManager();
 	private final ExportManager exportManager = new LocalExportManager();
@@ -165,8 +174,20 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 		}
 	}
 
+	private void updateLastSavedLabel() {
+		File workspaceDirectory = this.workspace.getWorkspaceDirectory();
+		File workspaceFile = LocalUtils.extendDirectory(workspaceDirectory, FileFormat.WORKSPACE.getFileExtensions().get(0));
+		long lastModifiedMillis = workspaceFile.lastModified();
+		Date lastModifiedDate = new Date(lastModifiedMillis);
+
+		String lastSavedText = DateFormatUtils.format(lastModifiedDate, LAST_SAVED_DATE_FORMAT);
+		this.lastSavedLabel.setText(lastSavedText);
+	}
+
 	public void setWorkspace(Workspace workspace) {
 		this.workspace = workspace;
+		this.workspace.setDelegate(this);
+		this.updateLastSavedLabel();
 		this.workspaceChanged();
 	}
 
@@ -178,6 +199,11 @@ public class WorkspaceController extends Controller implements EventsDelegate, P
 		this.app = app;
 		Scene scene = app.getPrimaryStage().getScene();
 		this.playbackViewController.setScene(scene);
+	}
+
+	@Override
+	public void workspaceSaved(final Workspace workspace) {
+		this.updateLastSavedLabel();
 	}
 
 	@Override
