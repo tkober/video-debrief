@@ -82,7 +82,7 @@ public class LocalImportManager implements ImportManager {
 		long counter = 0;
 		int r = 0;
 		byte[] b = new byte[8096];
-		int progress = 0;
+		double progress = 0;
 
 		final String message = String.format("Copying '%s' to '%s'", source, destination);
 		operation.ifPresent(op -> op.updateDescription(message));
@@ -91,10 +91,10 @@ public class LocalImportManager implements ImportManager {
 			outputStream = new FileOutputStream(destination);
 			while ((r = inputStream.read(b)) != -1) {
 				counter += r;
-				int newProgress = (int) Math.ceil(100.0 * counter / length);
+				double newProgress = Math.ceil(100.0 * counter / length) / 100.0;
 				if (progress != newProgress) {
 					progress = newProgress;
-					final int _progress = progress;
+					final double _progress = progress;
 					operation.ifPresent(op -> op.updateProgress(_progress));
 				}
 				outputStream.write(b, 0, r);
