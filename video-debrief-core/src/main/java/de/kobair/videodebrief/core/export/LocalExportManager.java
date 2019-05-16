@@ -200,7 +200,11 @@ public class LocalExportManager implements ExportManager {
 				File targetFile = LocalUtils.extendDirectory(exportDirectory, name);
 				
 				try {
-					LocalUtils.copyFile(videoFile, targetFile, operation);
+					if (operation.isPresent()) {
+						LocalUtils.copyFile(videoFile, targetFile, operation.get()::updateProgress);
+					} else {
+						LocalUtils.copyFile(videoFile, targetFile);
+					}
 				} catch (IOException e) {
 					throw new UnknwonExportException("", e); // TODO
 				}
