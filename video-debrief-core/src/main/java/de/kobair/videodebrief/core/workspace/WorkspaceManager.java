@@ -35,6 +35,8 @@ public class WorkspaceManager {
 			LocalWorkspace result = new LocalWorkspace(workspaceFile, initialWorkspaceData());
 			try {
 				result.save();
+				File exportDirectory = LocalUtils.extendDirectory(workspaceDirectory, result.getExportDirectory());
+				exportDirectory.mkdirs();
 			} catch (Exception e) {
 				String message = String.format("An unexpected error occurred while saving workspace to '%s'", 
 						workspaceFile.toString());
@@ -56,6 +58,10 @@ public class WorkspaceManager {
 				String foundVersion = result.getVersion();
 				if (!Workspace.WORKSPACE_VERSION.equalsIgnoreCase(foundVersion)) {
 					throw new IncompatibleWorkspaceVersion(result.getWorkspaceDirectory(), foundVersion, Workspace.WORKSPACE_VERSION);
+				}
+				File exportDirectory = LocalUtils.extendDirectory(result.getWorkspaceDirectory(), result.getExportDirectory());
+				if (!exportDirectory.exists()) {
+					exportDirectory.mkdirs();
 				}
 			} catch (FileNotFoundException e) {
 				String message = String.format("An unexpected error occurred while loading workspace from '%s'", 
