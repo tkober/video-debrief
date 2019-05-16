@@ -55,7 +55,7 @@ public class LocalWorkspace implements Workspace, FileSystemSynchronized {
 
 	private final File workspaceFile;
 	private WorkspaceData workspaceData;
-	private Optional<WorkspaceDelegate> delegate;
+	private Optional<WorkspaceDelegate> delegate = Optional.empty();
 
 	protected LocalWorkspace(File workspaceFile) {
 		this(workspaceFile, null);
