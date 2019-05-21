@@ -46,6 +46,7 @@ import de.kobair.videodebrief.ui.errors.ApplicationWarning;
 import de.kobair.videodebrief.ui.events.EventsViewController;
 import de.kobair.videodebrief.ui.events.EventsViewController.EventsDelegate;
 import de.kobair.videodebrief.ui.generics.Controller;
+import de.kobair.videodebrief.ui.generics.LoadedController;
 import de.kobair.videodebrief.ui.operations.OperationsViewController;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
 import de.kobair.videodebrief.ui.operations.model.LongTermOperation;
@@ -171,10 +172,10 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 	}
 
 	private void loadOperationsView() {
-		Pair<Node, OperationsViewController> loaded = this.loadView("Operations.fxml", OperationsViewController.class);
-		Parent view = (Parent) loaded.getKey();
+		LoadedController<Node, OperationsViewController> loaded = this.loadView("Operations.fxml", OperationsViewController.class);
+		Parent view = (Parent) loaded.getUi();
 		Scene scene = new Scene(view);
-		this.operationsViewController = loaded.getValue();
+		this.operationsViewController = loaded.getController();
 		this.operationsStage = new Stage();
 		this.operationsStage.setScene(scene);
 		this.operationsStage.setTitle("Running Operations");

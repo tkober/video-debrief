@@ -6,6 +6,7 @@ import de.kobair.videodebrief.core.workspace.Workspace;
 import de.kobair.videodebrief.ui.alerts.AlertFactory;
 import de.kobair.videodebrief.ui.errors.ApplicationException;
 import de.kobair.videodebrief.ui.errors.ApplicationFatal;
+import de.kobair.videodebrief.ui.generics.LoadedController;
 import de.kobair.videodebrief.ui.workspace.WorkspaceController;
 import de.kobair.videodebrief.ui.workspacemanager.WorkspaceManagerController;
 import javafx.application.Application;
@@ -14,19 +15,18 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.stage.Stage;
-
+import javafx.util.Pair;
 
 public class App extends Application {
 	
 	private Stage primaryStage;
 	
-	private <T> T loadScene(Stage stage, String fxml, Class<T> controllerClass) {
+	private <T> LoadedController<Scene, T> loadScene(String fxml, Class<T> controllerClass) {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(controllerClass.getResource("view/" + fxml));
 		try {
 			Scene scene = loader.load();
-			stage.setScene(scene);
-			return loader.getController();
+			return new LoadedController<>(scene, loader.getController());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -51,16 +51,22 @@ public class App extends Application {
 	
 	private void showWorkspaceManager() {
 		Stage stage = getPrimaryStage();
-		WorkspaceManagerController controller = this.loadScene(stage, "WorkspaceManager.fxml", WorkspaceManagerController.class);
+		LoadedController<Scene, WorkspaceManagerController> loaded = this.loadScene("WorkspaceManager.fxml", WorkspaceManagerController.class);
+		Scene scene = loaded.getUi();
+		WorkspaceManagerController controller = loaded.getController();
 		controller.setMainApp(this);
+		stage.setScene(scene);
 		stage.show();
 	}
 	
 	public void openWorkspace(Workspace workspace) {
 		Stage stage = getPrimaryStage();
-		WorkspaceController controller = this.loadScene(stage, "Workspace.fxml", WorkspaceController.class);
+		LoadedController<Scene, WorkspaceController> loaded = this.loadScene("Workspace.fxml", WorkspaceController.class);
+		Scene scene = loaded.getUi();
+		WorkspaceController controller = loaded.getController();
 		controller.setWorkspace(workspace);
 		controller.setApp(this);
+		stage.setScene(scene);
 		stage.show();
 	}
 	

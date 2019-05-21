@@ -11,12 +11,12 @@ import javafx.util.Pair;
 public abstract class Controller implements Initializable {
 
 	public <T> T loadViewIntoAnchorPane(AnchorPane anchorPane, String fxml, Class<T> controllerClass) {
-		Pair<Node, T> loaded = this.loadView(fxml, controllerClass);
+		LoadedController<Node, T> loaded = this.loadView(fxml, controllerClass);
 		if (loaded == null) {
 			return null;
 		}
-		Node view = loaded.getKey();
-		T controller = loaded.getValue();
+		Node view = loaded.getUi();
+		T controller = loaded.getController();
 		anchorPane.getChildren().add(view);
 		AnchorPane.setTopAnchor(view, 0.0);
 		AnchorPane.setLeftAnchor(view, 0.0);
@@ -26,14 +26,14 @@ public abstract class Controller implements Initializable {
 		return controller;
 	}
 
-	public <T> Pair<Node, T> loadView(String fxml, Class<T> controllerClass) {
+	public <T> LoadedController<Node, T> loadView(String fxml, Class<T> controllerClass) {
 		FXMLLoader loader = new FXMLLoader();
 		loader.setLocation(controllerClass.getResource("view/" + fxml));
 		try {
 			Node view = loader.load();
 			T controller = loader.getController();
 
-			return new Pair(view, controller);
+			return new LoadedController<>(view, controller);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
