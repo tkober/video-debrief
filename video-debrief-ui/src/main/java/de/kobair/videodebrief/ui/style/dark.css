@@ -1,0 +1,12 @@
+* {
+    theme-text-color: #ececec;
+
+    theme-background-layout: #000000;
+    theme-background-interactable: #424242;
+
+    theme-control-background: #111111;
+    theme-control-background-hover: #2f2f2f;
+    theme-control-text: #ffffff;
+
+    theme-corner-radius: 0;
+}

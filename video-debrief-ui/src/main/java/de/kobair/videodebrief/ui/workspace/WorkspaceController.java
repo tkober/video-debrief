@@ -51,10 +51,10 @@ import de.kobair.videodebrief.ui.operations.OperationsViewController;
 import de.kobair.videodebrief.ui.playback.PlaybackController;
 import de.kobair.videodebrief.ui.operations.model.LongTermOperation;
 import javafx.application.Platform;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -168,7 +168,7 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 	}
 
 	private PlaybackController loadPlaybackView(AnchorPane anchorPane) {
-		return this.loadViewIntoAnchorPane(anchorPane, "Playback.fxml", PlaybackController.class);
+		return this.loadViewIntoAnchorPane(anchorPane, "Playback.fxml", PlaybackController.class, new Insets(-1, -1, -1, -1));
 	}
 
 	private void loadOperationsView() {

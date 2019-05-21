@@ -1,0 +1,28 @@
+.view {
+    -fx-background-color: theme-background-interactable;
+}
+
+.view .label {
+    -fx-text-fill: theme-text-color;
+}
+
+.split-pane {
+    -fx-border-width: 0;
+    -fx-background-color: theme-background-layout;
+}
+
+.split-pane:horizontal > .split-pane-divider,
+.split-pane:vertical > .split-pane-divider {
+    -fx-background-color: theme-background-layout;
+}
+
+.button {
+    -fx-text-fill: theme-control-text;
+    -fx-background-color: theme-control-background;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.button:hover {
+    -fx-background-color: theme-control-background-hover;
+}

@@ -12,7 +12,7 @@
 
 <AnchorPane xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.events.EventsViewController">
     <children>
-        <VBox AnchorPane.bottomAnchor=".0" AnchorPane.leftAnchor=".0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor=".0">
+        <VBox AnchorPane.bottomAnchor=".0" AnchorPane.leftAnchor=".0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor=".0" styleClass="view">
             <children>
                 <HBox alignment="CENTER_RIGHT">
                     <children>

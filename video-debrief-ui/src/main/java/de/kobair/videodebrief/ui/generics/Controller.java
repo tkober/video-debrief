@@ -4,13 +4,17 @@ import java.io.IOException;
 
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import javafx.util.Pair;
 
 public abstract class Controller implements Initializable {
 
 	public <T> T loadViewIntoAnchorPane(AnchorPane anchorPane, String fxml, Class<T> controllerClass) {
+		return loadViewIntoAnchorPane(anchorPane, fxml, controllerClass, Insets.EMPTY);
+	}
+
+	public <T> T loadViewIntoAnchorPane(AnchorPane anchorPane, String fxml, Class<T> controllerClass, Insets insets) {
 		LoadedController<Node, T> loaded = this.loadView(fxml, controllerClass);
 		if (loaded == null) {
 			return null;
@@ -18,10 +22,10 @@ public abstract class Controller implements Initializable {
 		Node view = loaded.getUi();
 		T controller = loaded.getController();
 		anchorPane.getChildren().add(view);
-		AnchorPane.setTopAnchor(view, 0.0);
-		AnchorPane.setLeftAnchor(view, 0.0);
-		AnchorPane.setRightAnchor(view, 0.0);
-		AnchorPane.setBottomAnchor(view, 0.0);
+		AnchorPane.setTopAnchor(view, insets.getTop());
+		AnchorPane.setLeftAnchor(view, insets.getLeft());
+		AnchorPane.setRightAnchor(view, insets.getRight());
+		AnchorPane.setBottomAnchor(view, insets.getBottom());
 
 		return controller;
 	}

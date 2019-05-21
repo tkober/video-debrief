@@ -5,7 +5,7 @@
 
 <SplitPane dividerPositions="0.75" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" orientation="VERTICAL" prefHeight="10.0" prefWidth="10.0" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.playback.PlaybackController">
 	<items>
-		<AnchorPane fx:id="videoPlayerAnchorPane" minHeight="0.0" minWidth="0.0" />
-		<AnchorPane fx:id="perspectivesAnchorPane" minHeight="0.0" minWidth="0.0" />
+		<AnchorPane styleClass="view" fx:id="videoPlayerAnchorPane" minHeight="0.0" minWidth="0.0" />
+		<AnchorPane styleClass="view" fx:id="perspectivesAnchorPane" minHeight="0.0" minWidth="0.0" />
 	</items>
 </SplitPane>

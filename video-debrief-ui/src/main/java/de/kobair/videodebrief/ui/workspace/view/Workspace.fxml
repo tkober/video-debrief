@@ -15,9 +15,9 @@
         fx:controller="de.kobair.videodebrief.ui.workspace.WorkspaceController">
     <AnchorPane minHeight="600" minWidth="1000">
         <children>
-            <VBox AnchorPane.bottomAnchor="0.0"
-				  AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
-				  AnchorPane.topAnchor="0.0">
+            <VBox AnchorPane.bottomAnchor="-1.0"
+				  AnchorPane.leftAnchor="-1.0" AnchorPane.rightAnchor="-1.0"
+				  AnchorPane.topAnchor="-1.0">
 				<children>
 
 					<SplitPane dividerPositions="0.4" VBox.vgrow="ALWAYS">
@@ -25,8 +25,8 @@
 							<AnchorPane>
 								<children>
 									<SplitPane dividerPositions="0.5"
-											   AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"
-											   AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+											   AnchorPane.bottomAnchor="-1.0" AnchorPane.leftAnchor="-1.0"
+											   AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="-1.0">
 										<items>
 											<AnchorPane fx:id="camerasAnchorPane"
 														minHeight="0.0" minWidth="0.0"/>
@@ -40,7 +40,7 @@
 						</items>
 					</SplitPane>
 
-					<HBox>
+					<HBox styleClass="view">
 						<children>
 
 							<HBox alignment="CENTER_LEFT">

@@ -7,6 +7,7 @@ import de.kobair.videodebrief.ui.alerts.AlertFactory;
 import de.kobair.videodebrief.ui.errors.ApplicationException;
 import de.kobair.videodebrief.ui.errors.ApplicationFatal;
 import de.kobair.videodebrief.ui.generics.LoadedController;
+import de.kobair.videodebrief.ui.style.Styles;
 import de.kobair.videodebrief.ui.workspace.WorkspaceController;
 import de.kobair.videodebrief.ui.workspacemanager.WorkspaceManagerController;
 import javafx.application.Application;
@@ -64,6 +65,7 @@ public class App extends Application {
 		LoadedController<Scene, WorkspaceController> loaded = this.loadScene("Workspace.fxml", WorkspaceController.class);
 		Scene scene = loaded.getUi();
 		WorkspaceController controller = loaded.getController();
+//		Styles.applyStyle(scene, Styles.ColorTheme.DARK);
 		controller.setWorkspace(workspace);
 		controller.setApp(this);
 		stage.setScene(scene);
