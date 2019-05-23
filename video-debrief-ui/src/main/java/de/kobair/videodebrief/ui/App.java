@@ -67,9 +67,9 @@ public class App extends Application {
 		WorkspaceController controller = loaded.getController();
 //		Styles.applyStyle(scene, Styles.ColorTheme.DARK);
 		controller.setWorkspace(workspace);
-		controller.setApp(this);
 		stage.setScene(scene);
 		stage.show();
+		controller.setApp(this);
 	}
 	
 	@Override
