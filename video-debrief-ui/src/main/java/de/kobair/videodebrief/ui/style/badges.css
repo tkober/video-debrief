@@ -1,0 +1,21 @@
+.badge {
+    -fx-border-color: theme-contrast-color-highlight;
+}
+
+.badge-name-container {
+    -fx-background-color: theme-contrast-color-highlight;
+}
+
+.label.badge-name {
+    -fx-text-fill: theme-contrast-color-low;
+}
+
+.badge-parameters-container {}
+
+.label.badge-parameter {
+    -fx-text-fill: theme-contrast-color-highlight;
+}
+
+.parameters-seperator {
+    -fx-background-color: theme-contrast-color-highlight;
+}

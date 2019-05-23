@@ -9,7 +9,8 @@ import javafx.scene.Scene;
 public class Styles {
 
 	private static final List<String> STYLE_RESOURCES = Arrays.asList(
-			"components.css"
+			"components.css",
+			"badges.css"
 	);
 
 	public enum ColorTheme {

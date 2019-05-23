@@ -9,4 +9,7 @@
     theme-control-text: #ffffff;
 
     theme-corner-radius: 0;
+
+    theme-contrast-color-highlight: #ffffff;
+    theme-contrast-color-low: #000000;
 }
