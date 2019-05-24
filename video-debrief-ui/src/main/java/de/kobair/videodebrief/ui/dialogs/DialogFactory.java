@@ -8,6 +8,7 @@ import java.util.Map;
 
 import de.kobair.videodebrief.core.event.Event;
 import de.kobair.videodebrief.core.perspective.Perspective;
+import de.kobair.videodebrief.core.utils.LocalUtils;
 import de.kobair.videodebrief.core.video.VideoInformation;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.geometry.Insets;
@@ -101,30 +102,6 @@ public class DialogFactory {
 	public static DialogConfig CHOOSE_PERSPECTIVES_CONFIG  = new DialogConfig(StageStyle.UTILITY, null, "Additional Perspectives", "Choose additional perspectives to export:", null);
 	public static DialogConfig VIDEO_INFORMATION_CONFIG = new DialogConfig();
 
-	private static String fileSizeString(long sizeBytes) {
-		final long KILOBYTE = 1<<10;
-		final long MEGABYTE = KILOBYTE<<10;
-		final long GIGABYTE = MEGABYTE<<10;
-
-
-		if (sizeBytes > GIGABYTE) {
-			double sizeGigabyte = sizeBytes / (double) GIGABYTE;
-			return String.format("%.2f GB", sizeGigabyte);
-		}
-
-		if (sizeBytes > MEGABYTE) {
-			double sizeMegabyte = sizeBytes / (double) MEGABYTE;
-			return String.format("%.2f MB", sizeMegabyte);
-		}
-
-		if (sizeBytes > KILOBYTE) {
-			double sizeKilobyte = sizeBytes / (double) KILOBYTE;
-			return String.format("%.2f KB", sizeKilobyte);
-		}
-
-		return String.format("%s bytes", sizeBytes);
-	}
-
 	private static String durationString(long durationMillis) {
 		return DurationFormatUtils.formatDuration(durationMillis, "HH:mm:ss.SSS");
 	}
@@ -213,7 +190,7 @@ public class DialogFactory {
 		summaryItems.add(new KeyValuePair("Format", videoInformation.getFormatName()));
 		String duration = durationString(videoInformation.getDurationMillis());
 		summaryItems.add(new KeyValuePair("Duration", duration));
-		String fileSize = fileSizeString(videoInformation.getSizeInBytes());
+		String fileSize = LocalUtils.smartFileSizeString(videoInformation.getSizeInBytes());
 		summaryItems.add(new KeyValuePair("Size", fileSize));
 
 		String overallBitrate = String.format("%s kBit/s", videoInformation.getBitRate() / 1000);
