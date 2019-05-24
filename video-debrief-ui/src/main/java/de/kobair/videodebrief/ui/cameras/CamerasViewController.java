@@ -129,8 +129,8 @@ public class CamerasViewController implements Initializable, DcfDetectorDelegate
 	private void onSelectCamera(ObservableValue<? extends Camera> observable, Camera oldValue, Camera newValue) {
 		Camera camera = newValue;
 		this.showVideosFromCamera(camera);
-		this.sortByComboBox.setDisable(false);
-		this.toggleOrderButton.setDisable(false);
+		this.sortByComboBox.setDisable(camera == null);
+		this.toggleOrderButton.setDisable(camera == null);
 		this.sortVideoList();
 	}
 

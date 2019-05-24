@@ -49,7 +49,7 @@
 		</GridPane>
 	</top>
 	<center>
-      <HBox alignment="CENTER" style="-fx-background-color: black;">
+      <HBox alignment="CENTER" styleClass="container">
          <children>
       		<MediaView fx:id="mediaView" fitHeight="50" fitWidth="50" onError="#onMediaViewError" onMouseClicked="#onMediaViewClick" />
          </children>

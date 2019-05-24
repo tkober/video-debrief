@@ -3,6 +3,7 @@
 
     theme-background-layout: #000000;
     theme-background-interactable: #424242;
+    theme-background-container: #5f5f5f;
 
     theme-control-background: #111111;
     theme-control-background-hover: #2f2f2f;
@@ -12,4 +13,10 @@
 
     theme-contrast-color-highlight: #ffffff;
     theme-contrast-color-low: #000000;
+
+    theme-video-track-background: rgba(0, 255, 163, 0.6);
+
+    theme-selection-color: rgb(72, 119, 135);
+
+    theme-cell-seperator-color: rgba(255, 255, 255, 0.31);
 }

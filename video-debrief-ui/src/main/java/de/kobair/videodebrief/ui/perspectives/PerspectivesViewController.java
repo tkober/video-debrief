@@ -72,6 +72,7 @@ public class PerspectivesViewController implements Initializable {
 		VideoInformation.AudioTrack audioTrack =  perspective.getVideoInformation().getAudioInformation().get(0);
 
 		HBox view = new HBox();
+		view.getStyleClass().add("video-track");
 
 		Node perspectiveNameView = this.nameLabelForPerspective(perspective);
 		HBox.setMargin(perspectiveNameView, NAME_VIEW_INSETS);
@@ -86,7 +87,6 @@ public class PerspectivesViewController implements Initializable {
 		HBox.setMargin(audioTrackBadge, BADGE_INSETS);
 
 		view.getChildren().addAll(perspectiveNameView, spacer, audioTrackBadge, videoTrackBadge);
-		view.setStyle("-fx-background-color: rgb(202,202,202)"); // TODO: propper styling
 
 		view.setOnMouseClicked(new EventHandler<MouseEvent>() {
 			@Override

@@ -23,7 +23,7 @@
                         </Button>
                     </children>
                 </HBox>
-                <TreeView fx:id="eventsTreeView" showRoot="false" VBox.vgrow="ALWAYS"/>
+                <TreeView fx:id="eventsTreeView" showRoot="false" VBox.vgrow="ALWAYS" styleClass="container"/>
                 <GridPane>
                     <HBox.margin>
                         <Insets bottom="5.0" left="8.0" top="5.0"/>

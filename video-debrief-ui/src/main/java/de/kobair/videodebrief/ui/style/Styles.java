@@ -10,7 +10,8 @@ public class Styles {
 
 	private static final List<String> STYLE_RESOURCES = Arrays.asList(
 			"components.css",
-			"badges.css"
+			"badges.css",
+			"playback.css"
 	);
 
 	public enum ColorTheme {

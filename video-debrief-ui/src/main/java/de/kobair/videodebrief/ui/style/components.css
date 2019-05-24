@@ -6,6 +6,26 @@
     -fx-text-fill: theme-text-color;
 }
 
+.container,
+.tree-view.container .tree-cell,
+.list-view.container .list-cell {
+    -fx-background: theme-background-container;
+    -fx-background-color: theme-background-container;
+    -fx-border-width: 0;
+}
+
+.tree-view.container .tree-cell:selected,
+.list-view.container .list-cell:selected {
+    -fx-background-color: theme-selection-color;
+}
+
+.list-view.container .list-cell:filled {
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: theme-cell-seperator-color;
+}
+
+
+
 .split-pane {
     -fx-border-width: 0;
     -fx-background-color: theme-background-layout;
@@ -33,4 +53,38 @@
 
 .details {
     -fx-font-size: small;
+}
+
+.scroll-bar:horizontal,
+.scroll-bar:vertical,
+.scroll-pane > .corner {
+    -fx-background-color: theme-background-container;
+}
+
+.scroll-pane {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.increment-button, .decrement-button {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+}
+
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow {
+    -fx-background-color: theme-control-background;
+}
+
+.scroll-bar:horizontal .track,
+.scroll-bar:vertical .track{
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-radius: 5em;
+}
+
+.scroll-bar:horizontal .thumb,
+.scroll-bar:vertical .thumb {
+    -fx-background-color: theme-control-background;
+    -fx-background-radius: 5em;
 }
