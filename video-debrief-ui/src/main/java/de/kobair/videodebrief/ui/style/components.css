@@ -26,3 +26,11 @@
 .button:hover {
     -fx-background-color: theme-control-background-hover;
 }
+
+.title {
+    -fx-font-weight: bold;
+}
+
+.details {
+    -fx-font-size: small;
+}
