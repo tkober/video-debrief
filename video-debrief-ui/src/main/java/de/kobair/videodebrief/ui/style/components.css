@@ -24,8 +24,6 @@
     -fx-border-color: theme-cell-seperator-color;
 }
 
-
-
 .split-pane {
     -fx-border-width: 0;
     -fx-background-color: theme-background-layout;
@@ -47,11 +45,12 @@
     -fx-background-color: theme-control-background-hover;
 }
 
-.title {
-    -fx-font-weight: bold;
+.title-label {
+    -fx-font-weight: bolder;
+    -fx-padding: 0 0 0.2em 0;
 }
 
-.details {
+.details-label {
     -fx-font-size: small;
 }
 

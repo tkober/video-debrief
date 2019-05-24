@@ -18,5 +18,5 @@
 
     theme-selection-color: rgb(72, 119, 135);
 
-    theme-cell-seperator-color: rgba(255, 255, 255, 0.31);
+    theme-cell-seperator-color: theme-background-interactable;
 }

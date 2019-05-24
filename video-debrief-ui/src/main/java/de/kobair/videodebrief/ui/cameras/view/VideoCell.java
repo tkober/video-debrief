@@ -42,7 +42,7 @@ public class VideoCell extends ListCell<Video> {
 			// Name
 			HBox nameContainer = new HBox();
 			Label nameLabel = new Label();
-			nameLabel.getStyleClass().add("caption");
+			nameLabel.getStyleClass().add("title-label");
 			nameLabel.textProperty().bind(video.getNameProperty());
 			nameContainer.getChildren().add(nameLabel);
 			nameContainer.setAlignment(Pos.TOP_LEFT);
@@ -51,7 +51,7 @@ public class VideoCell extends ListCell<Video> {
 			// Size
 			HBox sizeContainer = new HBox();
 			Label sizeLabel = new Label();
-			sizeLabel.getStyleClass().add("details");
+			sizeLabel.getStyleClass().add("details-label");
 			sizeLabel.textProperty().bind(video.getSizeProperty());
 			sizeContainer.getChildren().add(sizeLabel);
 			sizeContainer.setAlignment(Pos.TOP_RIGHT);
@@ -64,7 +64,7 @@ public class VideoCell extends ListCell<Video> {
 			// Timestamp
 			HBox timestampContainer = new HBox();
 			Label timestampLabel = new Label();
-			timestampLabel.getStyleClass().add("details");
+			timestampLabel.getStyleClass().add("details-label");
 			timestampLabel.textProperty().bind(video.getTimestampProperty());
 			timestampContainer.getChildren().add(timestampLabel);
 			timestampContainer.setAlignment(Pos.CENTER_LEFT);
@@ -73,7 +73,7 @@ public class VideoCell extends ListCell<Video> {
 			// Format
 			HBox formatContainer = new HBox();
 			Label formatLabel = new Label();
-			formatLabel.getStyleClass().add("details");
+			formatLabel.getStyleClass().add("details-label");
 			formatLabel.textProperty().bind(video.getFormatNameProperty());
 			formatContainer.getChildren().add(formatLabel);
 			formatContainer.setAlignment(Pos.CENTER_RIGHT);
