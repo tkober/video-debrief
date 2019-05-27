@@ -264,6 +264,20 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 		});
 	}
 
+	private void updateStageTitle(Workspace workspace) {
+		this.updateStageTitle(workspace, null);
+	}
+
+	private void updateStageTitle(Workspace workspace, Event event) {
+		String workspaceName = workspace.getWorkspaceDirectory().getName();
+		String workspacePath = workspace.getWorkspaceDirectory().getAbsolutePath();
+		String title = String.format("%s [%s]", workspaceName, workspacePath);
+		if (event != null) {
+			title += String.format(" - %s", event.getName());
+		}
+		this.app.getPrimaryStage().setTitle(title);
+	}
+
 	public void setWorkspace(Workspace workspace) {
 		this.workspace = workspace;
 		this.workspace.setDelegate(this);
@@ -279,6 +293,7 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 		this.app = app;
 		Scene scene = app.getPrimaryStage().getScene();
 		this.playbackViewController.setScene(scene);
+		this.updateStageTitle(workspace);
 	}
 
 	@Override
@@ -403,6 +418,7 @@ public class WorkspaceController extends Controller implements Workspace.Workspa
 	public void showPerspective(Event event, Perspective perspective) {
 		try {
 			this.playbackViewController.setSelectedMedia(this.workspace, event, perspective);
+			this.updateStageTitle(workspace, event);
 		} catch (UnknownWorkspaceException | IOException e) {
 			new ApplicationError(e).throwOnMainThread();
 		}
