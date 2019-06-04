@@ -15,7 +15,7 @@
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.media.MediaView?>
 
-<BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController">
+<BorderPane fx:id="borderPane" xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController" styleClass="view">
 	<top>
 		<GridPane BorderPane.alignment="CENTER">
 			<columnConstraints>

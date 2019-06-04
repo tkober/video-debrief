@@ -19,6 +19,7 @@ import de.kobair.videodebrief.ui.generics.Controller;
 import de.kobair.videodebrief.ui.perspectives.PerspectivesViewController;
 import de.kobair.videodebrief.ui.perspectives.model.TimelineItem;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
+import de.kobair.videodebrief.ui.style.Styles;
 import de.kobair.videodebrief.ui.videoplayer.VideoPlayerViewController;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -237,6 +238,7 @@ public class PlaybackController extends Controller implements Initializable, Vid
 
 		this.videoPlayerWindow = new Stage();
 		Scene scene = new Scene(videoPlayer);
+		Styles.applyStyle(scene, Styles.ColorTheme.DARK);
 		this.videoPlayerViewController.addKeyboardShortcuts(scene);
 		this.videoPlayerWindow.setScene(scene);
 		this.videoPlayerWindow.setFullScreen(true);
