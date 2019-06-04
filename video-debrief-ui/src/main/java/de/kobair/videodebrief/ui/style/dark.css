@@ -14,7 +14,9 @@
     theme-contrast-color-highlight: #ffffff;
     theme-contrast-color-low: #000000;
 
-    theme-video-track-background: rgba(0, 255, 163, 0.6);
+    theme-video-track-background: rgba(0, 255, 163, 0.4);
+    theme-video-track-background-hover: rgba(0, 255, 163, 0.6);
+    theme-video-track-selected-background: rgba(0, 255, 163, 0.8);
 
     theme-selection-color: rgb(72, 119, 135);
 

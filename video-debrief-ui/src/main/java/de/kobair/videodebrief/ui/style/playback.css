@@ -1,3 +1,11 @@
 .video-track {
     -fx-background-color: theme-video-track-background;
 }
+
+.video-track:hover {
+    -fx-background-color: theme-video-track-background-hover;
+}
+
+.video-track-selected {
+    -fx-background-color: theme-video-track-selected-background;
+}

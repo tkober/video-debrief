@@ -1,30 +1,54 @@
 package de.kobair.videodebrief.ui.perspectives;
 
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
+import de.kobair.videodebrief.core.perspective.Perspective;
 import de.kobair.videodebrief.core.video.VideoInformation;
 import de.kobair.videodebrief.ui.badges.TrackBadgeFactory;
 import de.kobair.videodebrief.ui.perspectives.model.TimelineItem;
 import de.kobair.videodebrief.ui.playback.model.AttributedPerspective;
 import javafx.beans.binding.DoubleBinding;
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Control;
 import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 
 public class PerspectivesViewController implements Initializable {
+
+	private class TrackUi {
+
+		private final Node container;
+		private final Pane offset;
+		private final Pane track;
+
+		private TrackUi(final Node container, final Pane offset, final Pane track) {
+			this.container = container;
+			this.offset = offset;
+			this.track = track;
+		}
+
+		public Node getContainer() {
+			return container;
+		}
+
+		public Pane getOffset() {
+			return offset;
+		}
+
+		public Pane getTrack() {
+			return track;
+		}
+	}
 
 	public interface PerspectivesDelegate {
 
@@ -45,7 +69,9 @@ public class PerspectivesViewController implements Initializable {
 	private long timelineLength = 0;
 	private Optional<PerspectivesDelegate> delegate = Optional.empty();
 
-	private Node nodeForPerspective(AttributedPerspective perspective, long timelineLength, long relativeOffset) {
+	private Map<AttributedPerspective, TrackUi> uiMap = new HashMap<>();
+
+	private TrackUi uiForPerspective(AttributedPerspective perspective, long timelineLength, long relativeOffset) {
 		Pane view = this.videoViewForPerspective(perspective);
 
 		double lengthProportion = (double) perspective.getVideoInformation().getDurationMillis() / (double) timelineLength;
@@ -64,7 +90,7 @@ public class PerspectivesViewController implements Initializable {
 
 		VBox.setMargin(container, new Insets(8, 0,0,0));
 
-		return container;
+		return new TrackUi(container, offsetPane, view);
 	}
 
 	private Pane videoViewForPerspective(AttributedPerspective perspective) {
@@ -72,7 +98,6 @@ public class PerspectivesViewController implements Initializable {
 		VideoInformation.AudioTrack audioTrack =  perspective.getVideoInformation().getAudioInformation().get(0);
 
 		HBox view = new HBox();
-		view.getStyleClass().add("video-track");
 
 		Node perspectiveNameView = this.nameLabelForPerspective(perspective);
 		HBox.setMargin(perspectiveNameView, NAME_VIEW_INSETS);
@@ -133,6 +158,20 @@ public class PerspectivesViewController implements Initializable {
 		AnchorPane.setLeftAnchor(timeMarkerPane, position);
 	}
 
+	private void markAllTracksUnselected() {
+		this.uiMap.values().stream().forEach(this::resetTrackUiStyle);
+	}
+
+	private void resetTrackUiStyle(TrackUi trackUi) {
+		trackUi.track.getStyleClass().clear();
+		trackUi.track.getStyleClass().add("video-track");
+	}
+
+	private void markTrackSelected(TrackUi trackUi) {
+		trackUi.track.getStyleClass().clear();
+		trackUi.track.getStyleClass().add("video-track-selected");
+	}
+
 	public void setDelegate(final PerspectivesDelegate delegate) {
 		this.delegate = Optional.ofNullable(delegate);
 	}
@@ -142,7 +181,10 @@ public class PerspectivesViewController implements Initializable {
 		clearTimeline();
 		this.timelineLength = calculateTimelineLength(timelineItems);
 		for (TimelineItem timelineItem : timelineItems) {
-			this.timelineVBox.getChildren().add(nodeForPerspective(timelineItem.getAatributedPerspective(), this.timelineLength, timelineItem.getRelativeOffset()));
+			AttributedPerspective attributedPerspective = timelineItem.getAatributedPerspective();
+			TrackUi trackUi = this.uiForPerspective(attributedPerspective, this.timelineLength, timelineItem.getRelativeOffset());
+			this.uiMap.put(attributedPerspective, trackUi);
+			this.timelineVBox.getChildren().add(trackUi.getContainer());
 		}
 		this.changeSelectedPerspective(perspectivePlaying);
 	}
@@ -150,10 +192,15 @@ public class PerspectivesViewController implements Initializable {
 	public void clear() {
 		this.hideTimeMarker();
 		this.clearTimeline();
+		this.uiMap.clear();
 	}
 
 	public void changeSelectedPerspective(AttributedPerspective perspective) {
-
+		this.markAllTracksUnselected();
+		if (this.uiMap.containsKey(perspective)) {
+			TrackUi trackUi = this.uiMap.get(perspective);
+			this.markTrackSelected(trackUi);
+		}
 	}
 
 	public void updateTimeline(long time) {
