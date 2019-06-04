@@ -9,38 +9,132 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.geometry.Insets?>
 <Scene xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="de.kobair.videodebrief.ui.workspacemanager.WorkspaceManagerController">
-	<AnchorPane minHeight="139.0" minWidth="500" prefHeight="242.0" prefWidth="500.0">
-      <children>
-         <TabPane layoutX="65.0" layoutY="-51.0" prefHeight="139.0" prefWidth="500.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-           <tabs>
-             <Tab closable="false" text="Open Existing">
-               <content>
-                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                        <children>
-                           <ComboBox fx:id="workspaceComboBox" editable="true" layoutX="14.0" layoutY="14.0" prefHeight="25.0" prefWidth="404.0" promptText="Enter or choose a recent location" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="36.0" />
-                           <Button fx:id="browseExistingButton" layoutX="431.0" layoutY="14.0" mnemonicParsing="false" onAction="#onBrowseExisting" text="Browse" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="36.0" />
-                           <Button fx:id="openButton" layoutX="378.0" layoutY="71.0" mnemonicParsing="false" onAction="#onOpenWorkspace" text="Open Workspace" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-                           <Label layoutX="14.0" layoutY="14.0" text="Workspace Directory" AnchorPane.topAnchor="14.0" />
-                        </children>
-                     </AnchorPane>
-               </content>
-             </Tab>
-             <Tab closable="false" text="Create New">
-               <content>
-                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                        <children>
-                           <TextField fx:id="parentDirectoryTextField" layoutX="14.0" layoutY="92.0" prefHeight="25.0" prefWidth="408.0" promptText="Enter the parent directory" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="92.0" />
-                           <TextField fx:id="nameTextField" layoutX="14.0" layoutY="36.0" prefHeight="25.0" prefWidth="474.0" promptText="Enter a name" AnchorPane.leftAnchor="14.0" AnchorPane.rightAnchor="14.0" AnchorPane.topAnchor="36.0" />
-                           <Button fx:id="browseNewButton" layoutX="430.0" layoutY="92.0" mnemonicParsing="false" onAction="#onBrowseNew" text="Browse" AnchorPane.rightAnchor="15.0" AnchorPane.topAnchor="92.0" />
-                           <Label layoutX="14.0" layoutY="71.0" text="Parent Directory" AnchorPane.leftAnchor="14.0" AnchorPane.topAnchor="71.0" />
-                           <Label layoutX="14.0" layoutY="11.0" text="Name" AnchorPane.topAnchor="14.0" />
-                           <Button fx:id="createButton" layoutX="366.0" layoutY="141.0" mnemonicParsing="false" onAction="#onCreateWorkspace" text="Create Workspace" AnchorPane.bottomAnchor="14.0" AnchorPane.rightAnchor="14.0" />
-                        </children></AnchorPane>
-               </content>
-             </Tab>
-           </tabs>
-         </TabPane>
-      </children>
+	<AnchorPane minWidth="500" prefWidth="500.0" maxWidth="500.0" minHeight="230" styleClass="container">
+		<children>
+			<TabPane tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+				<tabs>
+					<Tab closable="false" text="Open Existing">
+						<content>
+							<AnchorPane>
+								<children>
+
+									<VBox AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+										<children>
+											<HBox>
+												<children>
+													<Label text="Workspace Directory">
+														<HBox.margin>
+															<Insets left="8.0" top="10.0"/>
+														</HBox.margin>
+													</Label>
+												</children>
+											</HBox>
+											<HBox alignment="CENTER_RIGHT">
+												<children>
+													<ComboBox fx:id="workspaceComboBox" editable="true" promptText="Enter or choose a recent location" HBox.hgrow="ALWAYS" maxWidth="Infinity">
+														<HBox.margin>
+															<Insets bottom="5.0" right="8.0" left="8.0" top="5.0"/>
+														</HBox.margin>
+													</ComboBox>
+													<Button fx:id="browseExistingButton" mnemonicParsing="false" onAction="#onBrowseExisting" text="Browse">
+														<HBox.margin>
+															<Insets right="8.0"/>
+														</HBox.margin>
+													</Button>
+												</children>
+											</HBox>
+											<HBox alignment="BOTTOM_RIGHT" VBox.vgrow="ALWAYS">
+												<children>
+													<Button fx:id="openButton" mnemonicParsing="false" onAction="#onOpenWorkspace" text="Open Workspace">
+														<HBox.margin>
+															<Insets bottom="10.0" right="8.0"/>
+														</HBox.margin>
+													</Button>
+												</children>
+											</HBox>
+										</children>
+									</VBox>
+
+								</children>
+							</AnchorPane>
+						</content>
+					</Tab>
+					<Tab closable="false" text="Create New">
+						<content>
+							<AnchorPane>
+								<children>
+
+									<VBox AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+										<children>
+
+											<HBox>
+												<children>
+													<Label text="Name">
+														<HBox.margin>
+															<Insets left="8.0" top="10.0"/>
+														</HBox.margin>
+													</Label>
+												</children>
+											</HBox>
+
+											<HBox>
+												<children>
+													<TextField fx:id="nameTextField" promptText="Enter a name" HBox.hgrow="ALWAYS">
+														<HBox.margin>
+															<Insets bottom="5.0" right="8.0" left="8.0" top="5.0"/>
+														</HBox.margin>
+													</TextField>
+												</children>
+											</HBox>
+
+											<HBox>
+												<children>
+													<Label text="Parent Directory">
+														<HBox.margin>
+															<Insets left="8.0" top="10.0"/>
+														</HBox.margin>
+													</Label>
+												</children>
+											</HBox>
+
+											<HBox alignment="CENTER_RIGHT">
+												<children>
+													<TextField fx:id="parentDirectoryTextField" promptText="Enter the parent directory" HBox.hgrow="ALWAYS">
+														<HBox.margin>
+															<Insets bottom="5.0" right="8.0" left="8.0" top="5.0"/>
+														</HBox.margin>
+													</TextField>
+													<Button fx:id="browseNewButton" mnemonicParsing="false" onAction="#onBrowseNew" text="Browse">
+														<HBox.margin>
+															<Insets right="8.0"/>
+														</HBox.margin>
+													</Button>
+												</children>
+											</HBox>
+
+											<HBox alignment="BOTTOM_RIGHT" VBox.vgrow="ALWAYS">
+												<children>
+													<Button fx:id="createButton" mnemonicParsing="false" onAction="#onCreateWorkspace" text="Create Workspace">
+														<HBox.margin>
+															<Insets bottom="10.0" right="8.0"/>
+														</HBox.margin>
+													</Button>
+												</children>
+											</HBox>
+
+										</children>
+									</VBox>
+
+								</children>
+							</AnchorPane>
+						</content>
+					</Tab>
+				</tabs>
+			</TabPane>
+		</children>
 	</AnchorPane>
 </Scene>

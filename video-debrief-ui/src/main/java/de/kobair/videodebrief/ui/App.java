@@ -55,6 +55,7 @@ public class App extends Application {
 		LoadedController<Scene, WorkspaceManagerController> loaded = this.loadScene("WorkspaceManager.fxml", WorkspaceManagerController.class);
 		Scene scene = loaded.getUi();
 		WorkspaceManagerController controller = loaded.getController();
+		Styles.applyStyle(scene, Styles.ColorTheme.DARK);
 		controller.setMainApp(this);
 		stage.setScene(scene);
 		stage.show();

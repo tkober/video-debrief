@@ -87,3 +87,26 @@
     -fx-background-color: theme-control-background;
     -fx-background-radius: 5em;
 }
+
+.tab-pane .tab-header-area .tab-header-background {
+    -fx-background-color: theme-background-interactable;
+}
+
+.tab-pane .tab {
+    -fx-background-color: theme-control-background;
+    -fx-border-radius: 0;
+    -fx-background-radius: 0;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: theme-control-text;
+}
+
+.tab-pane .tab:selected
+{
+    -fx-background-color: theme-background-container;
+}
+
+.tab-pane > .tab-header-area > .headers-region > .tab:selected .focus-indicator {
+    -fx-border-color: transparent;
+}
