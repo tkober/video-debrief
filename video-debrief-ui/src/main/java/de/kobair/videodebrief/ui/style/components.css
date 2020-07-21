@@ -152,3 +152,18 @@
     -fx-background-color: theme-background-interactable;
     -fx-border-color: theme-control-background;
 }
+
+.context-menu {
+    -fx-background-color: theme-background-interactable;
+    -fx-text-fill: theme-control-text;
+}
+
+.menu-item .label {
+    -fx-text-fill: theme-control-text;
+}
+
+.separator *.line {
+    -fx-border-style: solid;
+    -fx-border-width: 0 0 1 0;
+    -fx-border-color: theme-background-container;
+}
